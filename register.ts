@@ -119,8 +119,6 @@ registerForm.addEventListener('submit', async (e: Event) => {
 				}, '*');
 			}, 100);
 
-		} else {
-			registerErrorDiv.textContent = data.message || 'Registration failed';
 		}
 	} catch (error) {
 		console.error('Registration error:', error);
