@@ -95,7 +95,7 @@ registerForm.addEventListener('submit', async (e: Event) => {
 	}
 
 	try {
-		const res = await fetch('http://localhost:4000/api/users/register', {
+		const res = await fetch('/api/users/register', {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json'

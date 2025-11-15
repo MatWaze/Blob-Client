@@ -203,7 +203,7 @@ class TranscendenceClient {
 
 	private async checkExistingSession(): Promise<void> {
 		try {
-			const response = await fetch('http://localhost:4000/api/users/tokens', {
+			const response = await fetch('api/users/tokens', {
 				credentials: 'include'
 			});
 
@@ -274,7 +274,7 @@ class TranscendenceClient {
 			}
 			const frame = windowElement.querySelector('iframe') as HTMLIFrameElement;
 			if (!frame.src || frame.src === window.location.href) {
-				frame.src = 'http://localhost:3000';
+				frame.src = '/pong/';
 			}
 		} else if (windowType === 'profile') {
 			if (!this.isAuthenticated) {
@@ -544,7 +544,7 @@ class TranscendenceClient {
 		container.innerHTML = '<div class="loading-state"><div class="loading-spinner-small"></div><p>Loading transactions...</p></div>';
 		
 		try {
-			const response = await fetch('http://localhost:4000/api/transactions', {
+			const response = await fetch('/api/transactions', {
 				method: 'GET',
 				credentials: 'include'
 			});
@@ -597,7 +597,7 @@ class TranscendenceClient {
 		container.innerHTML = '<div class="loading-state"><div class="loading-spinner-small"></div><p>Loading games...</p></div>';
 		
 		try {
-			const response = await fetch('http://localhost:4000/api/tournaments', {
+			const response = await fetch('/api/tournaments', {
 				method: 'GET',
 				credentials: 'include'
 			});
@@ -651,7 +651,7 @@ class TranscendenceClient {
 		const newAddress = walletInput.value.trim();
 		
 		try {
-			const response = await fetch('http://localhost:4000/api/users/wallet', {
+			const response = await fetch('/api/users/wallet', {
 				method: 'PUT',
 				headers: {
 					'Content-Type': 'application/json'
@@ -689,7 +689,7 @@ class TranscendenceClient {
 
 	public async handleLogout(): Promise<void> {
 		try {
-			await fetch('http://localhost:4000/api/users/logout', {
+			await fetch('/api/users/logout', {
 				method: 'POST',
 				credentials: 'include'
 			});

@@ -40,7 +40,7 @@ googleSignInBtn.addEventListener('click', () => {
 
 	const options =
 	{
-		redirect_uri: "http://localhost:4000/api/users/oauth/google",
+		redirect_uri: "/api/users/oauth/google",
 		client_id: "924313211927-mq9a80c5307kd925bcq85eqc6furl0n1.apps.googleusercontent.com",
 		access_type: "offline",
 		response_type: "code",
@@ -76,7 +76,7 @@ form.addEventListener('submit', async (e: Event) => {
 	successDiv.textContent = '';
 
 	try {
-		const res = await fetch('http://localhost:4000/api/users/login', {
+		const res = await fetch('/api/users/login', {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json'
