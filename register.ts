@@ -106,7 +106,7 @@ registerForm.addEventListener('submit', async (e: Event) => {
 
 		const data: RegisterResponse = await res.json();
 
-		if (res.ok && data.success) {
+		if (res.ok) {
 			registerSuccessDiv.textContent = 'Registration successful! Logging you in...';
 			
 			setTimeout(() => {
