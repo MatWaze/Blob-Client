@@ -118,7 +118,10 @@ registerForm.addEventListener('submit', async (e: Event) => {
 					user: data.user
 				}, '*');
 			}, 100);
-
+		}
+		else
+		{
+			registerErrorDiv.textContent = data.message || 'Registration failed. Please try again.';
 		}
 	} catch (error) {
 		console.error('Registration error:', error);
