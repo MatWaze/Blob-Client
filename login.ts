@@ -40,7 +40,7 @@ googleSignInBtn.addEventListener('click', () => {
 
 	const options =
 	{
-		redirect_uri: "/api/users/oauth/google",
+		redirect_uri: "https://blobula.org/api/users/oauth/google",
 		client_id: "924313211927-mq9a80c5307kd925bcq85eqc6furl0n1.apps.googleusercontent.com",
 		access_type: "offline",
 		response_type: "code",
