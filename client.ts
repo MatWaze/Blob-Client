@@ -274,7 +274,7 @@ class TranscendenceClient {
 			}
 			const frame = windowElement.querySelector('iframe') as HTMLIFrameElement;
 			if (!frame.src || frame.src === window.location.href) {
-				frame.src = '/pong/';
+				frame.src = 'http://localhost:3000';
 			}
 		} else if (windowType === 'profile') {
 			if (!this.isAuthenticated) {
