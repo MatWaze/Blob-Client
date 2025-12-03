@@ -37,7 +37,9 @@ class TranscendenceClient {
 	private activeWindows: Set<WindowType> = new Set();
 	private focusedWindow: WindowType | null = null;
 	private minimizedWindows: Set<WindowType> = new Set();
-	
+	private serverUrl: string = "http://localhost:4000";
+	private gameUrl: string = "http://localhost:3000";
+
 	// Elements
 	private welcomeScreen: HTMLElement;
 	private loginWindow: HTMLElement;
@@ -203,7 +205,7 @@ class TranscendenceClient {
 
 	private async checkExistingSession(): Promise<void> {
 		try {
-			const response = await fetch('api/users/tokens', {
+			const response = await fetch(`${this.serverUrl}/api/users/tokens`, {
 				credentials: 'include'
 			});
 
@@ -274,7 +276,7 @@ class TranscendenceClient {
 			}
 			const frame = windowElement.querySelector('iframe') as HTMLIFrameElement;
 			if (!frame.src || frame.src === window.location.href) {
-				frame.src = 'http://localhost:3000';
+				frame.src = this.gameUrl;
 			}
 		} else if (windowType === 'profile') {
 			if (!this.isAuthenticated) {
@@ -544,7 +546,7 @@ class TranscendenceClient {
 		container.innerHTML = '<div class="loading-state"><div class="loading-spinner-small"></div><p>Loading transactions...</p></div>';
 		
 		try {
-			const response = await fetch('/api/transactions', {
+			const response = await fetch(`${this.serverUrl}/api/transactions`, {
 				method: 'GET',
 				credentials: 'include'
 			});
@@ -597,7 +599,7 @@ class TranscendenceClient {
 		container.innerHTML = '<div class="loading-state"><div class="loading-spinner-small"></div><p>Loading games...</p></div>';
 		
 		try {
-			const response = await fetch('/api/tournaments', {
+			const response = await fetch(`${this.serverUrl}/api/tournaments`, {
 				method: 'GET',
 				credentials: 'include'
 			});
@@ -651,7 +653,7 @@ class TranscendenceClient {
 		const newAddress = walletInput.value.trim();
 		
 		try {
-			const response = await fetch('/api/users/wallet', {
+			const response = await fetch(`${this.serverUrl}/api/users/wallet`, {
 				method: 'PUT',
 				headers: {
 					'Content-Type': 'application/json'
@@ -689,7 +691,7 @@ class TranscendenceClient {
 
 	public async handleLogout(): Promise<void> {
 		try {
-			await fetch('/api/users/logout', {
+			await fetch(`${this.serverUrl}/api/users/logout`, {
 				method: 'POST',
 				credentials: 'include'
 			});
