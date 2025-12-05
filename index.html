@@ -4,651 +4,27 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blobula</title>
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: 'Courier New', monospace;
-            background: #1a1a1a;
-            color: #00ff00;
-            height: 100vh;
-            overflow: hidden;
-        }
-
-        .header {
-            background: #2a2a2a;
-            border-bottom: 2px solid #00ff00;
-            padding: 15px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            z-index: 1000;
-            position: relative;
-        }
-
-        .title {
-            font-size: 24px;
-            font-weight: bold;
-            color: #00ff00;
-        }
-
-        .nav-buttons {
-            display: flex;
-            gap: 10px;
-        }
-
-        .nav-btn {
-            background: #3a3a3a;
-            border: 2px solid #00ff00;
-            color: #00ff00;
-            padding: 10px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-family: inherit;
-            font-size: 14px;
-            transition: all 0.3s ease;
-        }
-
-        .nav-btn:hover {
-            background: #00ff00;
-            color: #1a1a1a;
-        }
-
-        .nav-btn.active {
-            background: #00ff00;
-            color: #1a1a1a;
-        }
-
-        .nav-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            background: #3a3a3a;
-            color: #666;
-        }
-
-        .status-bar {
-            background: #333;
-            padding: 8px 20px;
-            font-size: 12px;
-            border-bottom: 1px solid #555;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .status-info {
-            display: flex;
-            gap: 20px;
-        }
-
-        .status-item {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .status-indicator {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: #ff4444;
-        }
-
-        .status-indicator.connected {
-            background: #00ff00;
-        }
-
-        .main-content {
-            height: calc(100vh - 160px); /* Subtract header, status bar, and taskbar height */
-            position: relative;
-            overflow: hidden;
-        }
-
-        .window {
-            width: calc(100% - 24px);
-            height: calc(100% - 24px);
-            position: absolute;
-            top: 10px;
-            left: 12px;
-            background: #1a1a1a;
-            border: 2px solid #00ff00;
-            border-radius: 8px;
-            transition: all 0.3s ease;
-            opacity: 0;
-            transform: translateY(20px);
-            pointer-events: none;
-            z-index: 100;
-        }
-
-        .window.active {
-            opacity: 1;
-            transform: translateY(0);
-            pointer-events: all;
-            z-index: 200;
-        }
-
-        /* Grid window layouts */
-        .window.grid-1 {
-            width: calc(100% - 24px);
-            height: calc(100% - 24px);
-            left: 12px;
-            top: 10px;
-        }
-
-        .window.grid-2-1 {
-            width: calc(50% - 18px);
-            height: calc(100% - 24px);
-            left: 12px;
-            top: 10px;
-        }
-
-        .window.grid-2-2 {
-            width: calc(50% - 18px);
-            height: calc(100% - 24px);
-            left: calc(50% + 6px);
-            top: 10px;
-        }
-
-        .window.grid-3-1 {
-            width: calc(50% - 18px);
-            height: calc(100% - 24px);
-            left: 12px;
-            top: 10px;
-        }
-
-        .window.grid-3-2 {
-            width: calc(50% - 18px);
-            height: calc(50% - 17px);
-            left: calc(50% + 6px);
-            top: 10px;
-        }
-
-        .window.grid-3-3 {
-            width: calc(50% - 18px);
-            height: calc(50% - 17px);
-            left: calc(50% + 6px);
-            top: calc(50% + 5px);
-        }
-
-        .window.grid-4-1, .window.grid-4-2, .window.grid-4-3, .window.grid-4-4 {
-            width: calc(50% - 18px);
-            height: calc(50% - 17px);
-        }
-
-        .window.grid-4-1 {
-            left: 12px;
-            top: 10px;
-        }
-
-        .window.grid-4-2 {
-            left: calc(50% + 6px);
-            top: 10px;
-        }
-
-        .window.grid-4-3 {
-            left: 12px;
-            top: calc(50% + 5px);
-        }
-
-        .window.grid-4-4 {
-            left: calc(50% + 6px);
-            top: calc(50% + 5px);
-        }
-
-        .window.focused {
-            z-index: 300 !important;
-            border-color: #00ff00;
-            box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
-        }
-
-        .window.unfocused {
-            z-index: 250 !important;
-            border-color: #006600;
-        }
-        
-        .window.active.unfocused {
-            z-index: 250 !important;
-        }
-        
-        .window.active.focused {
-            z-index: 300 !important;
-        }
-
-        .window.minimized {
-            opacity: 0;
-            transform: translateY(100%);
-            pointer-events: none;
-            z-index: 50;
-        }
-
-        .window-header {
-            background: #2a2a2a;
-            border-bottom: 1px solid #00ff00;
-            padding: 10px 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-radius: 6px 6px 0 0;
-            cursor: move;
-        }
-
-        .window-title {
-            font-weight: bold;
-            color: #00ff00;
-        }
-
-        .window-controls {
-            display: flex;
-            gap: 5px;
-        }
-
-        .window-control {
-            width: 16px;
-            height: 16px;
-            border-radius: 50%;
-            cursor: pointer;
-            border: 1px solid #555;
-            transition: all 0.2s ease;
-        }
-
-        .window-control:hover {
-            transform: scale(1.1);
-            border-color: #fff;
-        }
-
-        .window-control.minimize {
-            background: #ffaa00;
-        }
-
-        .window-control.minimize:hover {
-            background: #ffcc44;
-        }
-
-        .window-control.close {
-            background: #ff4444;
-        }
-
-        .window-control.close:hover {
-            background: #ff6666;
-        }
-
-        .window-content {
-            height: calc(100% - 50px);
-            overflow: hidden;
-        }
-
-        .window-content iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
-            background: #1a1a1a;
-        }
-
-        .loading {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            text-align: center;
-            z-index: 2000;
-            background: rgba(0, 0, 0, 0.9);
-            padding: 30px;
-            border-radius: 8px;
-            border: 2px solid #00ff00;
-        }
-
-        .loading.hidden {
-            display: none;
-        }
-
-        .loading-spinner {
-            width: 40px;
-            height: 40px;
-            border: 4px solid #333;
-            border-top: 4px solid #00ff00;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 15px;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .welcome-screen {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            height: 100%;
-            text-align: center;
-            padding: 40px;
-            z-index: 10;
-        }
-
-        .welcome-title {
-            font-size: 48px;
-            margin-bottom: 20px;
-            color: #00ff00;
-            text-shadow: 0 0 10px #00ff00;
-        }
-
-        .welcome-subtitle {
-            font-size: 18px;
-            margin-bottom: 40px;
-            color: #888;
-        }
-
-        .welcome-buttons {
-            display: flex;
-            gap: 20px;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-
-        .welcome-btn {
-            background: #2a2a2a;
-            border: 2px solid #00ff00;
-            color: #00ff00;
-            padding: 15px 30px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-family: inherit;
-            font-size: 16px;
-            transition: all 0.3s ease;
-        }
-
-        .welcome-btn:hover {
-            background: #00ff00;
-            color: #1a1a1a;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 255, 0, 0.3);
-        }
-
-        .welcome-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        /* Taskbar styles */
-        .taskbar {
-            background: #2a2a2a;
-            border-top: 2px solid #00ff00;
-            padding: 10px 20px;
-            display: flex;
-            gap: 10px;
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            z-index: 1000;
-            height: 40px;
-            box-sizing: border-box;
-        }
-
-        .taskbar-item {
-            background: #3a3a3a;
-            border: 2px solid #00ff00;
-            color: #00ff00;
-            border-radius: 5px;
-            cursor: pointer;
-            font-family: inherit;
-            font-size: 12px;
-            transition: all 0.3s ease;
-            display: none;
-            white-space: nowrap;
-            min-width: 120px;
-            text-align: center;
-            line-height: normal;
-        }
-        
-        .taskbar-item.visible {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .taskbar-item.visible {
-            display: block;
-        }
-
-        .taskbar-item:hover {
-            background: #00ff00;
-            color: #1a1a1a;
-            transform: translateY(-2px);
-        }
-
-        .taskbar-item.active {
-            background: #ffaa00;
-            color: #1a1a1a;
-        }
-
-        /* Minimize animation */
-        @keyframes minimizeToTaskbar {
-            0% {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
-            100% {
-                opacity: 0;
-                transform: translateY(100%) scale(0.3);
-            }
-        }
-
-        @keyframes restoreFromTaskbar {
-            0% {
-                opacity: 0;
-                transform: translateY(100%) scale(0.3);
-            }
-            100% {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
-        }
-
-        .window.minimizing {
-            animation: minimizeToTaskbar 0.3s ease-out forwards;
-        }
-
-        .window.restoring {
-            animation: restoreFromTaskbar 0.3s ease-out forwards;
-        }
-
-        /* Profile input styles */
-        #profileWalletInput::placeholder {
-            color: #555;
-        }
-
-        #updateWalletBtn:hover {
-            background: #00ff00;
-            color: #1a1a1a;
-        }
-
-        #updateWalletBtn:active {
-            transform: scale(0.98);
-        }
-
-        /* Profile tabs */
-        .profile-tabs {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-            border-bottom: 2px solid #00ff00;
-            padding-bottom: 10px;
-        }
-
-        .profile-tab {
-            background: #2a2a2a;
-            border: 2px solid #555;
-            color: #888;
-            padding: 8px 16px;
-            border-radius: 4px 4px 0 0;
-            cursor: pointer;
-            font-family: 'Courier New', monospace;
-            font-size: 12px;
-            transition: all 0.3s ease;
-            border-bottom: none;
-        }
-
-        .profile-tab:hover {
-            border-color: #00ff00;
-            color: #00ff00;
-        }
-
-        .profile-tab.active {
-            background: #1a1a1a;
-            border-color: #00ff00;
-            color: #00ff00;
-            position: relative;
-            bottom: -2px;
-        }
-
-        .profile-section {
-            display: none;
-        }
-
-        .profile-section.active {
-            display: block;
-            animation: fadeIn 0.3s ease;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .transaction-list, .game-list {
-            max-height: 400px;
-            overflow-y: auto;
-            padding: 10px;
-            background: #2a2a2a;
-            border: 1px solid #00ff00;
-            border-radius: 4px;
-        }
-
-        .transaction-item, .game-item {
-            padding: 12px;
-            margin-bottom: 10px;
-            background: #1a1a1a;
-            border: 1px solid #555;
-            border-radius: 4px;
-            transition: all 0.2s ease;
-        }
-
-        .transaction-item:hover, .game-item:hover {
-            border-color: #00ff00;
-            transform: translateX(2px);
-        }
-
-        .transaction-item:last-child, .game-item:last-child {
-            margin-bottom: 0;
-        }
-
-        .transaction-header, .game-header {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 5px;
-            font-weight: bold;
-        }
-
-        .transaction-status {
-            padding: 2px 8px;
-            border-radius: 3px;
-            font-size: 10px;
-        }
-
-        .status-pending {
-            background: #ffaa00;
-            color: #000;
-        }
-
-        .status-completed {
-            background: #00ff00;
-            color: #000;
-        }
-
-        .status-failed {
-            background: #ff4444;
-            color: #fff;
-        }
-
-        .game-result {
-            padding: 2px 8px;
-            border-radius: 3px;
-            font-size: 10px;
-            font-weight: bold;
-        }
-
-        .result-win {
-            background: #00ff00;
-            color: #000;
-        }
-
-        .result-loss {
-            background: #ff4444;
-            color: #fff;
-        }
-
-        .result-draw {
-            background: #ffaa00;
-            color: #000;
-        }
-
-        .transaction-details, .game-details {
-            font-size: 11px;
-            color: #888;
-            margin-top: 5px;
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 40px;
-            color: #555;
-            font-style: italic;
-        }
-
-        .loading-state {
-            text-align: center;
-            padding: 40px;
-            color: #00ff00;
-        }
-
-        .loading-spinner-small {
-            width: 20px;
-            height: 20px;
-            border: 2px solid #333;
-            border-top: 2px solid #00ff00;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 10px;
-        }
-    </style>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="header">
         <div class="title">BLOBULA</div>
         <div class="nav-buttons">
+            <div class="theme-switch-wrapper">
+                <label class="theme-switch" for="checkbox">
+                    <input type="checkbox" id="checkbox" />
+                    <div class="slider">
+                        <span class="icon">🌙</span>
+                        <span class="icon">☀️</span>
+                    </div>
+                </label>
+            </div>
             <button class="nav-btn" id="loginBtn">Login</button>
             <button class="nav-btn" id="registerBtn">Register</button>
             <button class="nav-btn" id="gameBtn" disabled>Pong</button>
             <button class="nav-btn" id="profileBtn" disabled>Profile</button>
             <button class="nav-btn" id="logoutBtn" style="display: none;">Logout</button>
         </div>
-    </div>
-
-    <div class="status-bar">
-        <div class="status-info">
-            <div class="status-item">
-                <div class="status-indicator" id="authIndicator"></div>
-                <span id="authStatus">Not Authenticated</span>
-            </div>
-            <div class="status-item">
-                <div class="status-indicator" id="connectionIndicator"></div>
-                <span id="connectionStatus">Disconnected</span>
-            </div>
-        </div>
-        <div id="userInfo"></div>
     </div>
 
     <div class="main-content">
@@ -669,13 +45,14 @@
             <div class="window-header">
                 <div class="window-title">🔐 Login</div>
                 <div class="window-controls">
-                    <div class="window-control minimize" title="Minimize" onclick="client.minimizeWindow('login')"></div>
+                    <div class="window-control maximize" title="Maximize" onclick="client.toggleMaximize('login')"></div>
                     <div class="window-control close" title="Close" onclick="client.hideWindow('login')"></div>
                 </div>
             </div>
             <div class="window-content">
                 <iframe id="loginFrame" src=""></iframe>
             </div>
+            <div class="resize-handle"></div>
         </div>
 
         <!-- Register Window -->
@@ -683,13 +60,14 @@
             <div class="window-header">
                 <div class="window-title">📝 Register</div>
                 <div class="window-controls">
-                    <div class="window-control minimize" title="Minimize" onclick="client.minimizeWindow('register')"></div>
+                    <div class="window-control maximize" title="Maximize" onclick="client.toggleMaximize('register')"></div>
                     <div class="window-control close" title="Close" onclick="client.hideWindow('register')"></div>
                 </div>
             </div>
             <div class="window-content">
                 <iframe id="registerFrame" src=""></iframe>
             </div>
+            <div class="resize-handle"></div>
         </div>
 
         <!-- Game Window -->
@@ -697,13 +75,14 @@
             <div class="window-header">
                 <div class="window-title">🎮 Game</div>
                 <div class="window-controls">
-                    <div class="window-control minimize" title="Minimize" onclick="client.minimizeWindow('game')"></div>
+                    <div class="window-control maximize" title="Maximize" onclick="client.toggleMaximize('game')"></div>
                     <div class="window-control close" title="Close" onclick="client.hideWindow('game')"></div>
                 </div>
             </div>
             <div class="window-content">
                 <iframe id="gameFrame" src=""></iframe>
             </div>
+            <div class="resize-handle"></div>
         </div>
 
         <!-- Profile Window -->
@@ -711,13 +90,13 @@
             <div class="window-header">
                 <div class="window-title">👤 Profile</div>
                 <div class="window-controls">
-                    <div class="window-control minimize" title="Minimize" onclick="client.minimizeWindow('profile')"></div>
+                    <div class="window-control maximize" title="Maximize" onclick="client.toggleMaximize('profile')"></div>
                     <div class="window-control close" title="Close" onclick="client.hideWindow('profile')"></div>
                 </div>
             </div>
             <div class="window-content">
-                <div id="profileContent" style="padding: 20px; color: #00ff00; font-family: 'Courier New', monospace; max-width: 800px; margin: 0 auto; overflow-y: auto; height: 100%;">
-                    <h2 style="border-bottom: 2px solid #00ff00; padding-bottom: 10px; margin-bottom: 20px;">User Profile</h2>
+                <div id="profileContent" style="padding: 20px; color: var(--text-primary); font-family: 'Courier New', monospace; max-width: 800px; margin: 0 auto; overflow-y: auto; height: 100%;">
+                    <h2 style="border-bottom: 2px solid var(--border-primary); padding-bottom: 10px; margin-bottom: 20px; color: var(--text-primary);">User Profile</h2>
                     
                     <!-- Profile Tabs -->
                     <div class="profile-tabs">
@@ -730,24 +109,24 @@
                     <div id="profileSectionInfo" class="profile-section active">
                         <div style="display: flex; flex-direction: column; gap: 20px;">
                             <div class="profile-field">
-                                <label style="display: block; color: #888; font-size: 12px; margin-bottom: 5px;">USERNAME</label>
-                                <div id="profileUsername" style="font-size: 16px; padding: 8px 12px; background: #2a2a2a; border: 1px solid #00ff00; border-radius: 4px;">Not logged in</div>
+                                <label style="display: block; color: var(--text-secondary); font-size: 12px; margin-bottom: 5px;">USERNAME</label>
+                                <div id="profileUsername" style="font-size: 16px; padding: 8px 12px; background: var(--bg-secondary); border: 1px solid var(--border-primary); border-radius: 4px; color: var(--text-primary);">Not logged in</div>
                             </div>
                             <div class="profile-field">
-                                <label style="display: block; color: #888; font-size: 12px; margin-bottom: 5px;">EMAIL</label>
-                                <div id="profileEmail" style="font-size: 16px; padding: 8px 12px; background: #2a2a2a; border: 1px solid #00ff00; border-radius: 4px;">Not logged in</div>
+                                <label style="display: block; color: var(--text-secondary); font-size: 12px; margin-bottom: 5px;">EMAIL</label>
+                                <div id="profileEmail" style="font-size: 16px; padding: 8px 12px; background: var(--bg-secondary); border: 1px solid var(--border-primary); border-radius: 4px; color: var(--text-primary);">Not logged in</div>
                             </div>
                             <div class="profile-field">
-                                <label style="display: block; color: #888; font-size: 12px; margin-bottom: 5px;">BALANCE</label>
-                                <div id="profileBalance" style="font-size: 16px; padding: 8px 12px; background: #2a2a2a; border: 1px solid #00ff00; border-radius: 4px;">0.00</div>
+                                <label style="display: block; color: var(--text-secondary); font-size: 12px; margin-bottom: 5px;">BALANCE</label>
+                                <div id="profileBalance" style="font-size: 16px; padding: 8px 12px; background: var(--bg-secondary); border: 1px solid var(--border-primary); border-radius: 4px; color: var(--text-primary);">0.00</div>
                             </div>
                             <div class="profile-field">
-                                <label style="display: block; color: #888; font-size: 12px; margin-bottom: 5px;">WALLET ADDRESS</label>
+                                <label style="display: block; color: var(--text-secondary); font-size: 12px; margin-bottom: 5px;">WALLET ADDRESS</label>
                                 <div style="display: flex; gap: 10px; align-items: stretch;">
-                                    <input type="text" id="profileWalletInput" placeholder="Enter wallet address" style="flex: 1; font-size: 14px; padding: 8px 12px; background: #2a2a2a; border: 1px solid #00ff00; border-radius: 4px; color: #00ff00; font-family: 'Courier New', monospace;">
-                                    <button id="updateWalletBtn" style="background: #3a3a3a; border: 2px solid #00ff00; color: #00ff00; padding: 8px 20px; border-radius: 4px; cursor: pointer; font-family: 'Courier New', monospace; font-size: 14px; transition: all 0.3s ease; white-space: nowrap;">Update</button>
+                                    <input type="text" id="profileWalletInput" placeholder="Enter wallet address" style="flex: 1; font-size: 14px; padding: 8px 12px; background: var(--bg-secondary); border: 1px solid var(--border-primary); border-radius: 4px; color: var(--text-primary); font-family: 'Courier New', monospace;">
+                                    <button id="updateWalletBtn" style="background: var(--bg-tertiary); border: 2px solid var(--border-primary); color: var(--text-primary); padding: 8px 20px; border-radius: 4px; cursor: pointer; font-family: 'Courier New', monospace; font-size: 14px; transition: all 0.3s ease; white-space: nowrap;">Update</button>
                                 </div>
-                                <div id="profileWallet" style="font-size: 12px; padding: 8px 0; color: #888; word-break: break-all;">Not available</div>
+                                <div id="profileWallet" style="font-size: 12px; padding: 8px 0; color: var(--text-secondary); word-break: break-all;">Not available</div>
                             </div>
                         </div>
                     </div>
@@ -773,15 +152,8 @@
                     </div>
                 </div>
             </div>
+            <div class="resize-handle"></div>
         </div>
-    </div>
-
-    <!-- Taskbar -->
-    <div class="taskbar" id="taskbar">
-        <div class="taskbar-item" id="loginTaskbar" onclick="client.restoreWindow('login')">🔐 Login</div>
-        <div class="taskbar-item" id="registerTaskbar" onclick="client.restoreWindow('register')">📝 Register</div>
-        <div class="taskbar-item" id="gameTaskbar" onclick="client.restoreWindow('game')">🎮 Pong</div>
-        <div class="taskbar-item" id="profileTaskbar" onclick="client.restoreWindow('profile')">👤 Profile</div>
     </div>
 
     <!-- Loading Overlay -->

@@ -36,9 +36,10 @@ class TranscendenceClient {
 	private isAuthenticated: boolean = false;
 	private activeWindows: Set<WindowType> = new Set();
 	private focusedWindow: WindowType | null = null;
-	private minimizedWindows: Set<WindowType> = new Set();
+	// Removed minimizedWindows
 	private serverUrl: string = "http://localhost:4000";
 	private gameUrl: string = "http://localhost:3000";
+	private currentTheme: 'light' | 'dark' = 'dark';
 
 	// Elements
 	private welcomeScreen: HTMLElement;
@@ -52,6 +53,7 @@ class TranscendenceClient {
 	private loading: HTMLElement;
 	
 	// Buttons
+	private themeCheckbox: HTMLInputElement;
 	private loginBtn: HTMLButtonElement;
 	private registerBtn: HTMLButtonElement;
 	private gameBtn: HTMLButtonElement;
@@ -62,18 +64,25 @@ class TranscendenceClient {
 	private welcomeGameBtn: HTMLButtonElement;
 	private welcomeProfileBtn: HTMLButtonElement;
 	
-	// Taskbar items
-	private loginTaskbar: HTMLElement;
-	private registerTaskbar: HTMLElement;
-	private gameTaskbar: HTMLElement;
-	private profileTaskbar: HTMLElement;
-	
-	// Status elements
-	private authIndicator: HTMLElement;
-	private authStatus: HTMLElement;
-	private connectionIndicator: HTMLElement;
-	private connectionStatus: HTMLElement;
-	private userInfo: HTMLElement;
+	// Removed Taskbar items
+    
+    // Status elements
+	// Removed authIndicator, authStatus, connectionIndicator, connectionStatus
+	// private userInfo: HTMLElement;
+
+	// Drag and Resize State
+	private isDragging: boolean = false;
+	private isResizing: boolean = false;
+	private currentDragWindow: HTMLElement | null = null;
+	private initialX: number = 0;
+	private initialY: number = 0;
+	private initialWidth: number = 0;
+	private initialHeight: number = 0;
+	private initialLeft: number = 0;
+	private initialTop: number = 0;
+
+	// Store state before maximizing
+	private maximizedStates: Map<WindowType, {top: string, left: string, width: string, height: string}> = new Map();
 
 	constructor() {
 		// Elements
@@ -88,6 +97,7 @@ class TranscendenceClient {
 		this.loading = document.getElementById('loading')!;
 		
 		// Buttons
+		this.themeCheckbox = document.getElementById('checkbox') as HTMLInputElement;
 		this.loginBtn = document.getElementById('loginBtn') as HTMLButtonElement;
 		this.registerBtn = document.getElementById('registerBtn') as HTMLButtonElement;
 		this.gameBtn = document.getElementById('gameBtn') as HTMLButtonElement;
@@ -98,37 +108,33 @@ class TranscendenceClient {
 		this.welcomeGameBtn = document.getElementById('welcomeGameBtn') as HTMLButtonElement;
 		this.welcomeProfileBtn = document.getElementById('welcomeProfileBtn') as HTMLButtonElement;
 		
-		// Taskbar items
-		this.loginTaskbar = document.getElementById('loginTaskbar')!;
-		this.registerTaskbar = document.getElementById('registerTaskbar')!;
-		this.gameTaskbar = document.getElementById('gameTaskbar')!;
-		this.profileTaskbar = document.getElementById('profileTaskbar')!;
-		
-		// Status elements
-		this.authIndicator = document.getElementById('authIndicator')!;
-		this.authStatus = document.getElementById('authStatus')!;
-		this.connectionIndicator = document.getElementById('connectionIndicator')!;
-		this.connectionStatus = document.getElementById('connectionStatus')!;
-		this.userInfo = document.getElementById('userInfo')!;
+		// Removed Taskbar items initialization
+        
+        // Status elements
+		// Removed authIndicator, authStatus, connectionIndicator, connectionStatus
+		// this.userInfo = document.getElementById('userInfo')!;
 
 		this.setupEventListeners();
 		this.setupMessageListener();
 		this.checkExistingSession();
+		this.initializeTheme();
+		this.setupWindowInteractions();
 	}
 
 	private setupEventListeners(): void {
 		// Navigation buttons
+		this.themeCheckbox.addEventListener('change', () => this.toggleTheme());
 		this.loginBtn.onclick = () => this.showWindow('login');
 		this.registerBtn.onclick = () => this.showWindow('register');
 		this.gameBtn.onclick = () => this.showWindow('game');
 		this.profileBtn.onclick = () => this.showWindow('profile');
 		this.logoutBtn.onclick = () => this.handleLogout();
 		
-		// Welcome buttons
-		this.welcomeLoginBtn.onclick = () => this.showWindow('login');
-		this.welcomeRegisterBtn.onclick = () => this.showWindow('register');
-		this.welcomeGameBtn.onclick = () => this.showWindow('game');
-		this.welcomeProfileBtn.onclick = () => this.showWindow('profile');
+		// Welcome buttons - Use addEventListener
+		this.welcomeLoginBtn.addEventListener('click', () => this.showWindow('login'));
+		this.welcomeRegisterBtn.addEventListener('click', () => this.showWindow('register'));
+		this.welcomeGameBtn.addEventListener('click', () => this.showWindow('game'));
+		this.welcomeProfileBtn.addEventListener('click', () => this.showWindow('profile'));
 		
 		// Profile update button
 		const updateWalletBtn = document.getElementById('updateWalletBtn');
@@ -203,6 +209,30 @@ class TranscendenceClient {
 		});
 	}
 
+	private initializeTheme(): void {
+		const savedTheme = localStorage.getItem('theme') as 'light' | 'dark' | null;
+		if (savedTheme) {
+			this.currentTheme = savedTheme;
+			document.body.classList.toggle('light-theme', savedTheme === 'light');
+			this.themeCheckbox.checked = savedTheme === 'light';
+		}
+	}
+
+	private toggleTheme(): void {
+		this.currentTheme = this.themeCheckbox.checked ? 'light' : 'dark';
+		document.body.classList.toggle('light-theme', this.currentTheme === 'light');
+		localStorage.setItem('theme', this.currentTheme);
+		
+		// Broadcast theme change to iframes
+		const frames = document.querySelectorAll('iframe');
+		frames.forEach(frame => {
+			frame.contentWindow?.postMessage({
+				type: 'THEME_CHANGE',
+				theme: this.currentTheme
+			}, '*');
+		});
+	}
+
 	private async checkExistingSession(): Promise<void> {
 		try {
 			const response = await fetch(`${this.serverUrl}/api/users/tokens`, {
@@ -238,24 +268,18 @@ class TranscendenceClient {
 			return;
 		}
 		
-		if (this.minimizedWindows.has(windowType)) {
-			this.restoreWindow(windowType);
-			return;
-		}
-		
-		this.minimizedWindows.delete(windowType);
+		// Removed minimized check
 		
 		const windowElement = this.getWindowElement(windowType);
 		if (!windowElement) return;
 		
-		windowElement.classList.remove('minimized', 'minimizing', 'restoring');
+		windowElement.classList.remove('active'); // Reset to ensure clean state
 		windowElement.classList.add('active');
 		
 		const btnElement = this.getButtonElement(windowType);
-		const taskbarElement = this.getTaskbarElement(windowType);
+		// Removed taskbar logic
 		
 		if (btnElement) btnElement.classList.add('active');
-		if (taskbarElement) taskbarElement.classList.remove('visible');
 		
 		// Load iframe if needed
 		if (windowType === 'login') {
@@ -368,30 +392,34 @@ class TranscendenceClient {
 	}
 
 	private getTaskbarElement(windowType: WindowType): HTMLElement | null {
-		switch (windowType) {
-			case 'login': return this.loginTaskbar;
-			case 'register': return this.registerTaskbar;
-			case 'game': return this.gameTaskbar;
-			case 'profile': return this.profileTaskbar;
-			default: return null;
-		}
+		return null; // Taskbar removed
 	}
 
 	public hideWindow(windowType: WindowType): void {
-		console.log(`Hiding ${windowType} window`);
-		
-		const windowElement = this.getWindowElement(windowType);
-		if (!windowElement) return;
-		
-		windowElement.classList.remove('active', 'minimized', 'minimizing', 'restoring', 'focused', 'unfocused', 'left-half', 'right-half');
-		
-		const btnElement = this.getButtonElement(windowType);
-		const taskbarElement = this.getTaskbarElement(windowType);
+        console.log(`Hiding ${windowType} window`);
+        
+        const windowElement = this.getWindowElement(windowType);
+        if (!windowElement) return;
+        
+        // Reset maximized state when closing
+        windowElement.classList.remove('maximized');
+        this.maximizedStates.delete(windowType);
+
+        // FIX: Clear inline styles so the window resets to default CSS position/size
+        // This ensures the window is visible and correctly positioned when reopened
+        windowElement.style.top = '';
+        windowElement.style.left = '';
+        windowElement.style.width = '';
+        windowElement.style.height = '';
+
+        windowElement.classList.remove('active', 'focused', 'unfocused', 'left-half', 'right-half');
+        
+        const btnElement = this.getButtonElement(windowType);
+		// Removed taskbar logic
 		
 		if (btnElement) btnElement.classList.remove('active');
-		if (taskbarElement) taskbarElement.classList.remove('visible', 'active');
 		
-		this.minimizedWindows.delete(windowType);
+		// Removed minimized logic
 		this.activeWindows.delete(windowType);
 		
 		if (this.focusedWindow === windowType) {
@@ -405,93 +433,21 @@ class TranscendenceClient {
 		
 		this.arrangeWindows();
 		
-		if (this.activeWindows.size === 0 && this.minimizedWindows.size === 0) {
-			setTimeout(() => {
-				this.showWelcomeScreen();
-			}, 300);
+		if (this.activeWindows.size === 0) {
+		 setTimeout(() => {
+			 this.showWelcomeScreen();
+		 }, 300);
 		}
 	}
 
-	public minimizeWindow(windowType: WindowType): void {
-		console.log(`Minimizing ${windowType} window`);
-		
-		const windowElement = this.getWindowElement(windowType);
-		if (!windowElement) return;
-		
-		windowElement.classList.add('minimizing');
-		
-		const btnElement = this.getButtonElement(windowType);
-		if (btnElement) btnElement.classList.remove('active');
-		
-		setTimeout(() => {
-			windowElement.classList.remove('active', 'minimizing', 'focused', 'unfocused', 'left-half', 'right-half');
-			windowElement.classList.add('minimized');
-			
-			const taskbarElement = this.getTaskbarElement(windowType);
-			if (taskbarElement) taskbarElement.classList.add('visible');
-			
-			this.activeWindows.delete(windowType);
-			this.minimizedWindows.add(windowType);
-			
-			if (this.focusedWindow === windowType) {
-				const remainingWindows = Array.from(this.activeWindows);
-				if (remainingWindows.length > 0) {
-					this.focusWindow(remainingWindows[remainingWindows.length - 1]);
-				} else {
-					this.focusedWindow = null;
-				}
-			}
-			
-			this.arrangeWindows();
-		}, 300);
-	}
-
-	public restoreWindow(windowType: WindowType): void {
-		console.log(`Restoring ${windowType} window`);
-		
-		this.welcomeScreen.style.display = 'none';
-		
-		if ((windowType === 'game' || windowType === 'profile') && !this.isAuthenticated) {
-			this.updateAuthStatus('Please login first', false);
-			if (this.minimizedWindows.has('login')) {
-				this.restoreWindow('login');
-			} else {
-				this.showWindow('login');
-			}
-			return;
-		}
-		
-		const windowElement = this.getWindowElement(windowType);
-		if (!windowElement) return;
-		
-		windowElement.classList.remove('minimized');
-		windowElement.classList.add('restoring', 'active');
-		
-		const taskbarElement = this.getTaskbarElement(windowType);
-		const btnElement = this.getButtonElement(windowType);
-		
-		if (taskbarElement) taskbarElement.classList.remove('visible');
-		if (btnElement) btnElement.classList.add('active');
-		
-		if (windowType === 'profile') {
-			this.updateProfileWindow();
-		}
-		
-		this.minimizedWindows.delete(windowType);
-		this.activeWindows.add(windowType);
-		
-		setTimeout(() => {
-			windowElement.classList.remove('restoring');
-			this.focusWindow(windowType);
-			this.arrangeWindows();
-		}, 300);
-	}
+	// Removed minimizeWindow and restoreWindow methods
 
 	private showWelcomeScreen(): void {
-		if (this.activeWindows.size === 0 && this.minimizedWindows.size === 0) {
+		if (this.activeWindows.size === 0) {
 			this.welcomeScreen.style.display = 'flex';
 			this.focusedWindow = null;
 			
+			// Ensure buttons are correctly enabled/disabled based on auth state
 			this.welcomeGameBtn.disabled = !this.isAuthenticated;
 			this.welcomeProfileBtn.disabled = !this.isAuthenticated;
 		}
@@ -690,12 +646,17 @@ class TranscendenceClient {
 	}
 
 	public async handleLogout(): Promise<void> {
-		try {
+		try
+		{
 			await fetch(`${this.serverUrl}/api/users/logout`, {
 				method: 'POST',
 				credentials: 'include'
 			});
-		} catch (error) {
+
+			this.gameFrame.contentWindow?.postMessage({ type: "LOGOUT" }, "*");
+		}
+		catch (error)
+		{
 			console.error('Logout error:', error);
 		}
 		
@@ -709,23 +670,14 @@ class TranscendenceClient {
 		this.disableGameAccess();
 		this.updateUserInfo(null);
 		
-		if (this.activeWindows.size === 0 && this.minimizedWindows.size === 0) {
-			this.showWelcomeScreen();
+		if (this.activeWindows.size === 0) {
+		 this.showWelcomeScreen();
 		}
 	}
 
 	private handleAuthFailed(): void {
 		this.disableGameAccess();
 		this.updateAuthStatus('Authentication failed', false);
-	}
-
-	private sendSessionToFrame(targetFrame: Window): void {
-		if (this.currentSessionId) {
-			targetFrame.postMessage({
-				type: 'SESSION_ID',
-				sessionId: this.currentSessionId
-			}, '*');
-		}
 	}
 
 	private enableGameAccess(): void {
@@ -755,21 +707,15 @@ class TranscendenceClient {
 	}
 
 	private updateAuthStatus(message: string, isConnected: boolean): void {
-		this.authStatus.textContent = message;
-		this.authIndicator.classList.toggle('connected', isConnected);
+		// Removed status indicator updates
 	}
 
 	private updateConnectionStatus(message: string, isConnected: boolean): void {
-		this.connectionStatus.textContent = message;
-		this.connectionIndicator.classList.toggle('connected', isConnected);
+		// Removed status indicator updates
 	}
 
 	private updateUserInfo(user: User | null): void {
-		if (user) {
-			this.userInfo.textContent = `User: ${user.username}`;
-		} else {
-			this.userInfo.textContent = '';
-		}
+		// User info display removed
 	}
 
 	private showLoading(message: string = 'Loading...'): void {
@@ -781,6 +727,225 @@ class TranscendenceClient {
 	private hideLoading(): void {
 		this.loading.classList.add('hidden');
 	}
+
+	private setupWindowInteractions(): void {
+        const windows = document.querySelectorAll('.window');
+
+        windows.forEach((win) => {
+            const header = win.querySelector('.window-header') as HTMLElement;
+            const resizeHandle = win.querySelector('.resize-handle') as HTMLElement;
+            const element = win as HTMLElement;
+
+            // --- Dragging Logic ---
+            // Attach to the element (window) instead of header to allow dragging from anywhere
+            element.addEventListener('mousedown', (e) => {
+                const target = e.target as HTMLElement;
+
+                // Prevent drag if maximized
+                if (element.classList.contains('maximized')) return;
+
+                // Prevent drag if clicking on interactive elements
+                if (['INPUT', 'BUTTON', 'TEXTAREA', 'SELECT', 'A'].includes(target.tagName) || 
+                    target.closest('.window-control') || 
+                    target.closest('.resize-handle') ||
+                    target.closest('.profile-tab') ||
+                    target.closest('button')) {
+                    return;
+                }
+                
+                // Prevent default browser selection behavior
+                e.preventDefault();
+
+                this.isDragging = true;
+                this.currentDragWindow = element;
+                
+                // Disable text selection globally
+                document.body.style.userSelect = 'none';
+                
+                this.toggleIframePointerEvents(false);
+
+                this.initialLeft = element.offsetLeft;
+                this.initialTop = element.offsetTop;
+                
+                // Capture dimensions for boundary checks
+                this.initialWidth = element.offsetWidth;
+                this.initialHeight = element.offsetHeight;
+                
+                const style = window.getComputedStyle(element);
+                const currentWidth = style.width;
+                const currentHeight = style.height;
+
+                // 3. Lock the element to these pixel coordinates immediately
+                element.style.left = `${this.initialLeft}px`;
+                element.style.top = `${this.initialTop}px`;
+                element.style.width = currentWidth;
+                element.style.height = currentHeight;
+                
+                // 4. Now safe to remove grid classes
+                this.removeGridClasses(element);
+                
+                this.initialX = e.clientX;
+                this.initialY = e.clientY;
+                
+                this.focusWindow(this.getWindowTypeFromId(element.id));
+            });
+
+            // --- Resizing Logic ---
+            if (resizeHandle) {
+                resizeHandle.addEventListener('mousedown', (e) => {
+                    // Prevent resize if maximized
+                    if (element.classList.contains('maximized')) return;
+
+                    // Prevent default browser selection behavior
+                    e.preventDefault();
+
+                    this.isResizing = true;
+                    this.currentDragWindow = element;
+                    
+                    // Disable text selection globally
+                    document.body.style.userSelect = 'none';
+                    
+                    this.toggleIframePointerEvents(false);
+                    
+                    const style = window.getComputedStyle(element);
+                    this.initialWidth = parseInt(style.width, 10);
+                    this.initialHeight = parseInt(style.height, 10);
+                    
+                    this.initialLeft = element.offsetLeft;
+                    this.initialTop = element.offsetTop;
+                    
+                    element.style.left = `${this.initialLeft}px`;
+                    element.style.top = `${this.initialTop}px`;
+                    element.style.width = `${this.initialWidth}px`;
+                    element.style.height = `${this.initialHeight}px`;
+                    
+                    this.removeGridClasses(element);
+                    
+                    this.initialX = e.clientX;
+                    this.initialY = e.clientY;
+                    
+                    this.focusWindow(this.getWindowTypeFromId(element.id));
+                    e.stopPropagation();
+                });
+            }
+        });
+
+        // Global Mouse Move
+        document.addEventListener('mousemove', (e) => {
+            if (this.isDragging && this.currentDragWindow) {
+                e.preventDefault();
+                const dx = e.clientX - this.initialX;
+                const dy = e.clientY - this.initialY;
+                
+                let newLeft = this.initialLeft + dx;
+                let newTop = this.initialTop + dy;
+
+                // Boundary Constraints: Keep ENTIRE window inside the viewport
+                const viewportWidth = window.innerWidth;
+                const viewportHeight = window.innerHeight;
+                const winWidth = this.initialWidth;
+                const winHeight = this.initialHeight;
+
+                // Horizontal bounds
+                if (newLeft < 0) {
+                    newLeft = 0;
+                } else if (newLeft + winWidth > viewportWidth) {
+                    newLeft = viewportWidth - winWidth;
+                    // If window is wider than viewport, align to left
+                    if (newLeft < 0) newLeft = 0;
+                }
+
+                // Vertical bounds
+                if (newTop < 0) {
+                    newTop = 0;
+                } else if (newTop + winHeight > viewportHeight) {
+                    newTop = viewportHeight - winHeight;
+                    // If window is taller than viewport, align to top
+                    if (newTop < 0) newTop = 0;
+                }
+                
+                this.currentDragWindow.style.left = `${newLeft}px`;
+                this.currentDragWindow.style.top = `${newTop}px`;
+            }
+
+            if (this.isResizing && this.currentDragWindow) {
+                e.preventDefault();
+                const dx = e.clientX - this.initialX;
+                const dy = e.clientY - this.initialY;
+                
+                const newWidth = Math.max(300, this.initialWidth + dx);
+                const newHeight = Math.max(200, this.initialHeight + dy);
+
+                this.currentDragWindow.style.width = `${newWidth}px`;
+                this.currentDragWindow.style.height = `${newHeight}px`;
+            }
+        });
+
+        // Global Mouse Up
+        document.addEventListener('mouseup', () => {
+            // Removed off-screen check since boundaries are enforced
+            if (this.isDragging || this.isResizing) {
+                this.isDragging = false;
+                this.isResizing = false;
+                this.currentDragWindow = null;
+                this.toggleIframePointerEvents(true);
+            }
+        });
+    }
+
+    private toggleIframePointerEvents(enable: boolean): void {
+        const iframes = document.querySelectorAll('iframe');
+        iframes.forEach(iframe => {
+            // When dragging, set pointer-events to none.
+            // When done, remove the inline style so it falls back to CSS rules.
+            // This prevents hidden iframes from blocking clicks on the welcome screen.
+            iframe.style.pointerEvents = enable ? '' : 'none';
+        });
+    }
+
+    private removeGridClasses(element: HTMLElement): void {
+		// Remove any class starting with 'grid-'
+		const classes = Array.from(element.classList);
+		classes.forEach(cls => {
+			if (cls.startsWith('grid-')) {
+				element.classList.remove(cls);
+			}
+		});
+	}
+
+	private getWindowTypeFromId(id: string): WindowType {
+		if (id.includes('login')) return 'login';
+		if (id.includes('register')) return 'register';
+		if (id.includes('game')) return 'game';
+		if (id.includes('profile')) return 'profile';
+		return 'login'; // Default to login
+	}
+
+	// New method for maximizing
+	public toggleMaximize(windowType: WindowType): void {
+        const win = this.getWindowElement(windowType);
+        if (!win) return;
+
+        if (this.maximizedStates.has(windowType)) {
+            // Restore
+            const state = this.maximizedStates.get(windowType)!;
+            win.style.top = state.top;
+            win.style.left = state.left;
+            win.style.width = state.width;
+            win.style.height = state.height;
+            win.classList.remove('maximized');
+            this.maximizedStates.delete(windowType);
+        } else {
+            // Maximize
+            this.maximizedStates.set(windowType, {
+                top: win.style.top,
+                left: win.style.left,
+                width: win.style.width,
+                height: win.style.height
+            });
+            win.classList.add('maximized');
+        }
+    }
 }
 
 // Declare global client variable
