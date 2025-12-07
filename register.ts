@@ -110,15 +110,21 @@ registerForm.addEventListener('submit', async (e: Event) => {
 		if (res.ok) {
 			registerSuccessDiv.textContent = 'Registration successful!';
 			
-			setTimeout(() => {
-				const sessionId = getCookie('sessionId');
+			// function getCookie(name: string): string | undefined {
+			// 	const value = `; ${document.cookie}`;
+			// 	const parts = value.split(`; ${name}=`);
+			// 	if (parts.length === 2) return parts.pop()?.split(';').shift();
+			// }
+
+			// setTimeout(() => {
+			// 	const sessionId = getCookie('sessionId');
 				
-				window.parent.postMessage({
-					type: 'LOGIN_SUCCESS',
-					sessionId: sessionId,
-					user: data.user
-				}, '*');
-			}, 100);
+			// 	window.parent.postMessage({
+			// 		type: 'LOGIN_SUCCESS',
+			// 		sessionId: sessionId,
+			// 		user: data.user
+			// 	}, '*');
+			// }, 100);
 		}
 		else
 		{
