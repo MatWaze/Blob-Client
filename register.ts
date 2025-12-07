@@ -24,6 +24,7 @@ var togglePasswordBtn = document.getElementById('togglePassword') as HTMLButtonE
 const toggleConfirmPasswordBtn = document.getElementById('toggleConfirmPassword') as HTMLButtonElement;
 var passwordInput = document.getElementById('password') as HTMLInputElement;
 const confirmPasswordInput = document.getElementById('confirmPassword') as HTMLInputElement;
+const serverUrl = "http://localhost:4000";
 
 // Toggle password visibility
 togglePasswordBtn.addEventListener('click', () => {
@@ -95,7 +96,7 @@ registerForm.addEventListener('submit', async (e: Event) => {
 	}
 
 	try {
-		const res = await fetch('/api/users/register', {
+		const res = await fetch(`${serverUrl}/api/users/register`, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json'
@@ -107,7 +108,7 @@ registerForm.addEventListener('submit', async (e: Event) => {
 		const data: RegisterResponse = await res.json();
 
 		if (res.ok) {
-			registerSuccessDiv.textContent = 'Registration successful! Logging you in...';
+			registerSuccessDiv.textContent = 'Registration successful!';
 			
 			setTimeout(() => {
 				const sessionId = getCookie('sessionId');
