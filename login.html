@@ -141,6 +141,15 @@
   <div id="success"></div>
 
   <script>
+    // Initial theme check
+    (function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const theme = urlParams.get('theme');
+        if (theme === 'light') {
+            document.body.classList.add('light-theme');
+        }
+    })();
+
     // Listen for theme changes from parent
     window.addEventListener('message', (event) => {
         if (event.data.type === 'THEME_CHANGE') {

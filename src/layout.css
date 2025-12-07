@@ -1,0 +1,6 @@
+.main-content {
+    height: calc(100vh - 70px); /* Adjusted for header height */
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+}

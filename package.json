@@ -1,6 +1,6 @@
 {
   "name": "transcendence-client",
-  "type": "commonjs",
+  "type": "module",
   "version": "1.0.0",
   "description": "Client for Transcendence game",
   "scripts": {
@@ -9,7 +9,15 @@
     "preview": "vite preview"
   },
   "devDependencies": {
+    "@types/react": "^19.2.7",
+    "@types/react-dom": "^19.2.3",
     "typescript": "^5.0.0",
     "vite": "^5.4.21"
+  },
+  "dependencies": {
+    "@vitejs/plugin-react": "^5.1.1",
+    "react": "^19.2.1",
+    "react-dom": "^19.2.1",
+    "react-draggable": "^4.5.0"
   }
 }
