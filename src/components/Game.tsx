@@ -35,6 +35,7 @@ const Game: React.FC = () => {
 
     return (
         <iframe 
+            key={user?.id ?? ""}
             ref={iframeRef}
             src={gameUrl} 
             style={{ width: '100%', height: '100%', border: 'none' }}

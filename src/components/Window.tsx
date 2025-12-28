@@ -18,7 +18,7 @@ const Window: React.FC<WindowProps> = ({ type, title, children, icon }) => {
     const [size, setSize] = React.useState({ width: 400, height: 300 }); // Default size
     const [isResizing, setIsResizing] = React.useState(false);
     const isResizingRef = useRef(false);
-    const [position, setPosition] = React.useState({ x: 0, y: 0 });
+    const [position, setPosition] = React.useState(windowState.position || { x: 50, y: 50 });
 
     // Reset position when maximized
     React.useEffect(() => {
@@ -33,10 +33,7 @@ const Window: React.FC<WindowProps> = ({ type, title, children, icon }) => {
         focusWindow(type);
     };
 
-    const windowClass = `window active ${windowState.isMaximized ? 'maximized' : ''} ${
-        // Add grid classes if needed, but for now we rely on absolute positioning or Draggable
-        ''
-    }`;
+    const windowClass = `window active ${windowState.isMaximized ? 'maximized' : ''}`;
 
     // If maximized, we disable dragging
     const isDraggable = !windowState.isMaximized;
@@ -67,9 +64,23 @@ const Window: React.FC<WindowProps> = ({ type, title, children, icon }) => {
         const handlePointerMove = (moveEvent: PointerEvent) => {
             if (!isResizingRef.current) return;
             
-            const newWidth = Math.max(300, startWidth + (moveEvent.clientX - startX));
-            const newHeight = Math.max(200, startHeight + (moveEvent.clientY - startY));
+            // Get parent dimensions
+            const parent = nodeRef.current?.parentElement;
+            const parentWidth = parent?.clientWidth || window.innerWidth;
+            const parentHeight = parent?.clientHeight || window.innerHeight;
+
+            // Calculate new dimensions
+            let newWidth = Math.max(300, startWidth + (moveEvent.clientX - startX));
+            let newHeight = Math.max(200, startHeight + (moveEvent.clientY - startY));
             
+            // Constrain to parent bounds
+            if (position.x + newWidth > parentWidth) {
+                newWidth = parentWidth - position.x;
+            }
+            if (position.y + newHeight > parentHeight) {
+                newHeight = parentHeight - position.y;
+            }
+
             setSize({ width: newWidth, height: newHeight });
         };
 
@@ -119,7 +130,7 @@ const Window: React.FC<WindowProps> = ({ type, title, children, icon }) => {
                         left: 0,
                         right: 0,
                         bottom: 0,
-                        zIndex: 9999,
+                        zIndex: 9999, // show window on top of others
                         cursor: isDragging ? 'move' : 'nwse-resize'
                     }} />
                 )}

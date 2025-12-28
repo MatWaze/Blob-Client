@@ -1,0 +1,83 @@
+.game-selector {
+    padding: 20px;
+    color: var(--text-primary);
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.game-selector-header {
+    font-size: 1.1rem;
+    margin-bottom: 10px;
+}
+
+.game-selector-header span {
+    color: var(--accent-warn);
+    font-weight: bold;
+}
+
+.room-card {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-secondary);
+    border-radius: 8px;
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.room-info {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.room-name {
+    font-weight: bold;
+    font-size: 1.2rem;
+}
+
+.room-details {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    display: flex;
+    gap: 10px;
+}
+
+.invite-btn {
+    background: var(--accent-success);
+    color: var(--text-on-success);
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: opacity 0.2s;
+}
+
+.invite-btn:hover {
+    opacity: 0.9;
+}
+
+.game-selector-loading,
+.game-selector-success,
+.game-selector-empty {
+    padding: 20px;
+    text-align: center;
+    color: var(--text-secondary);
+}
+
+.game-selector-success {
+    color: var(--accent-success);
+    font-weight: bold;
+}
+
+.game-selector-empty button {
+    margin-top: 15px;
+    padding: 8px 16px;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-primary);
+    color: var(--text-primary);
+    border-radius: 4px;
+    cursor: pointer;
+}

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useWindow } from '../contexts/WindowContext';
 import { useTheme } from '../contexts/ThemeContext';
@@ -21,14 +21,14 @@ const Header: React.FC = () => {
                         </div>
                     </label>
                 </div>
-                {!isAuthenticated && (
+                {/* {!isAuthenticated && (
                     <>
                         <button className="nav-btn" onClick={() => openWindow('login')}>Login</button>
                         <button className="nav-btn" onClick={() => openWindow('register')}>Register</button>
                     </>
-                )}
-                <button className="nav-btn" disabled={!isAuthenticated} onClick={() => openWindow('game')}>Pong</button>
-                <button className="nav-btn" disabled={!isAuthenticated} onClick={() => openWindow('profile')}>Profile</button>
+                )} */}
+                {/* <button className="nav-btn" disabled={!isAuthenticated} onClick={() => openWindow('game')}>Pong</button>
+                <button className="nav-btn" disabled={!isAuthenticated} onClick={() => openWindow('profile')}>Profile</button> */}
                 {isAuthenticated && (
                     <button className="nav-btn" onClick={logout}>Logout</button>
                 )}

@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
 export interface User {
-    id: number;
+    id: string;
     username: string;
     email: string;
     walletAddress?: string;
@@ -54,11 +54,16 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                     logout();
                 }
             } else {
-                logout();
+                // Only logout if explicitly unauthorized
+                if (response.status === 401 || response.status === 403) {
+                    logout();
+                }
             }
         } catch (error) {
             console.error('Session check failed:', error);
-            logout();
+            // Do not call logout() on network errors to prevent session destruction
+            setUser(null);
+            setIsAuthenticated(false);
         }
     };
 

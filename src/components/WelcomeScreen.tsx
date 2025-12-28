@@ -19,8 +19,9 @@ const WelcomeScreen: React.FC = () => {
                         <button className="welcome-btn" onClick={() => openWindow('register')}>Register</button>
                     </>
                 )}
-                <button className="welcome-btn" disabled={!isAuthenticated} onClick={() => openWindow('game')}>Play Game</button>
+                <button className="welcome-btn" disabled={!isAuthenticated} onClick={() => openWindow('game')}>Pong</button>
                 <button className="welcome-btn" disabled={!isAuthenticated} onClick={() => openWindow('profile')}>Profile</button>
+                <button className="welcome-btn" disabled={!isAuthenticated} onClick={() => openWindow('friends')}>Friends</button>
             </div>
         </div>
     );

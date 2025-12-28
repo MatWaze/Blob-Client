@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, ReactNode, useCallback } from 'react';
 
-export type WindowType = 'login' | 'register' | 'game' | 'profile';
+export type WindowType = 'login' | 'register' | 'game' | 'profile' | 'friends' | string;
 
 interface WindowState {
     id: WindowType;
@@ -9,11 +9,12 @@ interface WindowState {
     zIndex: number;
     position?: { x: number; y: number };
     size?: { width: number; height: number };
+    data?: any;
 }
 
 interface WindowContextType {
     windows: Record<WindowType, WindowState>;
-    openWindow: (type: WindowType) => void;
+    openWindow: (type: WindowType, data?: any) => void;
     closeWindow: (type: WindowType) => void;
     focusWindow: (type: WindowType) => void;
     toggleMaximize: (type: WindowType) => void;
@@ -29,17 +30,34 @@ export const WindowProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         register: { id: 'register', isOpen: false, isMaximized: false, zIndex: 100 },
         game: { id: 'game', isOpen: false, isMaximized: false, zIndex: 100 },
         profile: { id: 'profile', isOpen: false, isMaximized: false, zIndex: 100 },
+        friends: { id: 'friends', isOpen: false, isMaximized: false, zIndex: 100 }
     });
     
     const [activeWindows, setActiveWindows] = useState<WindowType[]>([]);
     const [nextZIndex, setNextZIndex] = useState(200);
 
-    const openWindow = (type: WindowType) => {
-        setWindows(prev => ({
-            ...prev,
-            [type]: { ...prev[type], isOpen: true, zIndex: nextZIndex }
-        }));
-        setNextZIndex(prev => prev + 1);
+    const openWindow = (type: WindowType, data?: any) => {
+        setWindows(prev => {
+
+            const existing = prev[type];
+            if (existing) {
+                return {
+                    ...prev,
+                    [type]: { ...existing, isOpen: true, zIndex: nextZIndex, data: data || existing.data }
+                };
+            } else {
+                return {
+                    ...prev,
+                    [type]: { 
+                        id: type, 
+                        isOpen: true, 
+                        isMaximized: false, 
+                        zIndex: nextZIndex,
+                        data: data
+                    }
+                };
+            }
+        });
         
         if (!activeWindows.includes(type)) {
             setActiveWindows(prev => [...prev, type]);

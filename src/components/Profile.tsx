@@ -80,9 +80,9 @@ const Profile: React.FC = () => {
     return (
         <div style={{ padding: '20px', color: 'var(--text-primary)', height: '100%', overflowY: 'auto' }}>
             <div style={{ display: 'flex', gap: '20px', marginBottom: '30px' }}>
-                <div style={{ width: '100px', height: '100px', background: 'var(--bg-tertiary)', border: '2px solid var(--border-primary)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '40px' }}>
+                {/* <div style={{ width: '100px', height: '100px', background: 'var(--bg-tertiary)', border: '2px solid var(--border-primary)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '40px' }}>
                     👤
-                </div>
+                </div> */}
                 <div style={{ flex: 1 }}>
                     <div style={{ marginBottom: '10px' }}>
                         <label style={{ display: 'block', color: 'var(--text-secondary)', fontSize: '12px', marginBottom: '4px' }}>USERNAME</label>

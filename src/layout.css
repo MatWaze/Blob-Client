@@ -3,4 +3,6 @@
     position: relative;
     overflow: hidden;
     width: 100%;
+    /* top: 0; left: 0; removed as it is relative */
+    border: 1px solid transparent; /* Helps with boundary calculation */
 }
