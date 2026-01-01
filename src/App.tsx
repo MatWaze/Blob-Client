@@ -10,7 +10,6 @@ import Game from './components/Game';
 import Profile from './components/Profile';
 import ErrorBoundary from './components/ErrorBoundary';
 import FriendsList from './components/FriendsList';
-import Chat from './components/Chat';
 import GameSelector from './components/GameSelector';
 
 function AppContent() {
@@ -50,17 +49,17 @@ function AppContent() {
 				</Window>
 
 				{Object.values(windows).map((win) => {
-					if (win.id.startsWith('chat-') && win.data) {
-						return (
-							<Window 
-								key={win.id} 
-								type={win.id} 
-								title={`💬 ${win.data.username}`}
-							>
-								<Chat friendId={win.data.friendId} username={win.data.username} />
-							</Window>
-						);
-					}
+					// if (win.id.startsWith('chat-') && win.data) {
+					// 	return (
+					// 		<Window 
+					// 			key={win.id} 
+					// 			type={win.id} 
+					// 			title={`💬 ${win.data.username}`}
+					// 		>
+					// 			<Chat friendId={win.data.friendId} username={win.data.username} />
+					// 		</Window>
+					// 	);
+					// }
 					if (win.id === 'game-selector' && win.data) {
 						return (
 							<Window 
