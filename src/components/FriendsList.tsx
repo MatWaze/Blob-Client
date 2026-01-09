@@ -107,6 +107,7 @@ const FriendsList: React.FC<FriendsListProps> = ({ onInvite }) => {
 
 	const inviteToGame = (e: React.MouseEvent, friend: UserProfile) => {
 		e.stopPropagation();
+		// maybe `game-selector:${friend.id}` later
 		openWindow('game-selector', { friendId: friend.id, username: friend.username });
 	};
 
