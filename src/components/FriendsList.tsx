@@ -34,7 +34,7 @@ const FriendsList: React.FC<FriendsListProps> = ({ onInvite }) => {
 	const [loading, setLoading] = useState(false);
 	const [msg, setMsg] = useState<{type: 'error'|'success', text: string} | null>(null);
 
-	const serverUrl = "http://localhost:4000";
+	const serverUrl = import.meta.env.VITE_SERVER_URL;
 
 	// --- API Helpers ---
 	const apiCall = useCallback(async (endpoint: string, method: string = 'GET', body?: any) => {

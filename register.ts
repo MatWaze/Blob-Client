@@ -1,3 +1,7 @@
+import { config } from "dotenv";
+
+config();
+
 interface User {
 	id: number;
 	username: string;
@@ -24,7 +28,7 @@ var togglePasswordBtn = document.getElementById('togglePassword') as HTMLButtonE
 const toggleConfirmPasswordBtn = document.getElementById('toggleConfirmPassword') as HTMLButtonElement;
 var passwordInput = document.getElementById('password') as HTMLInputElement;
 const confirmPasswordInput = document.getElementById('confirmPassword') as HTMLInputElement;
-const serverUrl = "http://localhost:4000";
+const serverUrl = import.meta.env.SERVER_URL;
 
 // Toggle password visibility
 togglePasswordBtn.addEventListener('click', () => {

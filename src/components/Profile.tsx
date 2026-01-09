@@ -10,7 +10,7 @@ const Profile: React.FC = () => {
     const [transactions, setTransactions] = useState<any[]>([]);
     const [games, setGames] = useState<any[]>([]);
     const [loading, setLoading] = useState(false);
-    const serverUrl = "http://localhost:4000";
+    const serverUrl = import.meta.env.VITE_SERVER_URL;
 
     useEffect(() => {
         if (user) {

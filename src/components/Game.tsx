@@ -6,7 +6,7 @@ const Game: React.FC = () => {
     const { user } = useAuth();
     const { theme } = useTheme();
     const iframeRef = useRef<HTMLIFrameElement>(null);
-    const gameUrl = "http://localhost:3000"; // Or from env
+    const gameUrl = import.meta.env.VITE_GAME_URL; // Or from env
 
     useEffect(() => {
         const handleMessage = (event: MessageEvent) => {
