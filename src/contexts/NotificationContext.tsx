@@ -41,7 +41,7 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
 	const MAX_VISIBLE_NOTIFICATIONS = 5; // cap concurrent toasts to keep UI uncluttered
 	const [notifications, setNotifications] = useState<Notification[]>([]);
 	const { user } = useAuth();
-	const { openWindow } = useWindow();
+	const { openWindow, closeWindow } = useWindow();
 	const { socket, isConnected } = useSocket();
 
 	useEffect(() =>
@@ -108,12 +108,18 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
 	const acceptGameInvite = useCallback((roomId: string) =>
 	{
-		openWindow('game');
+		// Force close first to ensure the Game component unmounts
+        closeWindow('game');
 
-		if (socket && isConnected) {
-			socket.send(JSON.stringify({ type: 'JOIN_ROOM', roomId }));
-		}
-	}, [openWindow, socket, isConnected]);
+        // Small delay to allow the close to process and the component to remount cleanly with new state
+        setTimeout(() => {
+            openWindow('game');
+
+            if (socket && isConnected) {
+                socket.send(JSON.stringify({ type: 'JOIN_ROOM', roomId }));
+            }
+        }, 50);
+	}, [openWindow, closeWindow, socket, isConnected]);
 
 	return (
 		<NotificationContext.Provider value={{ notifications, addNotification, removeNotification, acceptGameInvite }}>
