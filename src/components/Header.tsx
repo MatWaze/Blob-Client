@@ -29,9 +29,9 @@ const Header: React.FC = () => {
                 )} */}
                 {/* <button className="nav-btn" disabled={!isAuthenticated} onClick={() => openWindow('game')}>Pong</button>
                 <button className="nav-btn" disabled={!isAuthenticated} onClick={() => openWindow('profile')}>Profile</button> */}
-                {isAuthenticated && (
+                {/* {isAuthenticated && (
                     <button className="nav-btn" onClick={logout}>Logout</button>
-                )}
+                )} */}
             </div>
         </div>
     );

@@ -24,27 +24,27 @@ function AppContent() {
 
 	return (
 		<>
-			<Header />
+			{/* <Header /> */}
 			<div className="main-content">
 				<WelcomeScreen />
 				
-				<Window type="login" title="🔐 Login">
+				<Window type="login" title="Login">
 					<Login />
 				</Window>
 				
-				<Window type="register" title="📝 Register">
+				<Window type="register" title="Register">
 					<Register />
 				</Window>
 				
-				<Window type="game" title="🎮 Game">
+				<Window type="game" title="Pong">
 					<Game />
 				</Window>
 				
-				<Window type="profile" title="👤 Profile">
+				<Window type="profile" title="Profile">
 					<Profile />
 				</Window>
 
-				<Window type="friends" title="👥 Friends">
+				<Window type="friends" title="Friends">
 					<FriendsList />
 				</Window>
 
@@ -65,7 +65,7 @@ function AppContent() {
 							<Window 
 								key={win.id} 
 								type={win.id} 
-								title="🎮 Invite to Game"
+								title="Invite to Game"
 							>
 								<GameSelector friendId={win.data.friendId} username={win.data.username} />
 							</Window>
