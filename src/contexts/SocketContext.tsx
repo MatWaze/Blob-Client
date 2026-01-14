@@ -15,7 +15,7 @@ export const SocketProvider: React.FC<{ children: ReactNode }> = ({ children }) 
 
     useEffect(() => {
         if (isAuthenticated) {
-            const ws = new WebSocket('ws://localhost:4000/ws/lobby');
+            const ws = new WebSocket(`${import.meta.env.VITE_SERVER_WS_URL}/lobby`);
 
             ws.onopen = () => {
                 console.log('Lobby WebSocket Connected');

@@ -1,7 +1,3 @@
-import { config } from "dotenv";
-
-config();
-
 interface User {
 	id: number;
 	username: string;
