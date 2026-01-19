@@ -1,11 +1,15 @@
 .welcome-title {
-    width: 450px;
-    height: 350px;
+    width: 100%;
+    height: 360px;
 }
 
 .welcome-title img {
     width: 100%;
     height: 100%;
     object-fit: contain;
-    margin-top: 60px;
+    margin-top: 50px;
+}
+
+.welcome-buttons {
+    padding-bottom: 90px;
 }
