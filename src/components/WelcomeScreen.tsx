@@ -2,7 +2,8 @@ import React from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useWindow } from '../contexts/WindowContext';
 import { useTheme } from '../contexts/ThemeContext';
-import logo from "../../logo.png";
+import logo from '../../logo.png';
+import './WelcomeScreen.css'
 
 const WelcomeScreen: React.FC = () => {
     const { isAuthenticated, logout } = useAuth();
