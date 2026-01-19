@@ -2,7 +2,7 @@ import React from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useWindow } from '../contexts/WindowContext';
 import { useTheme } from '../contexts/ThemeContext';
-import logo from "../../mamazari.jpg";
+import logo from "../../logo.png";
 
 const WelcomeScreen: React.FC = () => {
     const { isAuthenticated, logout } = useAuth();
@@ -15,7 +15,7 @@ const WelcomeScreen: React.FC = () => {
     return (
         <div className="welcome-screen">
             <div className="welcome-title">
-                <img src={logo} alt="Logo" className="welcome-logo" width={200} height={200}/>
+                <img src={logo} alt="Logo" className="welcome-logo"/>
             </div>
             <div className="welcome-subtitle">Choose an option to get started</div>
             <div className="welcome-buttons">
