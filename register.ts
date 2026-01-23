@@ -24,7 +24,7 @@ var togglePasswordBtn = document.getElementById('togglePassword') as HTMLButtonE
 const toggleConfirmPasswordBtn = document.getElementById('toggleConfirmPassword') as HTMLButtonElement;
 var passwordInput = document.getElementById('password') as HTMLInputElement;
 const confirmPasswordInput = document.getElementById('confirmPassword') as HTMLInputElement;
-const serverUrl = import.meta.env.SERVER_URL;
+const serverUrl = import.meta.env.VITE_SERVER_URL;
 
 // Toggle password visibility
 togglePasswordBtn.addEventListener('click', () => {
