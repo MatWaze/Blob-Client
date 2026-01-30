@@ -90,8 +90,7 @@ form.addEventListener('submit', async (e: Event) => {
 		if (res.ok) {
 			setTimeout(() => {
 				window.parent.postMessage({
-					type: 'LOGIN_SUCCESS',
-					user: data.user
+					type: 'LOGIN_SUCCESS'
 				}, '*');
 			}, 100);
 

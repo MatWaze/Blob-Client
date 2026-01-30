@@ -12,7 +12,6 @@ const Login: React.FC = () => {
     useEffect(() => {
         const handleMessage = (event: MessageEvent) => {
             if (event.data.type === 'LOGIN_SUCCESS') {
-                login(event.data.user);
                 closeWindow('login');
             }
         };

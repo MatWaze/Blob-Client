@@ -1,16 +1,31 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 
-type Tab = 'info' | 'transactions' | 'games';
+type Tab = 'info' | 'transactions' | 'games' | 'balance';
 
 const Profile: React.FC = () => {
-    const { user, checkSession } = useAuth();
+    const { user, updateUser, fetchWithAuth } = useAuth();
     const [activeTab, setActiveTab] = useState<Tab>('info');
     const [walletAddress, setWalletAddress] = useState(user?.walletAddress || '');
+    const [withdrawAmountInput, setWithdrawAmountInput] = useState('');
     const [transactions, setTransactions] = useState<any[]>([]);
     const [games, setGames] = useState<any[]>([]);
     const [loading, setLoading] = useState(false);
     const serverUrl = import.meta.env.VITE_SERVER_URL;
+
+    const refreshFullProfile = async () => {
+        try {
+            const response = await fetchWithAuth(`${serverUrl}/api/users/current/full`);
+            if (response.ok) {
+                const data = await response.json();
+                if (data.success && data.user) {
+                    updateUser(data.user); // Updates the global AuthContext user state
+                }
+            }
+        } catch (error) {
+            console.error('Failed to load profile data', error);
+        }
+    };
 
     useEffect(() => {
         if (user) {
@@ -19,36 +34,60 @@ const Profile: React.FC = () => {
     }, [user]);
 
     useEffect(() => {
-        if (activeTab === 'transactions') {
+        if (activeTab === 'transactions')
+        {
             loadTransactions();
-        } else if (activeTab === 'games') {
+        }
+        else if (activeTab === 'games')
+        {
             loadGames();
+        }
+        else if (activeTab === 'balance')
+        {
+            refreshFullProfile();
         }
     }, [activeTab]);
 
     const updateWallet = async () => {
         try {
-            const response = await fetch(`${serverUrl}/api/users/wallet`, {
+            const response = await fetchWithAuth(`${serverUrl}/api/users`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ walletAddress }),
-                credentials: 'include'
+                body: JSON.stringify({ walletAddress })
             });
             if (response.ok) {
-                alert('Wallet updated');
-                checkSession(); // Refresh user data
-            } else {
-                alert('Failed to update wallet');
+                refreshFullProfile(); // Refresh user data
             }
         } catch (error) {
             console.error(error);
         }
     };
 
+    const handleWithdraw = async () => {
+        if (!withdrawAmountInput) return;
+        try {
+            const response = await fetchWithAuth(`${serverUrl}/api/transactions/withdraw`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ amount: Number(withdrawAmountInput) })
+            });
+
+            if (response.ok) {
+                setWithdrawAmountInput('');
+                await refreshFullProfile();
+            } else {
+                const data = await response.json();
+            }
+        } catch (error) {
+            console.error('Withdraw error:', error);
+        }
+    };
+
+
     const loadTransactions = async () => {
         setLoading(true);
         try {
-            const response = await fetch(`${serverUrl}/api/transactions`, { credentials: 'include' });
+            const response = await fetchWithAuth(`${serverUrl}/api/transactions`);
             if (response.ok) {
                 const data = await response.json();
                 setTransactions(data.transactions || []);
@@ -63,7 +102,7 @@ const Profile: React.FC = () => {
     const loadGames = async () => {
         setLoading(true);
         try {
-            const response = await fetch(`${serverUrl}/api/tournaments`, { credentials: 'include' });
+            const response = await fetchWithAuth(`${serverUrl}/api/tournaments`);
             if (response.ok) {
                 const data = await response.json();
                 setGames(data.tournaments || []);
@@ -97,6 +136,7 @@ const Profile: React.FC = () => {
 
             <div className="profile-tabs">
                 <div className={`profile-tab ${activeTab === 'info' ? 'active' : ''}`} onClick={() => setActiveTab('info')}>Info</div>
+                <div className={`profile-tab ${activeTab === 'balance' ? 'active' : ''}`} onClick={() => setActiveTab('balance')}>Balance</div>
                 <div className={`profile-tab ${activeTab === 'transactions' ? 'active' : ''}`} onClick={() => setActiveTab('transactions')}>Transactions</div>
                 <div className={`profile-tab ${activeTab === 'games' ? 'active' : ''}`} onClick={() => setActiveTab('games')}>Recent Games</div>
             </div>
@@ -114,6 +154,32 @@ const Profile: React.FC = () => {
                                 style={{ flex: 1, background: 'var(--bg-tertiary)', border: '1px solid var(--border-secondary)', color: 'var(--text-primary)', padding: '8px', borderRadius: '4px' }} 
                             />
                             <button onClick={updateWallet} className="nav-btn">Update</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {activeTab === 'balance' && (
+                <div className="profile-section active">
+                    <div style={{ marginBottom: '20px' }}>
+                        <label style={{ display: 'block', color: 'var(--text-secondary)', fontSize: '12px', marginBottom: '4px' }}>CURRENT BALANCE</label>
+                        <div style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '20px' }}>
+                            {user.balance} BLOB
+                        </div>
+
+                        <label style={{ display: 'block', color: 'var(--text-secondary)', fontSize: '12px', marginBottom: '4px' }}>WITHDRAW</label>
+                        <div style={{ display: 'flex', gap: '10px', marginBottom: '8px' }}>
+                            <input 
+                                type="number" 
+                                value={withdrawAmountInput}
+                                onChange={(e) => setWithdrawAmountInput(e.target.value)}
+                                placeholder="Amount" 
+                                style={{ flex: 1, background: 'var(--bg-tertiary)', border: '1px solid var(--border-secondary)', color: 'var(--text-primary)', padding: '8px', borderRadius: '4px' }} 
+                            />
+                            <button onClick={handleWithdraw} className="nav-btn">Withdraw</button>
+                        </div>
+                        <div style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>
+                            you can withdraw {user.withdrawAmount} BLOB
                         </div>
                     </div>
                 </div>
