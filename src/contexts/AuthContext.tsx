@@ -17,6 +17,7 @@ interface AuthContextType {
     updateUser: (user: User) => void;
     logout: () => Promise<void>;
     fetchWithAuth: (url: string, options?: RequestInit) => Promise<Response>;
+    checkStatus: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -98,6 +99,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         return null;
     }, [serverUrl, logout, isAuthenticated]);
 
+    // Expose attemptRefresh as checkStatus
+    const checkStatus = useCallback(async () => {
+        await attemptRefresh();
+    }, [attemptRefresh]);
+
     // Initial check on mount
     useEffect(() => {
         attemptRefresh();
@@ -153,7 +159,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }, [attemptRefresh]);
 
     return (
-        <AuthContext.Provider value={{ user, isAuthenticated, accessToken, login, updateUser, logout, fetchWithAuth }}>
+        <AuthContext.Provider value={{ user, isAuthenticated, accessToken, login, updateUser, logout, fetchWithAuth, checkStatus }}>
             {children}
         </AuthContext.Provider>
     );

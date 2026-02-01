@@ -1,0 +1,95 @@
+.balance-display {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.balance-label {
+  font-size: 12px;
+  color: #888;
+}
+
+.balance-amount {
+  font-size: 28px;
+  font-weight: 700;
+  color: #4ade80;
+}
+
+.games-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.game-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px;
+  background: rgba(50, 50, 50, 0.5);
+  border-radius: 4px;
+  border-left: 3px solid;
+}
+
+.game-item.win {
+  border-left-color: #4ade80;
+}
+
+.game-item.loss {
+  border-left-color: #ef4444;
+}
+
+.game-opponent {
+  font-weight: 500;
+}
+
+.game-score {
+  color: #aaa;
+  font-family: monospace;
+}
+
+.game-result {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 3px;
+}
+
+.game-result.win {
+  background: rgba(74, 222, 128, 0.2);
+  color: #4ade80;
+}
+
+.game-result.loss {
+  background: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 15px;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 10px;
+  background: rgba(50, 50, 50, 0.5);
+  border-radius: 6px;
+}
+
+.stat-value {
+  font-size: 24px;
+  font-weight: 700;
+  color: #4a90d9;
+}
+
+.stat-label {
+  font-size: 11px;
+  color: #888;
+  text-transform: uppercase;
+}

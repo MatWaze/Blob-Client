@@ -13,7 +13,6 @@ const NotificationContainer: React.FC = () => {
 				<div key={note.id} className={`notification-toast ${note.type}`}>
 					<div className="notification-header">
 						<strong className="notification-title">{note.title}</strong>
-						<button className="close-btn" onClick={() => removeNotification(note.id)}>×</button>
 					</div>
 					<div className="notification-body">
 						{note.message}

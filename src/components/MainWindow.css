@@ -1,0 +1,78 @@
+.main-window {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: rgba(30, 30, 30, 0.95);
+  border: 2px solid #444;
+  border-radius: 8px;
+  min-height: 300px;
+  flex: 1;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.main-window.maximized {
+  flex: 3;
+  min-height: 400px;
+}
+
+.main-window-header {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  background: linear-gradient(180deg, #3a3a3a, #2a2a2a);
+  border-bottom: 1px solid #555;
+  gap: 10px;
+}
+
+.main-window-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.main-window-btn {
+  width: 24px;
+  height: 24px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.minimize-btn {
+  background: #4a90d9;
+  color: white;
+}
+
+.minimize-btn:hover {
+  background: #5aa0e9;
+}
+
+.close-btn {
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+  background: #d94a4a;
+  color: white;
+}
+
+.close-btn:hover {
+  background: #e95a5a;
+}
+
+.main-window-content {
+  flex: 1;
+  padding: 15px;
+  overflow-y: auto;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  align-content: flex-start;
+}

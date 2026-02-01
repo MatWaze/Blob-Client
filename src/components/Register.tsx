@@ -1,25 +1,13 @@
 import React, { useEffect, useRef } from 'react';
-import { useAuth } from '../contexts/AuthContext';
-import { useWindow } from '../contexts/WindowContext';
 import { useTheme } from '../contexts/ThemeContext';
 
 const Register: React.FC = () => {
-    const { login } = useAuth();
-    const { closeWindow } = useWindow();
     const { theme } = useTheme();
     const iframeRef = useRef<HTMLIFrameElement>(null);
 
-    useEffect(() => {
-        const handleMessage = (event: MessageEvent) => {
-            if (event.data.type === 'LOGIN_SUCCESS') {
-                login(event.data.user);
-                closeWindow('register');
-            }
-        };
-
-        window.addEventListener('message', handleMessage);
-        return () => window.removeEventListener('message', handleMessage);
-    }, [login, closeWindow]);
+    // No need to manually listen for LOGIN_SUCCESS here to call login(),
+    // because AuthContext does it globally and will update isAuthenticated.
+    // Dashboard will then re-render and remove this component.
 
     return (
         <iframe 

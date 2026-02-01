@@ -23,7 +23,7 @@ interface FriendsListProps {
 }
 
 const FriendsList: React.FC<FriendsListProps> = ({ onInvite }) => {
-	const { user } = useAuth();
+	const { user, fetchWithAuth } = useAuth();
 	const [activeTab, setActiveTab] = useState<'friends' | 'requests' | 'add'>('friends');
 	const { openWindow, activeWindows, windows } = useWindow();
 	
@@ -39,12 +39,15 @@ const FriendsList: React.FC<FriendsListProps> = ({ onInvite }) => {
 	// --- API Helpers ---
 	const apiCall = useCallback(async (endpoint: string, method: string = 'GET', body?: any) => {
 		try {
-			const res = await fetch(`${serverUrl}/api/friends${endpoint}`, {
+			// Change fetch to fetchWithAuth
+			// Removed 'credentials: include' because fetchWithAuth handles it or headers are sufficient
+			// But fetchWithAuth forwards options, so we can keep credentials just in case, 
+			// though 'Authorization' header is the main auth now.
+			const res = await fetchWithAuth(`${serverUrl}/api/friends${endpoint}`, {
 				method: method,
-				credentials: 'include',
 				body: JSON.stringify(body),
 				headers:
-				!endpoint.includes("/accept")
+				!endpoint.includes("/accept") && method !== 'GET' // Only add content-type for body requests
 				?
 				{ 'Content-Type': 'application/json' }
 				:

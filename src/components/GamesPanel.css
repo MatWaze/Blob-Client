@@ -1,0 +1,86 @@
+.game-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  text-align: center;
+}
+
+.game-card.coming-soon {
+  opacity: 0.6;
+}
+
+.game-icon {
+  font-size: 48px;
+}
+
+.game-info h3 {
+  margin: 0;
+  font-size: 18px;
+  color: #fff;
+}
+
+.game-info p {
+  margin: 5px 0 0;
+  font-size: 12px;
+  color: #888;
+}
+
+.game-stats {
+  display: flex;
+  gap: 15px;
+  margin-top: 8px;
+  font-size: 11px;
+  color: #aaa;
+}
+
+.play-btn {
+  padding: 10px 24px;
+  background: linear-gradient(180deg, #4a90d9, #3a7bc8);
+  border: none;
+  border-radius: 6px;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.play-btn:hover:not(:disabled) {
+  background: linear-gradient(180deg, #5aa0e9, #4a8bd8);
+  transform: translateY(-2px);
+}
+
+.play-btn:disabled {
+  background: #555;
+  cursor: not-allowed;
+}
+
+.quick-match {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+  padding: 10px;
+}
+
+.quick-match p {
+  margin: 0;
+  color: #aaa;
+}
+
+.quick-match-btn {
+  padding: 15px 40px;
+  background: linear-gradient(180deg, #4ade80, #22c55e);
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.quick-match-btn:hover {
+  background: linear-gradient(180deg, #5aee90, #32d56e);
+  transform: scale(1.05);
+}

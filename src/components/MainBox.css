@@ -1,0 +1,242 @@
+.main-box {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  border: 2px solid var(--box-color, var(--border-color)); /* <-- use per-box variable */
+  border-radius: 12px;
+  background: var(--bg-secondary);
+  overflow: hidden;
+  transition: all 0.24s ease;
+  flex: 1 0 auto;
+  min-width: 200px;
+  cursor: pointer;
+
+  /* Enable container queries to check width/height */
+  container-type: size;
+}
+
+.main-box.open {
+  cursor: default;
+  /* Ensure it has enough height when stacked vertically */
+  min-height: 300px;
+  flex-shrink: 0;
+}
+
+.main-box.maximized {
+  position: fixed;
+  inset: 20px;
+  z-index: 1000;
+  border-radius: 12px;
+  width: auto;
+  height: auto;
+  max-width: calc(100vw - 40px);
+  max-height: calc(100vh - 40px);
+  background: var(--bg-secondary);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.6);
+  overflow: auto;
+}
+
+/* Collapsed state */
+.main-box-collapsed {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 30px;
+  background: linear-gradient(135deg, 
+    rgba(255,255,255,0.05), 
+    /* transparent 25%, 
+    transparent 50%,  */
+    rgba(255,255,255,0.05), 
+    rgba(255,255,255,0.05), 
+    /*transparent 75%*/);
+  background-size: 20px 20px;
+}
+
+.main-box-collapsed:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.main-box-icon {
+  font-size: 80px;
+  margin-bottom: 20px;
+}
+
+.main-box-icon img {
+  width: 120px;
+  height: 120px;
+  object-fit: contain;
+}
+
+.main-box-title {
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--box-color);
+  font-style: italic;
+}
+
+/* Expanded state */
+.main-box-header {
+  display: flex;
+  align-items: center;
+  padding: 10px 15px;
+  background: linear-gradient(180deg, rgba(50,50,50,0.9), rgba(40,40,40,0.9));
+  border-bottom: 2px solid var(--box-color);
+  gap: 10px;
+}
+
+.main-box-header-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+  flex: 1;
+}
+
+.main-box-header-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.main-box-btn {
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  background: rgba(255,255,255,0.1);
+  color: white;
+}
+
+.main-box-btn:hover {
+  background: rgba(255,255,255,0.2);
+}
+
+.minimize-btn {
+  background: var(--box-color);
+}
+
+.maximize-btn {
+  background: #22c55e;
+}
+
+.maximize-btn:hover {
+  background: #16a34a;
+}
+
+.close-btn {
+  position: absolute;
+  bottom: 15px;
+  left: 15px;
+  background: #d94a4a;
+}
+
+.close-btn:hover {
+  background: #e95a5a;
+}
+
+.main-box-content {
+  flex: 1;
+  padding: 40px 20px 20px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  overflow-y: hidden; /* Prevent scrolling when one item is maximized */
+  position: relative; /* Needed for absolute positioning context */
+}
+
+/* 
+  If a .sub-box is maximized, it takes up the full .main-box-content.
+  We use the behavior of absolute positioning in SubBox.css to overlay.
+*/
+
+/* Hide the old header */
+.main-box-header { display: none; }
+
+/* Base button style */
+.corner-btn {
+  position: absolute;
+  width: 40px;
+  height: 40px;
+  border: none;
+  background: var(--box-color); /* Matches the box outline color */
+  color: white;
+  font-weight: bold;
+  font-size: 14px;
+  cursor: pointer;
+  z-index: 50;
+  display: flex;
+  transition: all 0.2s ease;
+  padding: 0;
+  border-radius: 0; /* Sharp corners for triangles */
+  opacity: 0.8;
+}
+
+.corner-btn:hover {
+  opacity: 1;
+  transform: scale(1.1); /* Slight grow effect */
+  z-index: 51; /* Bring to very front on hover */
+}
+
+/* TOP LEFT (Close) */
+.corner-btn.top-left {
+  top: 0;
+  left: 0;
+  /* Triangle shape: top-left corner */
+  clip-path: polygon(0 0, 100% 0, 0 100%);
+  /* Align text to the visible top-left part */
+  align-items: flex-start;
+  justify-content: flex-start;
+  padding-top: 6px;
+  padding-left: 8px;
+}
+
+/* TOP RIGHT (Maximize) */
+.corner-btn.top-right {
+  top: 0;
+  right: 0;
+  /* Triangle shape: top-right corner */
+  clip-path: polygon(0 0, 100% 0, 100% 100%);
+  /* Align text to the visible top-right part */
+  align-items: flex-start;
+  justify-content: flex-end;
+  padding-top: 6px;
+  padding-right: 8px;
+}
+
+/* BOTTOM LEFT (Restore - only visible when maximized) */
+.corner-btn.bottom-left {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  /* Triangle shape: bottom-left corner */
+  clip-path: polygon(0 0, 0 100%, 100% 100%);
+  /* Slightly larger for better hit area in full screen */
+  width: 60px;
+  height: 60px;
+  font-size: 20px;
+  /* Align text to the visible bottom-left part */
+  align-items: flex-end;
+  justify-content: flex-start;
+  padding-bottom: 10px;
+  padding-left: 10px;
+}
+
+/* Ensure content doesn't overlap with the small triangles */
+.main-box-content {
+  /* Reduced padding since buttons are now small corners */
+  padding: 20px;
+  padding-top: 25px; 
+}
+
+/* Automatically switch to Horizontal Row when Width > Height */
+@container (orientation: landscape) {
+  .main-box-content {
+    flex-direction: row;
+  }
+}

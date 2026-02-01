@@ -1,7 +1,9 @@
 .main-content {
-    height: 100vh; /* Full height since header is removed */
+    min-height: 100vh;
     position: relative;
-    overflow: hidden;
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
     width: 100%;
     /* top: 0; left: 0; removed as it is relative */
     border: 1px solid transparent; /* Helps with boundary calculation */
