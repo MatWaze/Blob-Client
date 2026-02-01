@@ -44,6 +44,11 @@ const WalletContent: React.FC = () => {
 		} catch (e) { console.error(e); }
 	};
 
+	// Fetch current balance on mount
+	useEffect(() => {
+		refreshProfile();
+	}, []);
+
 	const handleUpdateWallet = async () => {
 		try {
 			const res = await fetchWithAuth(`${serverUrl}/api/users`, {
@@ -83,8 +88,8 @@ const WalletContent: React.FC = () => {
 		<div className="wallet-content">
 			<div className="wallet-header-card">
 				<h3>Balance</h3>
-				<p className="balance">{user?.balance || 0} BLOB</p>
-				<span className="withdrawable">Withdrawable: {user?.withdrawAmount || 0}</span>
+				<p className="balance">{(user?.balance || 0).toFixed(2)} BLOB</p>
+				<span className="withdrawable">Withdrawable: {(user?.withdrawAmount || 0).toFixed(2)}</span>
 			</div>
 			<div className="wallet-actions">
 				{msg && <div className={`wallet-msg ${msg.type}`}>{msg.text}</div>}
