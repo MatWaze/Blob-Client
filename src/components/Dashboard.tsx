@@ -24,132 +24,200 @@ const RegisterIcon = () => <span>📝</span>;
 // --- Content Components ---
 
 const WalletContent: React.FC = () => {
-	const { user, fetchWithAuth, updateUser } = useAuth();
-	const [walletAddress, setWalletAddress] = useState(user?.walletAddress || '');
-	const [withdrawAmount, setWithdrawAmount] = useState('');
-	const [msg, setMsg] = useState<{type: 'success'|'error', text: string} | null>(null);
-	const serverUrl = import.meta.env.VITE_SERVER_URL;
+    const { user, fetchWithAuth, updateUser } = useAuth();
+    const [walletAddress, setWalletAddress] = useState(user?.walletAddress || '');
+    const [withdrawAmount, setWithdrawAmount] = useState('');
+    const [msg, setMsg] = useState<{type: 'success'|'error', text: string} | null>(null);
+    const serverUrl = import.meta.env.VITE_SERVER_URL;
 
-	const [savedAddress, setSavedAddress] = useState(user?.walletAddress || '');
+    const [savedAddress, setSavedAddress] = useState(user?.walletAddress || '');
+    
+    const [isSaving, setIsSaving] = useState(false);
+    const [isWithdrawing, setIsWithdrawing] = useState(false);
 
-	useEffect(() => {
-		if (user)
-		{
-			setWalletAddress(user.walletAddress || '');
-			setSavedAddress(user.walletAddress || '');
-		}
-	}, [user]);
+    // Auto-hide messages after 3 seconds
+    useEffect(() => {
+        if (msg) {
+            const timer = setTimeout(() => setMsg(null), 3000);
+            return () => clearTimeout(timer);
+        }
+    }, [msg]);
 
-	const refreshProfile = async () => {
-		try {
-			const res = await fetchWithAuth(`${serverUrl}/api/users/current/full`);
-			if (res.ok) {
-				const data = await res.json();
-				if (data.success && data.user)
-				{
-					updateUser(data.user);
-					setSavedAddress(data.user.walletAddress || '');
-				}
-			}
-		} catch (e) { console.error(e); }
-	};
+    useEffect(() => {
+        setWalletAddress(user?.walletAddress || '');
+        setSavedAddress(user?.walletAddress || '');
+    }, [user]);
 
-	// Fetch current balance on mount
-	useEffect(() => {
-		refreshProfile();
-	}, []);
+    const refreshProfile = async () => {
+        try {
+            const res = await fetchWithAuth(`${serverUrl}/api/users/current/full`);
+            if (res.ok) {
+                const data = await res.json();
+                if (data.success && data.user)
+                {
+                    updateUser(data.user);
+                    setSavedAddress(data.user.walletAddress || '');
+                }
+            }
+        } catch (e) { console.error(e); }
+    };
 
-	const handleUpdateWallet = async () => {
-		try {
-			const res = await fetchWithAuth(`${serverUrl}/api/users`, {
-				method: 'PUT',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ walletAddress })
-			});
-			if (res.ok) {
-				setMsg({ type: 'success', text: 'Wallet updated!' });
-				setSavedAddress(walletAddress);
-				refreshProfile();
-			} else {
-				setMsg({ type: 'error', text: 'Failed to update' });
-			}
-		} catch (e) { setMsg({ type: 'error', text: 'Error' }); }
-	};
+    // Fetch current balance on mount
+    useEffect(() => {
+        refreshProfile();
+    }, []);
 
-	const handleWithdraw = async () => {
-		if (!withdrawAmount) return;
-		try {
-			const res = await fetchWithAuth(`${serverUrl}/api/transactions/withdraw`, {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ amount: Number(withdrawAmount) })
-			});
-			if (res.ok) {
-				setMsg({ type: 'success', text: 'Success!' });
-				setWithdrawAmount('');
-				refreshProfile();
-			} else {
-				const data = await res.json();
-				setMsg({ type: 'error', text: data.message || 'Failed' });
-			}
-		} catch (e) { setMsg({ type: 'error', text: 'Error' }); }
-	};
+    const handleUpdateWallet = async () => {
+        if (isSaving) return;
 
-	const isAddressUnchanged = walletAddress === savedAddress;
+        setIsSaving(true);
+        setMsg(null); 
 
-	return (
-		<div className="wallet-content">
-			<div className="wallet-header-card">
-				<h3>Balance</h3>
-				<p className="balance">{(user?.balance || 0).toFixed(2)} BLOB</p>
-				<span className="withdrawable">Withdrawable: {(user?.withdrawAmount || 0).toFixed(2)}</span>
-			</div>
-			<div className="wallet-actions">
-				{msg && <div className={`wallet-msg ${msg.type}`}>{msg.text}</div>}
-				<div className="input-group">
-					<label>Address</label>
-					<div className="input-row">
-						<input value={walletAddress} onChange={(e) => setWalletAddress(e.target.value)} placeholder="0x..." />
-						<button onClick={handleUpdateWallet} className="action-btn" disabled={isAddressUnchanged} style={{ opacity: isAddressUnchanged ? 0.5 : 1, cursor: isAddressUnchanged ? 'not-allowed' : 'pointer' }}>Save</button>
-					</div>
-				</div>
-				<div className="input-group">
-					<label>Withdraw</label>
-					<div className="input-row">
-						<input type="number" value={withdrawAmount} onChange={(e) => setWithdrawAmount(e.target.value)} placeholder="0.00" />
-						<button onClick={handleWithdraw} className="action-btn withdraw">Cash Out</button>
-					</div>
-				</div>
-			</div>
-		</div>
-	);
+        try {
+            await new Promise(resolve => setTimeout(resolve, 500));
+
+            const res = await fetchWithAuth(`${serverUrl}/api/users`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ walletAddress })
+            });
+
+            if (res.ok) {
+                setMsg({ type: 'success', text: 'Wallet address updated!' });
+                setSavedAddress(walletAddress);
+                refreshProfile();
+            } else {
+                setMsg({ type: 'error', text: 'Failed to update wallet address' });
+            }
+        } catch (e) {
+            setMsg({ type: 'error', text: 'Network error' });
+        } finally {
+            setIsSaving(false);
+        }
+    };
+
+    const handleWithdraw = async () => {
+        if (!withdrawAmount) return;
+        if (isWithdrawing) return;
+        
+        setIsWithdrawing(true);
+        setMsg(null);
+
+        try {
+            await new Promise(resolve => setTimeout(resolve, 500));
+
+            const res = await fetchWithAuth(`${serverUrl}/api/transactions/withdraw`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ amount: Number(withdrawAmount) })
+            });
+
+            if (res.ok) {
+                setMsg({ type: 'success', text: 'Withdrawal successful!' });
+                setWithdrawAmount('');
+                refreshProfile();
+            } else {
+                const data = await res.json();
+                setMsg({ type: 'error', text: data.message || 'Withdrawal failed' });
+            }
+        } catch (error) {
+            setMsg({ type: 'error', text: 'Network error' });
+        } finally {
+            setIsWithdrawing(false);
+        }
+    };
+
+    // Check if address has changed from saved value
+    const isAddressUnchanged = walletAddress === savedAddress;
+
+    return (
+        <div className="wallet-content">
+            <div className="wallet-header-card">
+                <h3>Balance</h3>
+                <p className="balance">{(user?.balance ?? 0).toFixed(2)} BLOB</p>
+                <span className="withdrawable">Withdrawable: {(user?.withdrawAmount ?? 0).toFixed(2)}</span>
+            </div>
+
+            <div className="wallet-actions">
+                <div className="input-group">
+                    <label>Address</label>
+                    <div className="input-row">
+                        <input
+                            type="text"
+                            placeholder="0x..."
+                            value={walletAddress}
+                            onChange={e => setWalletAddress(e.target.value)}
+                            disabled={isSaving}
+                        />
+                        <button 
+                            className="action-btn" 
+                            onClick={handleUpdateWallet}
+                            disabled={isAddressUnchanged || isSaving}
+                            style={{ 
+                                opacity: (isAddressUnchanged || isSaving) ? 0.5 : 1, 
+                                cursor: (isAddressUnchanged || isSaving) ? 'not-allowed' : 'pointer' 
+                            }}
+                        >
+                            {isSaving ? 'Saving...' : 'Save'}
+                        </button>
+                    </div>
+                </div>
+
+                <div className="input-group">
+                    <label>Withdraw</label>
+                    <div className="input-row">
+                        <input 
+                            type="number" 
+                            placeholder="0.00"
+                            value={withdrawAmount}
+                            onChange={(e) => setWithdrawAmount(e.target.value)}
+                            disabled={isWithdrawing}
+                        />
+                        <button 
+                            className="action-btn withdraw" 
+                            onClick={handleWithdraw}
+                            disabled={isWithdrawing || !withdrawAmount}
+                            style={{ 
+                                opacity: (isWithdrawing || !withdrawAmount) ? 0.5 : 1, 
+                                cursor: (isWithdrawing || !withdrawAmount) ? 'not-allowed' : 'pointer' 
+                            }}
+                        >
+                            {isWithdrawing ? '...' : 'Cash Out'}
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            {msg && <div className={`wallet-msg ${msg.type}`}>{msg.text}</div>}
+        </div>
+    );
 };
 
 // --- Updated Stats Layout ---
 const StatsContent: React.FC = () => {
-	const { fetchWithAuth } = useAuth();
-	const [games, setGames] = useState<any[]>([]);
-	const [loading, setLoading] = useState(true);
-	const serverUrl = import.meta.env.VITE_SERVER_URL;
+    const { fetchWithAuth } = useAuth();
+    const [games, setGames] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
+    const serverUrl = import.meta.env.VITE_SERVER_URL;
 
-	useEffect(() => {
-		const loadGames = async () => {
-			try {
-				const response = await fetchWithAuth(`${serverUrl}/api/tournaments`);
-				if (response.ok) {
-					const data = await response.json();
-					setGames(data.tournaments || []);
-				}
-			} catch (error) { console.error(error); } finally { setLoading(false); }
-		};
-		loadGames();
-	}, [fetchWithAuth, serverUrl]);
+    useEffect(() => {
+        const loadGames = async () => {
+            try {
+                const response = await fetchWithAuth(`${serverUrl}/api/tournaments`);
+                if (response.ok) {
+                    const data = await response.json();
+                    setGames(data.tournaments || []);
+                }
+            } catch (error) { console.error(error); } finally { setLoading(false); }
+        };
+        loadGames();
+    }, [fetchWithAuth, serverUrl]);
 
-	if (loading) return <div>Loading...</div>;
+    if (loading) return <div>Loading...</div>;
 	
-	return (
-		<div className="stats-content">
-			<div className="game-list">
+    return (
+        <div className="stats-content">
+            <div className="game-list">
 					{games.length === 0 ? <div className="empty-state">No games played yet</div> : games.map((game, i) => (
 							<div key={i} className="game-item">
 									<div className="game-header">
@@ -161,9 +229,9 @@ const StatsContent: React.FC = () => {
 									</div>
 							</div>
 					))}
-			</div>
-		</div>
-	);
+            </div>
+        </div>
+    );
 };
 
 // --- Updated Friends Layout with GameSelector support ---
@@ -265,12 +333,12 @@ const FriendsContent: React.FC = () => {
 												<div key={f.id} className="friend-row">
 														<span className="name">{f.username}</span>
 														<button 
-																className="btn-small invite" 
+																className="action-btn" 
 																style={{ width: 'auto', padding: '0 8px', background: '#eab308' }}
 																onClick={() => setInviteTarget({ id: f.id, username: f.username })}
 																title="Invite to Game"
 														>
-																⚔️ Invite
+															Invite
 														</button>
 												</div>
 										))}
@@ -294,8 +362,14 @@ const FriendsContent: React.FC = () => {
 
 						{activeTab === 'add' && (
 								<form onSubmit={sendRequest} className="add-form">
-										<input type="email" placeholder="friend@email.com" value={targetEmail} onChange={e => setTargetEmail(e.target.value)} required />
-										<button type="submit">Send</button>
+										<input 
+                                            type="email" 
+                                            placeholder="friend@email.com" 
+                                            value={targetEmail} 
+                                            onChange={e => setTargetEmail(e.target.value)} 
+                                            required 
+										/>
+										<button type="submit" className="action-btn">Send Request</button>
 								</form>
 						)}
 				 </div>
@@ -437,7 +511,7 @@ const Dashboard: React.FC = () => {
 												</div>
 											</label>
 										</div>
-										<button className="nav-btn" onClick={logout}>Logout</button>
+										<button className="action-btn" onClick={logout}>Logout</button>
 									</div>
 								</SubBox>
 							</MainBox>

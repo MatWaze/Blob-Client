@@ -153,7 +153,7 @@ const FriendsList: React.FC<FriendsListProps> = ({ onInvite }) => {
 								</div>
 								<button 
 									onClick={(e) => inviteToGame(e, friend)}
-									className="play-button"
+									className="action-btn"
 								>
 									Invite to game
 								</button>

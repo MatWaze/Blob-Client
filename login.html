@@ -27,13 +27,20 @@
     }
     input { 
         width: 100%; 
-        padding: 8px; 
+        padding: 10px; 
         padding-right: 40px;
         margin-top: 5px; 
         box-sizing: border-box;
-        background: var(--bg-tertiary);
+        /* Standard Neutral Look */
+        background: rgba(255, 255, 255, 0.05);
         color: var(--text-primary);
-        border: 1px solid var(--border-primary);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 4px;
+        outline: none;
+    }
+    input:focus {
+        border-color: #3b82f6;
+        background: rgba(255, 255, 255, 0.1);
     }
     input::placeholder {
         color: var(--placeholder-color);
@@ -67,18 +74,104 @@
         margin-top: 20px; 
         padding: 10px; 
         width: 100%;
-        background: var(--bg-tertiary);
-        color: var(--text-primary);
-        border: 1px solid var(--border-primary);
+        background-color: #3b82f6; /* Blue */
+        color: white;
+        border: none;
+        border-radius: 4px;
         cursor: pointer;
-        transition: all 0.3s ease;
+        transition: all 0.2s ease;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
     }
     button:hover {
-        background: var(--border-primary);
-        color: var(--text-inverted);
+        background-color: #2563eb;
+        transform: translateY(-1px);
     }
     #error { color: var(--accent-error); margin-top: 10px; }
     #success { color: var(--accent-success); margin-top: 10px; }
+    /* OVERRIDE styles to match main app standard */
+    input { 
+        width: 100%; 
+        padding: 10px; 
+        padding-right: 40px;
+        margin-top: 5px; 
+        box-sizing: border-box;
+        /* Standard Neutral Look */
+        background: rgba(255, 255, 255, 0.05);
+        color: var(--text-primary);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 4px;
+        outline: none;
+    }
+    input:focus {
+        border-color: #3b82f6;
+        background: rgba(255, 255, 255, 0.1);
+    }
+    
+    /* Standard Blue Button */
+    button[type="submit"] { 
+        margin-top: 20px; 
+        padding: 10px; 
+        width: 100%;
+        background-color: #3b82f6; /* Blue */
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    button[type="submit"]:hover {
+        background-color: #2563eb;
+        transform: translateY(-1px);
+    }
+
+    /* Google Button adjust */
+    #googleSignInBtn {
+        border: 1px solid rgba(255,255,255,0.2) !important;
+    }
+
+    /* Light Theme Specific Overrides */
+    body.light-theme input {
+        background: rgba(0, 0, 0, 0.05); /* Light gray background */
+        border: 1px solid rgba(0, 0, 0, 0.2); /* Dark gray border */
+        color: #1f2937; /* Dark text */
+    }
+    
+    body.light-theme input:focus {
+        background: rgba(0, 0, 0, 0.08);
+        border-color: #3b82f6;
+    }
+
+    body.light-theme input::placeholder {
+        color: rgba(0, 0, 0, 0.4);
+    }
+
+    body.light-theme label {
+        color: #4b5563;
+    }
+    
+    body.light-theme .toggle-password {
+        color: #4b5563;
+    }
+
+    body.light-theme .toggle-password:hover {
+        color: #000;
+    }
+
+    /* Fix Google Button visibility in Light Mode */
+    body.light-theme #googleSignInBtn {
+        border: 1px solid rgba(0,0,0,0.2) !important;
+        background: #ffffff !important;
+        color: #1f2937 !important;
+    }
+    
+    body.light-theme #googleSignInBtn:hover {
+        background: #f3f4f6 !important;
+    }
   </style>
 </head>
 <body>
