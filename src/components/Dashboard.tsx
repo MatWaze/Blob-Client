@@ -30,8 +30,14 @@ const WalletContent: React.FC = () => {
 	const [msg, setMsg] = useState<{type: 'success'|'error', text: string} | null>(null);
 	const serverUrl = import.meta.env.VITE_SERVER_URL;
 
+	const [savedAddress, setSavedAddress] = useState(user?.walletAddress || '');
+
 	useEffect(() => {
-		if (user) setWalletAddress(user.walletAddress || '');
+		if (user)
+		{
+			setWalletAddress(user.walletAddress || '');
+			setSavedAddress(user.walletAddress || '');
+		}
 	}, [user]);
 
 	const refreshProfile = async () => {
@@ -39,7 +45,11 @@ const WalletContent: React.FC = () => {
 			const res = await fetchWithAuth(`${serverUrl}/api/users/current/full`);
 			if (res.ok) {
 				const data = await res.json();
-				if (data.success && data.user) updateUser(data.user);
+				if (data.success && data.user)
+				{
+					updateUser(data.user);
+					setSavedAddress(data.user.walletAddress || '');
+				}
 			}
 		} catch (e) { console.error(e); }
 	};
@@ -58,6 +68,7 @@ const WalletContent: React.FC = () => {
 			});
 			if (res.ok) {
 				setMsg({ type: 'success', text: 'Wallet updated!' });
+				setSavedAddress(walletAddress);
 				refreshProfile();
 			} else {
 				setMsg({ type: 'error', text: 'Failed to update' });
@@ -84,6 +95,8 @@ const WalletContent: React.FC = () => {
 		} catch (e) { setMsg({ type: 'error', text: 'Error' }); }
 	};
 
+	const isAddressUnchanged = walletAddress === savedAddress;
+
 	return (
 		<div className="wallet-content">
 			<div className="wallet-header-card">
@@ -97,7 +110,7 @@ const WalletContent: React.FC = () => {
 					<label>Address</label>
 					<div className="input-row">
 						<input value={walletAddress} onChange={(e) => setWalletAddress(e.target.value)} placeholder="0x..." />
-						<button onClick={handleUpdateWallet} className="action-btn">Save</button>
+						<button onClick={handleUpdateWallet} className="action-btn" disabled={isAddressUnchanged} style={{ opacity: isAddressUnchanged ? 0.5 : 1, cursor: isAddressUnchanged ? 'not-allowed' : 'pointer' }}>Save</button>
 					</div>
 				</div>
 				<div className="input-group">
