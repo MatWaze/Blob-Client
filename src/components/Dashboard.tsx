@@ -474,10 +474,10 @@ const Dashboard: React.FC = () => {
 								icon={<LoginIcon />} 
 								color="#f59e0b"
 							>
-								<SubBox title="Sign In" icon={<LoginIcon />} color="#f59e0b" defaultMaximized>
+								<SubBox title="Sign In" icon={<LoginIcon />} color="#f59e0b">
 									<Login />
 								</SubBox>
-								<SubBox title="Create Account" icon={<RegisterIcon />} color="#6366f1" defaultMaximized>
+								<SubBox title="Create Account" icon={<RegisterIcon />} color="#6366f1">
 									<Register />
 								</SubBox>
 							</MainBox>
@@ -542,7 +542,6 @@ const Dashboard: React.FC = () => {
 									title="Terms of Service"
 									icon={<InfoIcon />}
 									color="#2d30b7"
-									defaultMaximized
 								>
 
 								</SubBox>
@@ -550,7 +549,6 @@ const Dashboard: React.FC = () => {
 									title="About Blobox" 
 									icon={<InfoIcon />} 
 									color="#6366f1" 
-									defaultMaximized
 								>
 									<div style={{
 										padding: 20, 

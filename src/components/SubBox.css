@@ -1,7 +1,7 @@
 .sub-box {
   position: relative;
   background: var(--bg-secondary);
-  border: 1px solid var(--sub-color, var(--border-color)); /* <-- per-sub variable */
+  border: 1px solid var(--sub-color, var(--border-color));
   border-radius: 12px;
   overflow: hidden;
   display: flex;
@@ -9,13 +9,19 @@
   transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
   min-height: 150px;
   flex: 1;
+  z-index: 1; /* Base z-index for all SubBoxes */
 }
 
-/* Maximized: keep opaque and theme-driven */
+/* Open SubBox gets slightly higher z-index */
+.sub-box.open {
+  z-index: 10;
+}
+
+/* Maximized: takes over the entire parent */
 .sub-box.maximized {
   position: absolute;
   top: 0; left: 0; right: 0; bottom: 0;
-  z-index: 100;
+  z-index: 100; /* Much higher to cover siblings */
   border-width: 2px;
   background: var(--bg-secondary);
   margin: 0;
@@ -90,12 +96,17 @@
   font-weight: bold;
   font-size: 12px;
   cursor: pointer;
-  z-index: 20;
+  z-index: 5; /* Lower than parent's z-index when maximized */
   display: flex;
   padding: 0;
   opacity: 0.6;
   transition: all 0.2s;
   border-radius: 0; /* Sharp corner */
+}
+
+/* Buttons inside maximized SubBox need higher z-index */
+.sub-box.maximized .sub-corner-btn {
+  z-index: 101;
 }
 
 .sub-corner-btn:hover {
