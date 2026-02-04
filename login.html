@@ -46,26 +46,29 @@
         color: var(--placeholder-color);
     }
     .toggle-password {
-        position: absolute;
-        right: 10px;
-        top: 50%;
-        transform: translateY(-50%);
-        background: none;
-        border: none;
-        color: var(--text-primary);
-        cursor: pointer;
-        padding: 0;
-        width: auto;
-        margin: 0;
-        font-size: 18px;
-        line-height: 1;
-        display: flex;
-        align-items: center;
-        justify-content: center;
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%) !important; 
+      background: none;
+      border: none;
+      color: var(--text-primary);
+      cursor: pointer;
+      padding: 0;
+      width: auto;
+      margin: 0;
+      font-size: 18px;
+      line-height: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
+
     .toggle-password:hover {
-        color: var(--border-primary);
-        background: none;
+      color: var(--border-primary);
+      background: none;
+      transform: translateY(-50%) !important; 
+      box-shadow: none;
     }
     input:not(.input-wrapper input) {
         padding-right: 8px;
@@ -90,6 +93,19 @@
     }
     #error { color: var(--accent-error); margin-top: 10px; }
     #success { color: var(--accent-success); margin-top: 10px; }
+    
+    /* New Error Box Style */
+    .error-box {
+        color: #ef4444;
+        font-size: 13px;
+        text-align: center;
+        background: rgba(239, 68, 68, 0.1);
+        padding: 10px;
+        border-radius: 4px;
+        border: 1px solid rgba(239, 68, 68, 0.2);
+        margin-top: 10px;
+        display: none; /* Hidden by default */
+    }
     /* OVERRIDE styles to match main app standard */
     input { 
         width: 100%; 
@@ -233,6 +249,10 @@
   <div id="error"></div>
   <div id="success"></div>
 
+  <div style="text-align: right; margin-top: 10px;">
+    <a href="#" id="forgotPasswordLink" style="font-size: 12px; color: #3b82f6; text-decoration: none;">Forgot Password?</a>
+  </div>
+
   <script>
     // Initial theme check
     (function() {
@@ -253,6 +273,16 @@
             }
         }
     });
+
+    // ADD THIS: Handle Forgot Password Click
+    const forgotLink = document.getElementById('forgotPasswordLink');
+    if (forgotLink) {
+        forgotLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            // Communicate with Dashboard.tsx
+            window.parent.postMessage({ type: 'OPEN_FORGOT_PASSWORD' }, '*');
+        });
+    }
   </script>
   <script type="module" src="/login.ts"></script>
 </body>

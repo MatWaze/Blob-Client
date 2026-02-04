@@ -4,6 +4,8 @@ import SubBox from './SubBox';
 import Game from './Game';
 import Login from './Login';
 import Register from './Register';
+import ForgotPassword from './ForgotPassword'; // New Import
+import ResetPassword from './ResetPassword';   // New Import
 import GameSelector from './GameSelector'; // Import the new component
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
@@ -388,276 +390,395 @@ const BloboxIcon = () => (
 
 // --- Dashboard Component ---
 const Dashboard: React.FC = () => {
-	const { isAuthenticated, logout, user } = useAuth();
-	const { theme, toggleTheme } = useTheme();
-	
-	// Track visibility of main windows in guest view
-	const [visibleBoxes, setVisibleBoxes] = useState({
-		login: true,
-		blobox: true,
-		about: true,
-	});
+    const { isAuthenticated, logout, user } = useAuth();
+    const { theme, toggleTheme } = useTheme();
+    
+    // Track visibility of main windows in guest view
+    const [visibleBoxes, setVisibleBoxes] = useState({
+        login: true,
+        blobox: true,
+        about: true,
+    });
 
-	// Track if Blobox is expanded (showing auth content)
-	const [bloboxExpanded, setBloboxExpanded] = useState(false);
+    // Track if Blobox is expanded (showing auth content)
+    const [bloboxExpanded, setBloboxExpanded] = useState(false);
 
-	const reopenBox = (box: keyof typeof visibleBoxes) => {
-		setVisibleBoxes(prev => ({ ...prev, [box]: true }));
-	};
+    // --- NEW: Reset Password State ---
+    const [showForgot, setShowForgot] = useState(false);
+    const [resetToken, setResetToken] = useState<string | null>(null);
+    const [resetSuccess, setResetSuccess] = useState(false);
 
-	const closedBoxes = Object.entries(visibleBoxes)
-		.filter(([_, visible]) => !visible)
-		.map(([name]) => name);
+    const reopenBox = (box: keyof typeof visibleBoxes) => {
+        setVisibleBoxes(prev => ({ ...prev, [box]: true }));
+    };
 
-	const [pongOpen, setPongOpen] = useState(false);
-	const [gamesTrigger, setGamesTrigger] = useState(0);
+    // --- NEW: Reset Password Logic ---
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+        const token = params.get('resetToken');
+        
+        if (token) {
+            setResetToken(token);
+            // const newUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
+            // window.history.replaceState({path: newUrl}, "", newUrl);
+            if (isAuthenticated) logout();
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []); // Empty dependency array ensures this runs only on mount
 
-	// Handle game invite acceptance - open Blobox and Pong
-	useEffect(() => {
-		const handler = () => {
-			if (isAuthenticated) {
-				setBloboxExpanded(true);
-				setGamesTrigger(prev => prev + 1);
-				setPongOpen(false);
-				setTimeout(() => setPongOpen(true), 50);
-			}
-		};
-		window.addEventListener('RESET_GAME_VIEW', handler);
-		return () => window.removeEventListener('RESET_GAME_VIEW', handler);
-	}, [isAuthenticated]);
+    useEffect(() => {
+        const handler = (event: MessageEvent) => {
+            if (event.data.type === 'OPEN_FORGOT_PASSWORD') {
+                setShowForgot(true);
+            }
+        };
+        window.addEventListener('message', handler);
+        return () => window.removeEventListener('message', handler);
+    }, []);
 
-	// When user logs in, auto-expand Blobox
-	useEffect(() => {
-		if (isAuthenticated && !bloboxExpanded) {
-			setBloboxExpanded(true);
-		}
-	}, [isAuthenticated]);
+    const handleResetSuccess = () => {
+        setResetSuccess(true);
+        
+        // FIX: Clear the URL here, once we know the operation is successful
+        window.history.replaceState({}, document.title, window.location.pathname);
+        
+        setTimeout(() => {
+            setResetToken(null);
+            setResetSuccess(false);
+            reopenBox('login');
+        }, 3000); 
+    };
+    // ---------------------------------
 
-	// Handle Blobox click - only expand if authenticated
-	const handleBloboxClick = () => {
-		if (isAuthenticated) {
-			setBloboxExpanded(true);
-		}
-	};
+    const closedBoxes = Object.entries(visibleBoxes)
+        .filter(([_, visible]) => !visible)
+        .map(([name]) => name);
 
-	// Handle closing Blobox - return to guest view
-	const handleBloboxClose = () => {
-		setBloboxExpanded(false);
-	};
+    const [pongOpen, setPongOpen] = useState(false);
+    const [gamesTrigger, setGamesTrigger] = useState(0);
 
-	// Determine what to show
-	const showGuestWindows = !bloboxExpanded;
-	const showBloboxContent = bloboxExpanded && isAuthenticated;
+    // Handle game invite acceptance - open Blobox and Pong
+    useEffect(() => {
+        const handler = () => {
+            if (isAuthenticated) {
+                setBloboxExpanded(true);
+                setGamesTrigger(prev => prev + 1);
+                setPongOpen(false);
+                setTimeout(() => setPongOpen(true), 50);
+            }
+        };
+        window.addEventListener('RESET_GAME_VIEW', handler);
+        return () => window.removeEventListener('RESET_GAME_VIEW', handler);
+    }, [isAuthenticated]);
 
-	return (
-		<div className="dashboard">
-			{/* Reopen buttons for closed guest windows */}
-			{showGuestWindows && closedBoxes.length > 0 && (
-				<div className="closed-boxes-bar">
-					{closedBoxes.map((box) => (
-						<button
-							key={box}
-							className="reopen-btn"
-							onClick={() => reopenBox(box as keyof typeof visibleBoxes)}
-						>
-							Open {box.charAt(0).toUpperCase() + box.slice(1)}
-						</button>
-					))}
-				</div>
-			)}
-			
-			<div className="dashboard-content">
-				{showBloboxContent ? (
-					/* Blobox Expanded View - Wrapped in a container that looks like a parent window */
-					<div className="blobox-container">
-						{/* Restore button to go back to guest view */}
-						<button 
-							className="blobox-restore-btn" 
-							onClick={handleBloboxClose}
-							title="Back to Guest View"
-						>
-							{/* ↙ */}
-						</button>
+    // When user logs in, auto-expand Blobox
+    useEffect(() => {
+        if (isAuthenticated && !bloboxExpanded) {
+            setBloboxExpanded(true);
+        }
+    }, [isAuthenticated]);
 
-						<div className="blobox-inner">
-							{/* Profile MainBox */}
-							<MainBox 
-								key="profile" 
-								id="profile" 
-								title="Profile" 
-								icon={<ProfileIcon />} 
-								color="#f59e0b"
-							>
-								<SubBox title="Wallet" icon={<WalletIcon />} color="#f59e0b">
-									<WalletContent />
-								</SubBox>
-								<SubBox title="Statistics" icon={<StatsIcon />} color="#3b82f6">
-									<StatsContent />
-								</SubBox>
-								<SubBox title="Account" icon={<span>👤</span>} color="#10b981">
-									<div className="account-content">
-										<div style={{ textAlign: 'center', marginBottom: 6 }}>
-											<div className="account-info">
-												<div><strong>Username:</strong> {user?.username || 'N/A'}</div>
-												<div><strong>Email:</strong> {user?.email || 'N/A'}</div>
-											</div>
-										</div>
-										<div className="theme-switch-wrapper">
-											<label className="theme-switch">
-												<input type="checkbox" checked={theme === 'light'} onChange={toggleTheme} />
-												<div className="slider">
-													<span className="icon">🌙</span>
-													<span className="icon">☀️</span>
-												</div>
-											</label>
-										</div>
-										<button className="action-btn" onClick={logout}>Logout</button>
-									</div>
-								</SubBox>
-							</MainBox>
+    // Handle Blobox click - only expand if authenticated
+    const handleBloboxClick = () => {
+        if (isAuthenticated) {
+            setBloboxExpanded(true);
+        }
+    };
 
-							{/* Games MainBox */}
-							<MainBox 
-								key="games" 
-								id="games" 
-								title="Games" 
-								icon={<GamesIcon />} 
-								color="#ef4444" 
-								triggerOpen={gamesTrigger}
-							>
-								<SubBox title="Pong" icon={<PongIcon />} color="#ec4899" isOpen={pongOpen} onOpenChange={setPongOpen}>
-									<div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-										<Game />
-									</div>
-								</SubBox>
-								<SubBox title="Mafia" icon={<MafiaIcon />} color="#dc2626">
-									<div style={{padding: 20, textAlign: 'center', color: 'var(--text-secondary)'}}>Coming Soon</div>
-								</SubBox>
-							</MainBox>
+    // Handle closing Blobox - return to guest view
+    const handleBloboxClose = () => {
+        setBloboxExpanded(false);
+    };
 
-							{/* Community MainBox */}
-							<MainBox 
-								key="community" 
-								id="community" 
-								title="Community" 
-								icon={<CommunityIcon />} 
-								color="#3b82f6"
-							>
-								<SubBox title="Friends" icon={<span>👫</span>} color="#3b82f6">
-									<FriendsContent />
-								</SubBox>
-							</MainBox>
-						</div>
-					</div>
-				) : (
-					/* Guest View - Login, Blobox (collapsed unless logged in), About */
-					<>
-						{/* Login Window */}
-						{visibleBoxes.login && (
-							<MainBox 
-								key="login" 
-								id="login" 
-								title="Login" 
-								icon={<LoginIcon />} 
-								color="#f59e0b"
-							>
-								<SubBox title="Sign In" icon={<LoginIcon />} color="#f59e0b">
-									<Login />
-								</SubBox>
-								<SubBox title="Create Account" icon={<RegisterIcon />} color="#6366f1">
-									<Register />
-								</SubBox>
-							</MainBox>
-						)}
+    // Determine what to show
+    const showGuestWindows = !bloboxExpanded;
+    const showBloboxContent = bloboxExpanded && isAuthenticated;
 
-						{/* Blobox Window - Shows logo, clicks to expand when authenticated */}
-						{visibleBoxes.blobox && (
-							<MainBox 
-								key="blobox" 
-								id="blobox" 
-								title="Blobox" 
-								icon={<BloboxIcon />} 
-								color="#10b981"
-								onClickWhenClosed={isAuthenticated ? handleBloboxClick : undefined}
-							>
-								{isAuthenticated ? (
-									<SubBox 
-										title="Enter Blobox"
-										icon={<span>🚀</span>}
-										color="#10b981" 
-										defaultMaximized
-									>
-										<div style={{
-											padding: 20, 
-											display: 'flex', 
-											flexDirection: 'column', 
-											alignItems: 'center',
-											textAlign: 'center',
-											gap: 15
-										}}>
-											<h3>Welcome back, {user?.username}!</h3>
-											<p>Click to enter your dashboard</p>
-											<button 
-												className="play-btn" 
-												onClick={handleBloboxClick}
-												style={{ padding: '12px 24px', fontSize: '16px' }}
-											>
-												🚀 Enter Blobox
-											</button>
-										</div>
-									</SubBox>
-								) : (
-									<div className="blobox-guest-message">
-										<span className="lock-icon">🔒</span>
-										<h3>Welcome to Blobox</h3>
-										<p>Please login to access your dashboard, games, and community features.</p>
-									</div>
-								)}
-							</MainBox>
-						)}
+    return (
+        <div className="dashboard">
+            {/* Reopen buttons for closed guest windows */}
+            {showGuestWindows && closedBoxes.length > 0 && (
+                <div className="closed-boxes-bar">
+                    {closedBoxes.map((box) => (
+                        <button
+                            key={box}
+                            className="reopen-btn"
+                            onClick={() => reopenBox(box as keyof typeof visibleBoxes)}
+                        >
+                            Open {box.charAt(0).toUpperCase() + box.slice(1)}
+                        </button>
+                    ))}
+                </div>
+            )}
+            
+            <div className="dashboard-content">
+                {/* --- NEW: Reset Password Overlay --- */}
+                {resetToken && (
+                    <div style={{
+                        position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+                        backgroundColor: 'rgba(0,0,0,0.9)', zIndex: 9999, // Darker bg for better focus
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        backdropFilter: 'blur(5px)' // Adds a nice blur effect to background
+                    }}>
+                        <div style={{ width: '400px', maxWidth: '95vw' }}>
+                             {/* Simplified: Just one SubBox that is permanently open */}
+                             <SubBox 
+                                title="Reset Password" 
+                                icon={<span>🔑</span>} 
+                                color="#ef4444" 
+                                defaultMaximized={true} // Forces it open
+                             >
+                                <div style={{ paddingBottom: '20px' }}>
+                                    {resetSuccess ? (
+                                        <div style={{ padding: 40, textAlign: 'center', color: '#4ade80' }}>
+                                            <h3 style={{ fontSize: '24px', marginBottom: '10px' }}>Success!</h3>
+                                            <p>Password updated successfully.</p>
+                                            <p style={{ fontSize: '13px', opacity: 0.7, marginTop: '10px' }}>Redirecting to login...</p>
+                                        </div>
+                                    ) : (
+                                        <ResetPassword token={resetToken} onSuccess={handleResetSuccess} />
+                                    )}
+                                </div>
+                             </SubBox>
+                        </div>
+                    </div>
+                )}
+                {/* ----------------------------------- */}
 
-						{/* About Window */}
-						{visibleBoxes.about && (
-							<MainBox 
-								key="about" 
-								id="about" 
-								title="About" 
-								icon={<InfoIcon />} 
-								color="#6366f1"
-							>
-								<SubBox
-									title="Terms of Service"
-									icon={<InfoIcon />}
-									color="#2d30b7"
-								>
+                {showBloboxContent ? (
+                    /* Blobox Expanded View - Wrapped in a container that looks like a parent window */
+                    <div className="blobox-container">
+                        {/* Restore button to go back to guest view */}
+                        <button 
+                            className="blobox-restore-btn" 
+                            onClick={handleBloboxClose}
+                            title="Back to Guest View"
+                        >
+                            {/* ↙ */}
+                        </button>
 
-								</SubBox>
-								<SubBox 
-									title="About Blobox" 
-									icon={<InfoIcon />} 
-									color="#6366f1" 
-								>
-									<div style={{
-										padding: 20, 
-										display: 'flex', 
-										flexDirection: 'column', 
-										alignItems: 'center',
-										textAlign: 'center'
-									}}>
-										<h3>Welcome to Blobox</h3>
-										<p>Lorem ipsum dolor sit amet...</p>
-										<p style={{ marginTop: 10, color: 'var(--text-secondary)' }}>
-											Play games, connect with friends, and earn rewards!
-										</p>
-									</div>
-								</SubBox>
-							</MainBox>
-						)}
-					</>
-				)}
-			</div>
-		</div>
-	);
+                        <div className="blobox-inner">
+                            {/* Profile MainBox */}
+                            <MainBox 
+                                key="profile" 
+                                id="profile" 
+                                title="Profile" 
+                                icon={<ProfileIcon />} 
+                                color="#f59e0b"
+                            >
+                                <SubBox title="Wallet" icon={<WalletIcon />} color="#f59e0b">
+                                    <WalletContent />
+                                </SubBox>
+                                <SubBox title="Statistics" icon={<StatsIcon />} color="#3b82f6">
+                                    <StatsContent />
+                                </SubBox>
+                                <SubBox title="Account" icon={<span>👤</span>} color="#10b981">
+                                    <div className="account-content">
+                                        <div style={{ textAlign: 'center', marginBottom: 6 }}>
+                                            <div className="account-info">
+                                                <div><strong>Username:</strong> {user?.username || 'N/A'}</div>
+                                                <div><strong>Email:</strong> {user?.email || 'N/A'}</div>
+                                            </div>
+                                        </div>
+                                        <div className="theme-switch-wrapper">
+                                            <label className="theme-switch">
+                                                <input type="checkbox" checked={theme === 'light'} onChange={toggleTheme} />
+                                                <div className="slider">
+                                                    <span className="icon">🌙</span>
+                                                    <span className="icon">☀️</span>
+                                                </div>
+                                            </label>
+                                        </div>
+                                        <button className="action-btn" onClick={logout}>Logout</button>
+                                    </div>
+                                </SubBox>
+                            </MainBox>
+
+                            {/* Games MainBox */}
+                            <MainBox 
+                                key="games" 
+                                id="games" 
+                                title="Games" 
+                                icon={<GamesIcon />} 
+                                color="#ef4444" 
+                                triggerOpen={gamesTrigger}
+                            >
+                                <SubBox title="Pong" icon={<PongIcon />} color="#ec4899" isOpen={pongOpen} onOpenChange={setPongOpen}>
+                                    <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+                                        <Game />
+                                    </div>
+                                </SubBox>
+                                <SubBox title="Mafia" icon={<MafiaIcon />} color="#dc2626">
+                                    <div style={{padding: 20, textAlign: 'center', color: 'var(--text-secondary)'}}>Coming Soon</div>
+                                </SubBox>
+                            </MainBox>
+
+                            {/* Community MainBox */}
+                            <MainBox 
+                                key="community" 
+                                id="community" 
+                                title="Community" 
+                                icon={<CommunityIcon />} 
+                                color="#3b82f6"
+                            >
+                                <SubBox title="Friends" icon={<span>👫</span>} color="#3b82f6">
+                                    <FriendsContent />
+                                </SubBox>
+                            </MainBox>
+                        </div>
+                    </div>
+                ) : (
+                    /* Guest View - Login, Blobox (collapsed unless logged in), About */
+                    <>
+                        {/* Login Window */}
+                        {visibleBoxes.login && (
+                            <MainBox 
+                                key="login" 
+                                id="login" 
+                                title="Login" 
+                                icon={<LoginIcon />} 
+                                color="#f59e0b"
+                            >
+                                <SubBox title="Sign In" icon={<LoginIcon />} color="#f59e0b">
+                                    <Login />
+                                </SubBox>
+
+                                {/* --- NEW: Forgot Password SubBox --- */}
+                                {showForgot && (
+                                     <SubBox 
+                                        title="Recovery" 
+                                        icon={<span>❓</span>} 
+                                        color="#f59e0b" 
+                                        // defaultMaximized={true}
+                                        triggerClose={!showForgot ? 1 : 0}
+                                     >
+                                        <div style={{ position: 'relative', height: '100%' }}>
+                                            <button 
+                                                onClick={() => setShowForgot(false)}
+                                                style={{ 
+                                                    position: 'absolute', 
+                                                    top: '-35px', 
+                                                    right: '-10px', 
+                                                    background: 'transparent', 
+                                                    border: 'none', 
+                                                    color: '#fff', 
+                                                    fontSize: '24px',
+                                                    fontWeight: 'bold',
+                                                    cursor: 'pointer', 
+                                                    zIndex: 20,
+                                                    width: '40px',
+                                                    height: '40px',
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    justifyContent: 'center',
+                                                    opacity: 0.8,
+                                                    transition: 'opacity 0.2s'
+                                                }}
+                                                onMouseOver={(e) => e.currentTarget.style.opacity = '1'}
+                                                onMouseOut={(e) => e.currentTarget.style.opacity = '0.8'}
+                                            >
+                                                ✕
+                                            </button>
+                                            <ForgotPassword />
+                                        </div>
+                                     </SubBox>
+                                )}
+                                {/* ----------------------------------- */}
+
+                                <SubBox title="Create Account" icon={<RegisterIcon />} color="#6366f1">
+                                    <Register />
+                                </SubBox>
+                            </MainBox>
+                        )}
+
+                        {/* Blobox Window - Shows logo, clicks to expand when authenticated */}
+                        {visibleBoxes.blobox && (
+                            <MainBox 
+                                key="blobox" 
+                                id="blobox" 
+                                title="Blobox" 
+                                icon={<BloboxIcon />} 
+                                color="#10b981"
+                                onClickWhenClosed={isAuthenticated ? handleBloboxClick : undefined}
+                            >
+                                {isAuthenticated ? (
+                                    <SubBox 
+                                        title="Enter Blobox"
+                                        icon={<span>🚀</span>}
+                                        color="#10b981" 
+                                        defaultMaximized
+                                    >
+                                        <div style={{
+                                            padding: 20, 
+                                            display: 'flex', 
+                                            flexDirection: 'column', 
+                                            alignItems: 'center',
+                                            textAlign: 'center',
+                                            gap: 15
+                                        }}>
+                                            <h3>Welcome back, {user?.username}!</h3>
+                                            <p>Click to enter your dashboard</p>
+                                            <button 
+                                                className="play-btn" 
+                                                onClick={handleBloboxClick}
+                                                style={{ padding: '12px 24px', fontSize: '16px' }}
+                                            >
+                                                🚀 Enter Blobox
+                                            </button>
+                                        </div>
+                                    </SubBox>
+                                ) : (
+                                    <div className="blobox-guest-message">
+                                        <span className="lock-icon">🔒</span>
+                                        <h3>Welcome to Blobox</h3>
+                                        <p>Please login to access your dashboard, games, and community features.</p>
+                                    </div>
+                                )}
+                            </MainBox>
+                        )}
+
+                        {/* About Window */}
+                        {visibleBoxes.about && (
+                            <MainBox 
+                                key="about" 
+                                id="about" 
+                                title="About" 
+                                icon={<InfoIcon />} 
+                                color="#6366f1"
+                            >
+                                <SubBox
+                                    title="Terms of Service"
+                                    icon={<InfoIcon />}
+                                    color="#2d30b7"
+                                >
+
+                                </SubBox>
+                                <SubBox 
+                                    title="About Blobox" 
+                                    icon={<InfoIcon />} 
+                                    color="#6366f1" 
+                                >
+                                    <div style={{
+                                        padding: 20, 
+                                        display: 'flex', 
+                                        flexDirection: 'column', 
+                                        alignItems: 'center',
+                                        textAlign: 'center'
+                                    }}>
+                                        <h3>Welcome to Blobox</h3>
+                                        <p>Lorem ipsum dolor sit amet...</p>
+                                        <p style={{ marginTop: 10, color: 'var(--text-secondary)' }}>
+                                            Play games, connect with friends, and earn rewards!
+                                        </p>
+                                    </div>
+                                </SubBox>
+                            </MainBox>
+                        )}
+                    </>
+                )}
+            </div>
+        </div>
+    );
 };
 
 export default Dashboard;

@@ -13,6 +13,22 @@ interface LoginResponse {
 
 const form = document.getElementById('loginForm') as HTMLFormElement;
 const errorDiv = document.getElementById('error') as HTMLDivElement;
+// Add class for styling
+errorDiv.className = 'error-box';
+
+// --- NEW CODE START ---
+// Clear error messages when user starts typing
+const loginInputs = document.querySelectorAll('#loginForm input');
+loginInputs.forEach(input => {
+    input.addEventListener('input', () => {
+        if (errorDiv.style.display === 'block') {
+            errorDiv.style.display = 'none';
+            errorDiv.textContent = '';
+        }
+    });
+});
+// --- NEW CODE END ---
+
 const successDiv = document.getElementById('success') as HTMLDivElement;
 const googleSignInBtn = document.getElementById('googleSignInBtn') as HTMLButtonElement;
 var togglePasswordBtn = document.getElementById('togglePassword') as HTMLButtonElement;
@@ -72,6 +88,7 @@ form.addEventListener('submit', async (e: Event) => {
 	const email = emailInput.value.trim();
 	const password = passwordInput.value.trim();
 
+	errorDiv.style.display = 'none'; // Hide initially
 	errorDiv.textContent = '';
 	successDiv.textContent = '';
 
@@ -95,10 +112,13 @@ form.addEventListener('submit', async (e: Event) => {
 			}, 100);
 
 		} else {
-			errorDiv.textContent = data.message || 'Login failed';
+			const rawMsg = data.message || 'Login failed';
+			errorDiv.textContent = rawMsg.replace(/^(body|params|querystring)\/[a-zA-Z0-9_]+\s?/, '');
+			errorDiv.style.display = 'block'; // Show error box
 		}
 	} catch (error) {
 		console.error('Login error:', error);
 		errorDiv.textContent = 'Network error. Please try again.';
+		errorDiv.style.display = 'block'; // Show error box
 	}
 });

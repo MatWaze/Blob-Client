@@ -8,7 +8,6 @@ interface User {
 interface RegisterResponse {
 	success: boolean;
 	message?: string;
-	user?: User;
 }
 
 function switchToLogin(): void {
@@ -18,13 +17,31 @@ function switchToLogin(): void {
 }
 
 const registerForm = document.getElementById('registerForm') as HTMLFormElement;
+const submitBtn = registerForm.querySelector('button[type="submit"]') as HTMLButtonElement; // Get button reference
+
 const registerErrorDiv = document.getElementById('error') as HTMLDivElement;
+// Add class
+registerErrorDiv.className = 'error-box';
+
 const registerSuccessDiv = document.getElementById('success') as HTMLDivElement;
 var togglePasswordBtn = document.getElementById('togglePassword') as HTMLButtonElement;
 const toggleConfirmPasswordBtn = document.getElementById('toggleConfirmPassword') as HTMLButtonElement;
 var passwordInput = document.getElementById('password') as HTMLInputElement;
 const confirmPasswordInput = document.getElementById('confirmPassword') as HTMLInputElement;
 const serverUrl = import.meta.env.VITE_SERVER_URL;
+
+// --- NEW CODE START ---
+// Clear error messages when user starts typing in any field
+const inputs = registerForm.querySelectorAll('input');
+inputs.forEach(input => {
+    input.addEventListener('input', () => {
+        if (registerErrorDiv.style.display === 'block') {
+            registerErrorDiv.style.display = 'none';
+            registerErrorDiv.textContent = '';
+        }
+    });
+});
+// --- NEW CODE END ---
 
 // Toggle password visibility
 togglePasswordBtn.addEventListener('click', () => {
@@ -60,6 +77,9 @@ toggleConfirmPasswordBtn.addEventListener('click', () => {
 
 registerForm.addEventListener('submit', async (e: Event) => {
 	e.preventDefault();
+
+	// Prevent double submissions
+	if (submitBtn.disabled) return;
 	
 	const usernameInput = document.getElementById('username') as HTMLInputElement;
 	const emailInput = document.getElementById('email') as HTMLInputElement;
@@ -69,18 +89,21 @@ registerForm.addEventListener('submit', async (e: Event) => {
 	const password = passwordInput.value.trim();
 	const confirmPassword = confirmPasswordInput.value.trim();
 
+	registerErrorDiv.style.display = 'none'; // Hide
 	registerErrorDiv.textContent = '';
 	registerSuccessDiv.textContent = '';
 
 	// Validate passwords match
 	if (password !== confirmPassword) {
 		registerErrorDiv.textContent = 'Passwords do not match';
+		registerErrorDiv.style.display = 'block';
 		return;
 	}
 
 	// Validate password requirements
 	if (password.length < 8) {
 		registerErrorDiv.textContent = 'Password must be at least 8 characters long';
+		registerErrorDiv.style.display = 'block';
 		return;
 	}
 	
@@ -92,10 +115,21 @@ registerForm.addEventListener('submit', async (e: Event) => {
 	
 	if (!hasLowercase || !hasUppercase || !hasDigit || !hasSpecial) {
 		registerErrorDiv.textContent = 'Password must contain at least one lowercase letter, one uppercase letter, one digit, and one special character';
+		registerErrorDiv.style.display = 'block';
 		return;
 	}
 
+	// Validation Passed - START LOADING STATE
+	const originalBtnText = submitBtn.textContent;
+	submitBtn.disabled = true;
+	submitBtn.textContent = 'REGISTERING...';
+	submitBtn.style.opacity = '0.5';
+	submitBtn.style.cursor = 'not-allowed';
+
 	try {
+		// Artificial delay prevents auto-clicker spam
+		await new Promise(resolve => setTimeout(resolve, 500));
+
 		const res = await fetch(`${serverUrl}/api/users/register`, {
 			method: 'POST',
 			headers: {
@@ -128,10 +162,20 @@ registerForm.addEventListener('submit', async (e: Event) => {
 		}
 		else
 		{
-			registerErrorDiv.textContent = data.message || 'Registration failed. Please try again.';
+			const rawMsg = data.message || 'Registration failed. Please try again.';
+			registerErrorDiv.textContent = rawMsg.replace(/^(body|params|querystring)\/[a-zA-Z0-9_]+\s?/, '');
+			registerErrorDiv.style.display = 'block';
 		}
 	} catch (error) {
 		console.error('Registration error:', error);
 		registerErrorDiv.textContent = 'Network error. Please try again.';
+		registerErrorDiv.style.display = 'block';
+	} finally {
+		// ALWAYS RESET BUTTON STATE FOR REGISTER FORM
+		// (Allows user to try again if failed, or see normal state if success message is shown)
+		submitBtn.disabled = false;
+		submitBtn.textContent = originalBtnText;
+		submitBtn.style.opacity = '1';
+		submitBtn.style.cursor = 'pointer';
 	}
 });
