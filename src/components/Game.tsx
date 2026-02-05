@@ -1,17 +1,35 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, forwardRef, useImperativeHandle } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
 
-const Game: React.FC = () => {
-    const { user } = useAuth();
+// Define the handle interface
+export interface GameHandle {
+    sendLogout: () => void;
+}
+
+const Game = forwardRef<GameHandle>((props, ref) => {
+    const { user, logout } = useAuth();
     const { theme } = useTheme();
     const iframeRef = useRef<HTMLIFrameElement>(null);
-    const gameUrl = import.meta.env.VITE_GAME_URL; // Or from env
+    const gameUrl = import.meta.env.VITE_GAME_URL;
+
+    // Expose functions to the parent (Dashboard)
+    useImperativeHandle(ref, () => ({
+        sendLogout: () =>
+        {
+            if (iframeRef.current && iframeRef.current.contentWindow)
+            {
+                iframeRef.current.contentWindow.postMessage({ type: "LOGOUT" }, "*");
+            }
+        }
+    }));
 
     useEffect(() => {
-        const handleMessage = (event: MessageEvent) => {
-            if (event.data.type === 'LOGOUT') {
-                // Handle logout request from game if needed
+        const handleMessage = (event: MessageEvent) =>
+        {
+            if (event.data.type === 'LOGOUT')
+            {
+                logout();
             }
         };
 
@@ -19,19 +37,17 @@ const Game: React.FC = () => {
         return () => window.removeEventListener('message', handleMessage);
     }, []);
 
-    // Send login message when user changes or component mounts
-    useEffect(() => {
-        if (user && iframeRef.current && iframeRef.current.contentWindow) {
-            iframeRef.current.contentWindow.postMessage({ type: "LOGIN", user }, "*");
-        }
-    }, [user]);
+    // useEffect(() => {
+    //     if (user && iframeRef.current && iframeRef.current.contentWindow) {
+    //         iframeRef.current.contentWindow.postMessage({ type: "LOGIN", user }, "*");
+    //     }
+    // }, [user]);
 
-    // Send theme update when theme changes or component mounts
-    useEffect(() => {
-        if (iframeRef.current && iframeRef.current.contentWindow) {
-            iframeRef.current.contentWindow.postMessage({ type: "THEME_CHANGE", theme }, "*");
-        }
-    }, [theme]);
+    // useEffect(() => {
+    //     if (iframeRef.current && iframeRef.current.contentWindow) {
+    //         iframeRef.current.contentWindow.postMessage({ type: "THEME_CHANGE", theme }, "*");
+    //     }
+    // }, [theme]);
 
     return (
         <iframe 
@@ -42,6 +58,6 @@ const Game: React.FC = () => {
             title="Game"
         />
     );
-};
+});
 
 export default Game;

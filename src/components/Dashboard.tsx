@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import MainBox from './MainBox';
 import SubBox from './SubBox';
-import Game from './Game';
+import Game, { GameHandle } from './Game';
 import Login from './Login';
 import Register from './Register';
 import ForgotPassword from './ForgotPassword'; // New Import
@@ -392,7 +392,7 @@ const BloboxIcon = () => (
 const Dashboard: React.FC = () => {
     const { isAuthenticated, logout, user } = useAuth();
     const { theme, toggleTheme } = useTheme();
-    
+    const gameRef = useRef<GameHandle>(null);
     // Track visibility of main windows in guest view
     const [visibleBoxes, setVisibleBoxes] = useState({
         login: true,
@@ -449,6 +449,15 @@ const Dashboard: React.FC = () => {
         }, 3000); 
     };
     // ---------------------------------
+
+    const handleLogout = () => {
+        if (gameRef.current)
+        {
+            gameRef.current.sendLogout();
+        }
+
+        logout();
+    };
 
     const closedBoxes = Object.entries(visibleBoxes)
         .filter(([_, visible]) => !visible)
@@ -589,7 +598,7 @@ const Dashboard: React.FC = () => {
                                                 </div>
                                             </label>
                                         </div>
-                                        <button className="action-btn" onClick={logout}>Logout</button>
+                                        <button className="action-btn" onClick={handleLogout}>Logout</button>
                                     </div>
                                 </SubBox>
                             </MainBox>
@@ -605,7 +614,7 @@ const Dashboard: React.FC = () => {
                             >
                                 <SubBox title="Pong" icon={<PongIcon />} color="#ec4899" isOpen={pongOpen} onOpenChange={setPongOpen}>
                                     <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-                                        <Game />
+                                        <Game ref={gameRef} />
                                     </div>
                                 </SubBox>
                                 <SubBox title="Mafia" icon={<MafiaIcon />} color="#dc2626">
