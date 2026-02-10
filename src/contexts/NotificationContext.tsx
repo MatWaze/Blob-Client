@@ -40,7 +40,7 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
     const MAX_VISIBLE_NOTIFICATIONS = 5;
     const [notifications, setNotifications] = useState<Notification[]>([]);
     const { user } = useAuth();
-    const { socket, isConnected } = useSocket();
+    const { socket, isConnected, setRetry } = useSocket();
 
     useEffect(() =>
     {
@@ -61,7 +61,7 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
                         title: 'Game Invite',
                         message: `${data.senderName} invited you to play!`,
                         data: { roomId: data.roomId },
-                        duration: 10000
+                        duration: 15000000
                     });
                 }
             }
@@ -100,15 +100,29 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
     const acceptGameInvite = useCallback((roomId: string) =>
     {
-        if (socket && isConnected) {
-            socket.send(JSON.stringify({ type: 'JOIN_ROOM', roomId }));
-            
-            window.dispatchEvent(new Event('RESET_GAME_VIEW'));
+        const joinAction = (activeSocket: WebSocket) =>
+        {
+            if (activeSocket?.readyState === WebSocket.OPEN)
+            {
+                console.log(`Sending JOIN_ROOM for ${roomId}`);
+                activeSocket.send(JSON.stringify({ type: 'JOIN_ROOM', roomId }));
+                
+                window.dispatchEvent(new Event('RESET_GAME_VIEW'));
+        
+                setNotifications(prev => prev.filter(n => !(n.type === 'game-invite' && n.data?.roomId === roomId)));
+            }
+        };
 
-            // Clean up the invite notification immediately
-            setNotifications(prev => prev.filter(n => !(n.type === 'game-invite' && n.data?.roomId === roomId)));
-        }
-    }, [socket, isConnected]);
+        if (socket && isConnected)
+            joinAction(socket);
+
+        // ALWAYS queue retry regardless — if the socket closes right after
+        // sending (expired token), the retry will fire on reconnect.
+        // If the socket stays open, the retry will be harmless (JOIN_ROOM 
+        // with an already-joined room is a no-op on the server).
+        setRetry(joinAction);
+
+    }, [socket, isConnected, setRetry]);
 
     return (
         <NotificationContext.Provider value={{ notifications, addNotification, removeNotification, acceptGameInvite }}>

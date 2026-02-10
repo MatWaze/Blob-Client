@@ -172,8 +172,16 @@ const WalletContent: React.FC = () => {
                             type="number" 
                             placeholder="0.00"
                             value={withdrawAmount}
-                            onChange={(e) => setWithdrawAmount(e.target.value)}
+                            onChange={(e) => {
+                                const val = e.target.value;
+                                // Regex: Allows integers, or decimals with up to 2 digits
+                                if (val === '' || /^\d+(\.\d{0,2})?$/.test(val)) {
+                                    setWithdrawAmount(val);
+                                }
+                            }}
                             disabled={isWithdrawing}
+                            step="0.01" // Helps some browsers show appropriate keyboard
+                            min="0"
                         />
                         <button 
                             className="action-btn withdraw" 
