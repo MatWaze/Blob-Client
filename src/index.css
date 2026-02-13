@@ -483,15 +483,15 @@ input:checked + .slider:before {
 }
 
 .transaction-list, .game-list {
-    max-height: 400px;
+    max-height: 500px;
     overflow-y: auto;
     padding: 10px;
     background: var(--bg-secondary);
     border: 1px solid var(--border-primary);
-    border-radius: 4px;
+    border-radius: 12px;
 }
 
-.transaction-item, .game-item {
+.transaction-item {
     padding: 12px;
     margin-bottom: 10px;
     background: var(--bg-primary);
@@ -500,14 +500,14 @@ input:checked + .slider:before {
     transition: all 0.2s ease;
 }
 
-.transaction-item:hover, .game-item:hover {
+.transaction-item:hover {
     border-color: var(--border-primary);
     transform: translateX(2px);
 }
 
-.transaction-item:last-child, .game-item:last-child { margin-bottom: 0; }
+.transaction-item:last-child { margin-bottom: 0; }
 
-.transaction-header, .game-header {
+.transaction-header {
     display: flex;
     justify-content: space-between;
     margin-bottom: 5px;
@@ -524,7 +524,7 @@ input:checked + .slider:before {
 .result-loss { background: var(--accent-error); color: var(--text-on-error); }
 .result-draw { background: var(--accent-warn); color: var(--text-on-warn); }
 
-.transaction-details, .game-details {
+.transaction-details {
     font-size: 11px;
     color: var(--text-secondary);
     margin-top: 5px;
