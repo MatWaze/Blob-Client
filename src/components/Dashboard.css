@@ -219,6 +219,56 @@ body.light-theme .request-row .name {
 .text-green { color: #4ade80; }
 .text-red { color: #f87171; }
 
+/* Withdrawal Chart Styles */
+.withdrawal-chart-section {
+  margin-top: 20px;
+}
+
+.filter-dropdown {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 15px;
+  justify-content: center;
+}
+
+.filter-dropdown label {
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.filter-dropdown select {
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--text-primary);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.filter-dropdown select:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.filter-dropdown select:focus {
+  outline: none;
+  border-color: #3b82f6;
+}
+
+#withdrawal-chart {
+  margin-top: 10px;
+}
+
+/* Syncfusion Chart Styles */
+.control-pane {
+  padding: 0px !important;
+}
+
+.control-section {
+  padding: 0px !important;
+}
+
 /* --- Friends Styles --- */
 .friends-content-full {
   display: flex;

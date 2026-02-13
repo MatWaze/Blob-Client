@@ -18,7 +18,15 @@ import {
     PieSeries3D, 
     CircularChartDataLabel3D, 
     CircularChartLegend3D, 
-    CircularChartTooltip3D
+    CircularChartTooltip3D,
+    Chart3DComponent,
+    Chart3DSeriesCollectionDirective,
+    Chart3DSeriesDirective,
+    Legend3D,
+    Category3D,
+    Tooltip3D,
+    ColumnSeries3D,
+    Highlight3D
 } from '@syncfusion/ej2-react-charts';
 
 import './Dashboard.css';
@@ -39,6 +47,7 @@ const RegisterIcon = () => <span>📝</span>;
 
 const WalletContent: React.FC = () => {
 	const { user, fetchWithAuth, updateUser } = useAuth();
+	const { theme } = useTheme();
 	const [walletAddress, setWalletAddress] = useState(user?.walletAddress || '');
 	const [withdrawAmount, setWithdrawAmount] = useState('');
 	const [msg, setMsg] = useState<{type: 'success'|'error', text: string} | null>(null);
@@ -48,6 +57,9 @@ const WalletContent: React.FC = () => {
 	
 	const [isSaving, setIsSaving] = useState(false);
 	const [isWithdrawing, setIsWithdrawing] = useState(false);
+
+	const [filter, setFilter] = useState('WEEK');
+	const [chartData, setChartData] = useState([]);
 
 	// Auto-hide messages after 3 seconds
 	useEffect(() => {
@@ -80,6 +92,50 @@ const WalletContent: React.FC = () => {
 	useEffect(() => {
 		refreshProfile();
 	}, []);
+
+	const fetchData = async () => {
+		try {
+			const res = await fetchWithAuth(`${serverUrl}/api/transactions/filtered`, {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ filter })
+			});
+			if (res.ok) {
+				const data = await res.json();
+				let transformed = data.transactions.map((item: any) => {
+					let x: string;
+					if (filter === 'WEEK') {
+						x = new Date(item.day).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+					} else {
+						const dateStr = item.month + '-01';
+						x = new Date(dateStr).toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+					}
+					const y = item.total / 100; // cents to dollars
+					return { x, y };
+				});
+
+				// For months views, show year only when it changes
+				if (filter !== 'WEEK') {
+					let currentYear = '';
+					transformed.forEach((item: {x: string, y: number}, index: number) => {
+						const date = new Date(data.transactions[index].month + '-01');
+						const year = date.getFullYear().toString();
+						const month = date.toLocaleDateString('en-US', { month: 'short' });
+						if (year !== currentYear) {
+							item.x = `${month} ${year}`;
+							currentYear = year;
+						} else {
+							item.x = month;
+						}
+					});
+				}
+
+				setChartData(transformed);
+			}
+		} catch (e) { console.error(e); }
+	};
+
+	useEffect(() => { fetchData(); }, [filter]);
 
 	const handleUpdateWallet = async () => {
 		if (isSaving) return;
@@ -139,6 +195,15 @@ const WalletContent: React.FC = () => {
 		} finally {
 			setIsWithdrawing(false);
 		}
+	};
+
+	const onChartLoad = (args: any) => {
+		const chartEl = document.getElementById('withdrawal-chart');
+		if (chartEl) chartEl.setAttribute('title', '');
+	};
+
+	const load = (args: any) => {
+		args.chart.theme = theme === 'light' ? 'Material' : 'MaterialDark';
 	};
 
 	// Check if address has changed from saved value
@@ -211,6 +276,45 @@ const WalletContent: React.FC = () => {
 			</div>
 
 			{msg && <div className={`error-box-${msg.type}`}>{msg.text}</div>}
+
+			<div className="withdrawal-chart-section">
+				<div className="filter-dropdown">
+					<select style={{fontFamily: 'Courier New', fontSize: '16px'}} value={filter} onChange={(e) => setFilter(e.target.value)}>
+						<option value="WEEK">Week</option>
+						<option value="3MONTHS">3 Months</option>
+						<option value="YEAR">Year</option>
+					</select>
+				</div>
+				<div className='control-pane'>
+					<div className='control-section'>
+						<Chart3DComponent
+							id='withdrawal-chart'
+							style={{ textAlign: "center" }}
+							primaryXAxis={{ valueType: 'Category', labelRotation: 0, labelPlacement: 'BetweenTicks', labelStyle: { color: theme === 'light' ? '#111827' : '#ffffff', fontFamily: 'Courier New' } }}
+							wallColor='transparent'
+							height="300"
+							primaryYAxis={{ labelFormat: '{value} BLOB', labelStyle: { color: theme === 'light' ? '#111827' : '#ffffff', fontFamily: 'Courier New' } }}
+							load={load}
+							enableRotation={true}
+							rotation={7}
+							tilt={10}
+							depth={100}
+							tooltip={{ enable: true, header: "${point.x}", format: 'Amount: <b>${point.y}</b>', textStyle: { color: theme === 'light' ? '#111827' : '#ffffff', fontFamily: 'Courier New' } }}
+							width="100%"
+							title='Withdrawal History'
+							titleStyle={{ color: theme === 'light' ? '#111827' : '#ffffff', fontFamily: 'Courier New' }}
+							background="transparent"
+							loaded={onChartLoad}
+						>
+							<Inject services={[ColumnSeries3D, Legend3D, Tooltip3D, Category3D, Highlight3D]}/>
+							<Chart3DSeriesCollectionDirective>
+								<Chart3DSeriesDirective dataSource={chartData} xName='x' columnSpacing={0.1} yName='y' type='Column'>
+								</Chart3DSeriesDirective>
+							</Chart3DSeriesCollectionDirective>
+						</Chart3DComponent>
+					</div>
+				</div>
+			</div>
 		</div>
 	);
 };
@@ -309,12 +413,13 @@ const StatsContent: React.FC = () => {
 									fontFamily: 'Courier New', 
 								}}
 								legendSettings={{ 
-									visible: true,
+									visible: false,
 									position: 'Bottom',
 									textStyle: { 
-										color: theme === 'light' ? '#111827' : '#ffffff',
+										color: theme === 'light' ? '#000000' : '#ffffff',
 										fontFamily: 'Courier New',
-									}
+										fontWeight: 'bold',
+									},
 								}}
 								tooltip={{ 
 									enable: true, format: '${point.x} : ${point.y} BLOB', textStyle: { color: theme === 'light' ? '#111827' : '#ffffff', fontFamily: 'Courier New', } }}
