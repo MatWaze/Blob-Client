@@ -9,7 +9,6 @@ import ResetPassword from './ResetPassword';   // New Import
 import GameSelector from './GameSelector'; // Import the new component
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
-import { Chart } from "react-google-charts";
 import { 
     CircularChart3DComponent, 
     CircularChart3DSeriesCollectionDirective, 
@@ -28,7 +27,7 @@ import {
     ColumnSeries3D,
     Highlight3D
 } from '@syncfusion/ej2-react-charts';
-
+import ModelViewer from './ModelViewer';
 import './Dashboard.css';
 
 // --- Icons ---
@@ -60,6 +59,24 @@ const WalletContent: React.FC = () => {
 
 	const [filter, setFilter] = useState('WEEK');
 	const [chartData, setChartData] = useState([]);
+
+	const chartRef = useRef<any>(null);      // Reference to the Chart
+    const containerRef = useRef<HTMLDivElement>(null); // Reference to the Div wrapper
+
+    // Watch for size changes and force chart refresh
+    useEffect(() => {
+        const resizeObserver = new ResizeObserver(() => {
+            if (chartRef.current) {
+                chartRef.current.refresh();
+            }
+        });
+
+        if (containerRef.current) {
+            resizeObserver.observe(containerRef.current);
+        }
+
+        return () => resizeObserver.disconnect();
+    }, []);
 
 	// Auto-hide messages after 3 seconds
 	useEffect(() => {
@@ -203,7 +220,7 @@ const WalletContent: React.FC = () => {
 	};
 
 	const load = (args: any) => {
-		args.chart.theme = theme === 'light' ? 'Material' : 'MaterialDark';
+		args.chart.theme = 'MaterialDark';
 	};
 
 	// Check if address has changed from saved value
@@ -286,11 +303,12 @@ const WalletContent: React.FC = () => {
 					</select>
 				</div>
 				<div className='control-pane'>
-					<div className='control-section'>
+					<div className='control-section' ref={containerRef}>
 						<Chart3DComponent
+							ref={chartRef}
 							id='withdrawal-chart'
 							style={{ textAlign: "center" }}
-							primaryXAxis={{ valueType: 'Category', labelRotation: 0, labelPlacement: 'BetweenTicks', labelStyle: { color: theme === 'light' ? '#111827' : '#ffffff', fontFamily: 'Courier New' } }}
+							primaryXAxis={{ labelRotation: filter === 'YEAR' ? -34 : -13, labelIntersectAction: 'None', interval: 1, valueType: 'Category', labelPlacement: 'BetweenTicks', labelStyle: { color: theme === 'light' ? '#111827' : '#ffffff', fontFamily: 'Courier New' } }}
 							wallColor='transparent'
 							height="300"
 							primaryYAxis={{ labelFormat: '{value} BLOB', labelStyle: { color: theme === 'light' ? '#111827' : '#ffffff', fontFamily: 'Courier New' } }}
@@ -308,7 +326,14 @@ const WalletContent: React.FC = () => {
 						>
 							<Inject services={[ColumnSeries3D, Legend3D, Tooltip3D, Category3D, Highlight3D]}/>
 							<Chart3DSeriesCollectionDirective>
-								<Chart3DSeriesDirective dataSource={chartData} xName='x' columnSpacing={0.1} yName='y' type='Column'>
+								<Chart3DSeriesDirective
+									dataSource={chartData}
+									xName='x'
+									columnSpacing={0.1}
+									yName='y'
+									type='Column'
+									animation={{ enable: false }}
+								>
 								</Chart3DSeriesDirective>
 							</Chart3DSeriesCollectionDirective>
 						</Chart3DComponent>
@@ -320,22 +345,60 @@ const WalletContent: React.FC = () => {
 };
 
 // --- Updated Stats Layout ---
+// --- Updated Stats Layout with Pagination ---
 const StatsContent: React.FC = () => {
     const { fetchWithAuth } = useAuth();
-    const { theme } = useTheme(); // Add this to access the current theme
+    const { theme } = useTheme();
     const [games, setGames] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const serverUrl = import.meta.env.VITE_SERVER_URL;
 
-    // Add these handlers for theme switching (based on your example)
+    // --- PAGINATION STATE ---
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 3; // 4 looks best to avoid internal scrolling
+
+    const pieChartRef = useRef<any>(null);
+    const pieContainerRef = useRef<HTMLDivElement>(null);
+
+    // --- Animation & Resize Logic (Preserved) ---
+    const [enableAnimation, setEnableAnimation] = useState(true);
+
+    useEffect(() => {
+        if (!loading) {
+            const timer = setTimeout(() => {
+                setEnableAnimation(false);
+            }, 2000);
+            return () => clearTimeout(timer);
+        }
+    }, [loading]);
+
+    useEffect(() => {
+        if (loading) return;
+        let resizeTimer: ReturnType<typeof setTimeout>;
+        const resizeObserver = new ResizeObserver(() => {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(() => {
+                if (pieChartRef.current) {
+                    pieChartRef.current.refresh();
+                }
+            }, 200);
+        });
+        if (pieContainerRef.current) {
+            resizeObserver.observe(pieContainerRef.current);
+        }
+        return () => {
+            resizeObserver.disconnect();
+            clearTimeout(resizeTimer);
+        };
+    }, [loading]);
+
     const onChartLoad = (args: any) => {
         const chartEl = document.getElementById('charts');
         if (chartEl) chartEl.setAttribute('title', '');
     };
 
     const load = (args: any) => {
-        // Set Syncfusion theme based on app theme
-        args.chart.theme = theme === 'light' ? 'Material' : 'MaterialDark';
+        args.chart.theme = 'MaterialDark';
     };
 
     useEffect(() => {
@@ -353,7 +416,16 @@ const StatsContent: React.FC = () => {
 
     if (loading) return <div>Loading...</div>;
 
-    // Process data for the chart: Group by gameName and sum scores (earnings)
+    // --- PAGINATION LOGIC ---
+    const indexOfLastGame = currentPage * itemsPerPage;
+    const indexOfFirstGame = indexOfLastGame - itemsPerPage;
+    const currentGames = games.slice(indexOfFirstGame, indexOfLastGame);
+    const totalPages = Math.ceil(games.length / itemsPerPage);
+
+    const nextPage = () => setCurrentPage(prev => Math.min(prev + 1, totalPages));
+    const prevPage = () => setCurrentPage(prev => Math.max(prev - 1, 1));
+
+    // --- Chart Data Processing ---
     const earningsMap = games.reduce((acc, game) => {
         const name = game.gameName || 'Unknown Game';
         const score = parseFloat(game.score) || 0;
@@ -361,10 +433,8 @@ const StatsContent: React.FC = () => {
         return acc;
     }, {} as Record<string, number>);
 
-    // Define colors
     const COLORS = ['#8884d8', '#82ca9d', '#ffc658', '#ff7c7c', '#8dd1e1'];
 
-    // Map to Syncfusion format (x=name, y=value)
     type ChartItem = { x: string; y: number; text: string; fill: string };
 
     const rawChartData: ChartItem[] = Object.entries(earningsMap).map(([name, total], idx) => ({
@@ -378,93 +448,122 @@ const StatsContent: React.FC = () => {
 
     return (
         <div className="stats-content">
-            {/* Existing Game List */}
+            {/* Game List with Pagination */}
             <div className="game-list">
                  {games.length === 0 ? (
                     <div className="empty-state">No games played recently</div>
                 ) : (
-                    games.map((game, i) => (
-                        <div key={i} className="game-item">
-                            <div className="game-header">
-                                <span>{game.gameName || `Game #${game.id}`}</span>
-                                <div>Played at {new Date(game.createdAt).toLocaleDateString()}</div>
+                    <>
+                        {currentGames.map((game, i) => (
+                            <div key={i} className="game-item">
+                                <div className="game-header">
+                                    <span>{game.gameName || `Game #${game.id}`}</span>
+                                    <div>Played at {new Date(game.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</div>
+                                </div>
+                                <div className="game-details">
+                                    <div>Place: <span className={game.placementName === 'Winner' || game.placementName === '1' ? 'text-won' : 'text-lost'}>{game.placementName}</span></div>
+                                    <div>Fee: <span className="text-secondary">{game.fee} BLOB</span></div>
+                                    <div>Score: <span className="text-secondary">{game.score} BLOB</span></div>
+                                </div>
                             </div>
-                            <div className="game-details">
-                                <div>Place: <span className={game.placementName === 'Winner' || game.placementName === '1' ? 'text-green' : 'text-red'}>{game.placementName}</span></div>
-                                <div>Fee: {game.fee} BLOB</div>
-                                <div>Score: {game.score} BLOB</div>
+                        ))}
+
+                        {/* Pagination Controls */}
+                        {games.length > itemsPerPage && (
+                            <div className="pagination-controls" style={{ display: 'flex', justifyContent: 'center', gap: '15px', marginTop: 'auto', paddingTop: '10px', alignItems: 'center' }}>
+                                <button 
+                                    className="action-btn" 
+                                    onClick={prevPage} 
+                                    disabled={currentPage === 1}
+                                    style={{ padding: '6px 12px', fontSize: '12px' }}
+                                >
+                                    Previous
+                                </button>
+                                <span style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>
+                                    Page {currentPage} of {totalPages}
+                                </span>
+                                <button 
+                                    className="action-btn" 
+                                    onClick={nextPage} 
+                                    disabled={currentPage === totalPages}
+                                    style={{ padding: '6px 12px', fontSize: '12px' }}
+                                >
+                                    Next
+                                </button>
                             </div>
-                        </div>
-                    ))
+                        )}
+                    </>
                 )}
             </div>
-			{/* First Syncfusion 3D Pie Chart */}
-			{(
-				<div className="earnings-chart-container">
-					<div className="earnings-chart-canvas" style={{ background: 'transparent', border: '' }}>
-						{totalEarnings > 0 ? (
-							<CircularChart3DComponent 
-								id='charts'  // Unique ID for the first chart
-								style={{ textAlign: "center" }}
-								load={load}
-								loaded={onChartLoad}
-								titleStyle={{ 
-									color: theme === 'light' ? '#111827' : '#ffffff',
-									fontFamily: 'Courier New', 
-								}}
-								legendSettings={{ 
-									visible: false,
-									position: 'Bottom',
-									textStyle: { 
-										color: theme === 'light' ? '#000000' : '#ffffff',
-										fontFamily: 'Courier New',
-										fontWeight: 'bold',
-									},
-								}}
-								tooltip={{ 
-									enable: true, format: '${point.x} : ${point.y} BLOB', textStyle: { color: theme === 'light' ? '#111827' : '#ffffff', fontFamily: 'Courier New', } }}
-								rotation={15}
-								tilt={-15}
-								depth={30}
-								background="transparent"
-								enableRotation={true}
-								title="Earnings by game this week"
-							>
-								<Inject services={[PieSeries3D, CircularChartDataLabel3D, CircularChartLegend3D, CircularChartTooltip3D]} />
-								<CircularChart3DSeriesCollectionDirective>
-									<CircularChart3DSeriesDirective 
-										dataSource={rawChartData} 
-										xName='x' 
-										yName='y' 
-										pointColorMapping="fill"
-										radius='60%'
-										dataLabel={{
-											visible: true, 
-											position: 'Outside', 
-											name: 'text',
-											font: { 
-												fontWeight: '700',
-												color: theme === 'light' ? '#111827' : '#ffffff',
-												fontFamily: 'Courier New',
-											},
-											connectorStyle: { length: '20px' }
-										}}
-									>
-									</CircularChart3DSeriesDirective>
-								</CircularChart3DSeriesCollectionDirective>
-							</CircularChart3DComponent>
-						) : (
-							<div style={{ textAlign: 'center', color: 'var(--text-secondary)', padding: 50 }}>
-								No earnings to display
-							</div>
-						)}
-					</div>
-				</div>
-			)}
+            
+            {/* Chart Section */}
+            {(
+                <div className="earnings-chart-container" ref={pieContainerRef}>
+                    <div className="earnings-chart-canvas" style={{ background: 'transparent', border: '' }}>
+                        {totalEarnings > 0 ? (
+                            <CircularChart3DComponent 
+                                ref={pieChartRef}
+                                id='charts'  
+                                style={{ textAlign: "center" }}
+                                load={load}
+                                loaded={onChartLoad}
+                                titleStyle={{ 
+                                    color: theme === 'light' ? '#111827' : '#ffffff',
+                                    fontFamily: 'Courier New', 
+                                }}
+                                legendSettings={{ 
+                                    visible: false,
+                                    position: 'Bottom',
+                                    textStyle: { 
+                                        color: theme === 'light' ? '#000000' : '#ffffff',
+                                        fontFamily: 'Courier New',
+                                        fontWeight: 'bold',
+                                    },
+                                }}
+                                tooltip={{ 
+                                    enable: true, format: '${point.x} : ${point.y} BLOB', textStyle: { color: theme === 'light' ? '#111827' : '#ffffff', fontFamily: 'Courier New', } }}
+                                rotation={15}
+                                tilt={-15}
+                                depth={30}
+                                background="transparent"
+                                enableRotation={true}
+                                title="Earnings by game this week"
+                            >
+                                <Inject services={[PieSeries3D, CircularChartDataLabel3D, CircularChartLegend3D, CircularChartTooltip3D]} />
+                                <CircularChart3DSeriesCollectionDirective>
+                                    <CircularChart3DSeriesDirective 
+                                        animation={{ enable: enableAnimation }}
+                                        dataSource={rawChartData} 
+                                        xName='x' 
+                                        yName='y' 
+                                        pointColorMapping="fill"
+                                        radius='60%'
+                                        dataLabel={{
+                                            visible: true, 
+                                            position: 'Outside', 
+                                            name: 'text',
+                                            font: { 
+                                                fontWeight: '700',
+                                                color: theme === 'light' ? '#111827' : '#ffffff',
+                                                fontFamily: 'Courier New',
+                                            },
+                                            connectorStyle: { length: '20px' }
+                                        }}
+                                    >
+                                    </CircularChart3DSeriesDirective>
+                                </CircularChart3DSeriesCollectionDirective>
+                            </CircularChart3DComponent>
+                        ) : (
+                            <div style={{ textAlign: 'center', color: 'var(--text-secondary)', padding: 50 }}>
+                                No earnings to display
+                            </div>
+                        )}
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
-
 // --- Updated Friends Layout with GameSelector support ---
 interface UserProfile { id: string; username: string; email: string; }
 interface FriendshipRequest { id: string; sender: string; }
@@ -695,6 +794,8 @@ const Dashboard: React.FC = () => {
 	const [pongOpen, setPongOpen] = useState(false);
 	const [gamesTrigger, setGamesTrigger] = useState(0);
 
+	const avatarRef = useRef<HTMLDivElement>(null);
+
 	// Handle game invite acceptance - open Blobox and Pong
 	useEffect(() => {
 		const handler = () => {
@@ -812,10 +913,13 @@ const Dashboard: React.FC = () => {
 								</SubBox>
 								<SubBox title="Account" icon={<span>👤</span>} color="#10b981">
 									<div className="account-content">
+										<div className='avatar' ref={avatarRef}>
+											<ModelViewer />
+										</div>
 										<div style={{ textAlign: 'center', marginBottom: 6 }}>
 											<div className="account-info">
-												<div><strong>Username:</strong> {user?.username || 'N/A'}</div>
-												<div><strong>Email:</strong> {user?.email || 'N/A'}</div>
+												<div><strong>Username</strong> {user?.username || 'N/A'}</div>
+												<div><strong>Email</strong> {user?.email || 'N/A'}</div>
 											</div>
 										</div>
 										<div className="theme-switch-wrapper">

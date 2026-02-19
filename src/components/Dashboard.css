@@ -637,7 +637,7 @@ button[type="submit"]:disabled {
 .game-list {
   display: flex;
   flex-direction: column;
-  height: 300px;
+  min-height: 300px;
   gap: 12px;
 }
 
@@ -670,6 +670,18 @@ button[type="submit"]:disabled {
   color: var(--text-secondary);
 }
 
+.game-details span {
+  font-weight: 600;
+}
+
+.text-won {
+  color: #037b2f;
+}
+
+.text-lost {
+  color: #b91c1c;
+}
+
 .sync-charts {
   display: flex;
   flex-direction: row;
@@ -679,8 +691,125 @@ button[type="submit"]:disabled {
 /* 
 /* Optional: Ensure each chart container takes equal width */
 
-/*
-.sync-charts .earnings-chart-container {
-  flex: 1;
+/* 1. Main Layout Wrapper */
+.account-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  padding: 1rem 0;
+  gap: 1.5rem; /* Space between avatar, info, and buttons */
 }
-  */
+
+/* 2. Circular Avatar Frame */
+.avatar {
+  padding-top: 25px;
+  width: 330px;         /* Fixed size for the circle */
+  height: 330px;        
+  border-radius: 50%;   /* Makes it a perfect circle */
+  overflow: hidden;     /* Cuts off the 3D model outside the circle */
+  background: #202020;  /* Dark background for the 3D scene */
+  border: 4px solid #4e5955; /* Matches your green theme color */
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5); /* adds depth */
+  
+  /* Flexbox to center the Canvas if needed */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  
+  /* Prevent interaction issues */
+  cursor: grab;
+}
+
+.avatar:active {
+  cursor: grabbing;
+}
+
+/* 4. Controls Section (Theme Switch + Logout) */
+/* We can group the switch and button visually */
+.theme-switch-wrapper {
+  margin-bottom: 0.5rem;
+}
+
+.action-btn {
+  background-color: #3b82f6; /* Blue button */
+  color: white;
+  border: none;
+  padding: 0.8rem 3rem;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 6px rgba(59, 130, 246, 0.3);
+}
+
+.action-btn:hover {
+  background-color: #2563eb;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(59, 130, 246, 0.4);
+}
+
+
+/* 1. Account Info Card */
+.account-info {
+  padding-top: 10px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 1.5rem;
+  width: 100%;
+  max-width: 320px; /* Increased slightly to fit long emails */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  
+  /* REQUEST 1: Font Family Update */
+  font-family: 'Courier New', Courier, monospace; 
+}
+
+/* 2. The Rows (Label + Value) */
+.account-info div {
+  display: flex;
+  align-items: center; /* Vertically aligns text */
+  
+  /* REQUEST 2 & 3: Fix Spacing issues */
+  /* Removed 'justify-content: space-between' so they aren't forced apart */
+  justify-content: flex-start; 
+}
+
+/* 3. The Labels (Username/Email) */
+.account-info div strong {
+  color: #9ca3af;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  letter-spacing: 0.05em;
+  margin-right: 1rem; /* Adds space between label and value */
+  
+  /* CHANGE: Fixed width + Left Align ensures they line up perfectly */
+  display: inline-block;
+  min-width: 90px; 
+  text-align: left; 
+}
+
+/* Optional: Ensure long emails don't break the layout */
+.account-info div span, 
+.account-info div {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+
+.pagination-controls .action-btn {
+  padding: 6px 12px;
+  font-size: 13px;
+}
+.pagination-controls button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
