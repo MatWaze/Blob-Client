@@ -13,7 +13,7 @@ import './index.css'; // You might need to create this if it's missing, or use i
 import { registerLicense } from '@syncfusion/ej2-base';
 
 // Registering Syncfusion license key
-registerLicense('Ngo9BigBOggjHTQxAR8/V1JGaF5cXGpCf1FpRmJGdld5fUVHYVZUTXxaS00DNHVRdkdlWX1fc3RcRWVdV0N/W0ZWYEs=');
+registerLicense(import.meta.env.VITE_SYNC_LICENSE);
 function AppContent() {
     return (
         <div className="main-content">
