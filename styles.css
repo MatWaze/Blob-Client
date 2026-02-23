@@ -1,6 +1,6 @@
 :root {
     --bg-primary: #1a1a1a;
-    --bg-secondary: #2a2a2a;
+    --bg-secondary: #1d1d1d;
     --bg-tertiary: #3a3a3a;
     --bg-status: #333;
     --text-primary: #ff0000;
@@ -544,5 +544,4 @@ input:checked + .slider:before {
 ::-webkit-scrollbar-thumb {
   background: linear-gradient(#21d4fd, #b721ff);
   border-radius: 100px;
-  height: 400px;
 }

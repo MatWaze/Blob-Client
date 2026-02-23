@@ -9,7 +9,7 @@
         font-family: 'Courier New', monospace; 
         max-width: 400px; 
         margin: 50px auto !important; 
-        background: var(--bg-primary);
+        background: var(--bg-secondary);
         color: var(--text-primary);
         padding: 20px;
         height: auto !important;
@@ -123,6 +123,16 @@
     body.light-theme .toggle-password:hover {
         color: #000;
     }
+
+        body.light-theme #googleSignInBtn {
+        border: 1px solid rgba(0,0,0,0.2) !important;
+        background: #ffffff !important;
+        color: #1f2937 !important;
+    }
+    
+    body.light-theme #googleSignInBtn:hover {
+        background: #f3f4f6 !important;
+    }
   </style>
 </head>
 <body>
@@ -186,7 +196,7 @@
     padding: 12px;
     background: #fff;
     color: #444;
-    border: 1px solid var(--border-primary);
+    border: 1px solid;
     border-radius: 4px;
     cursor: pointer;
     font-family: 'Courier New', monospace;
