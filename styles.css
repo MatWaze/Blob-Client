@@ -535,3 +535,14 @@ input:checked + .slider:before {
     animation: spin 1s linear infinite;
     margin: 0 auto 10px;
 }
+
+::-webkit-scrollbar {
+  background-color: transparent;
+  width: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(#21d4fd, #b721ff);
+  border-radius: 100px;
+  height: 400px;
+}

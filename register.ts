@@ -179,3 +179,28 @@ registerForm.addEventListener('submit', async (e: Event) => {
 		submitBtn.style.cursor = 'pointer';
 	}
 });
+
+
+// Google Sign In button handler
+googleSignInBtn.addEventListener('click', () => {
+	const googleAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth`;
+
+	const options =
+	{
+		redirect_uri: `${import.meta.env.VITE_SERVER_URL}/api/users/oauth/google`,
+		client_id: "924313211927-mq9a80c5307kd925bcq85eqc6furl0n1.apps.googleusercontent.com",
+		access_type: "offline",
+		response_type: "code",
+		prompt: "consent",
+		scope:
+		[
+			"https://www.googleapis.com/auth/userinfo.profile",
+			"https://www.googleapis.com/auth/userinfo.email",
+		].join(" "),
+	};
+
+	const qs = new URLSearchParams(options);
+
+	// Redirect the parent window (not the iframe)
+	window.top!.location.href = `${googleAuthUrl}?${qs.toString()}`;
+});
