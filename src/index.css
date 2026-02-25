@@ -1,6 +1,6 @@
 :root {
     --bg-primary: #1a1a1a;
-    --bg-secondary: rgb(30, 30, 30);
+    --bg-secondary: rgb(40, 40, 40);
     --bg-tertiary: #3a3a3a;
     --bg-status: #333;
     --text-primary: #ff0000;
@@ -27,8 +27,8 @@
 
 body.light-theme {
     --bg-primary: #f0f0f0;
-    --bg-secondary: #e0e0e0;
-    --bg-tertiary: #d0d0d0;
+    --bg-secondary: #d9dbdb;
+    --bg-tertiary: #bababa;
     --bg-status: #ccc;
     --text-primary: #aa0000;
     --text-secondary: #555;
@@ -577,4 +577,8 @@ input:checked + .slider:before {
 ::-webkit-scrollbar-thumb {
   background: linear-gradient(#21d4fd, #b721ff);
   border-radius: 100px;
+}
+
+.sub-inner-scroll::-webkit-scrollbar-corner {
+    background: transparent;
 }

@@ -246,7 +246,7 @@ const WalletContent: React.FC = () => {
 							disabled={isSaving}
 						/>
 						<button 
-							className="action-btn" 
+							className="action-btn update" 
 							onClick={handleUpdateWallet}
 							disabled={isAddressUnchanged || isSaving}
 							style={{ 
@@ -709,11 +709,19 @@ const FriendsContent: React.FC = () => {
 
 // --- BloboxIcon Component ---
 const BloboxIcon = () => (
-	<img 
-		src="../../logo.png" 
-		style={{ width: '420px', height: '220px', objectFit: 'contain' }} 
-		alt="Blobox" 
-	/>
+	<div className='blobox-icon-model'
+		onClick={(e) => e.stopPropagation()}
+    	onMouseDown={(e) => e.stopPropagation()}
+	>
+		<ModelViewer width={320} height={350} />
+	</div>
+
+	// <img 
+	// 	src="../../logo.png" 
+	// 	style={{ width: '420px', height: '220px', objectFit: 'contain' }} 
+	// 	alt="Blobox" 
+	// />
+
 );
 
 // --- Dashboard Component ---
@@ -1113,6 +1121,11 @@ const Dashboard: React.FC = () => {
 											Play games, connect with friends, and earn rewards!
 										</p>
 									</div>
+									{/* <div className="scroll-wrapper">
+										<section className="panel">Welcome to Blobox</section>
+										<section className="panel">Play games</section>
+										<section className="panel">Earn rewards</section>
+									</div> */}
 								</SubBox>
 							</MainBox>
 						)}

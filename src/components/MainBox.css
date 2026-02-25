@@ -9,6 +9,9 @@
   transition: all 0.24s ease;
   flex: 1 0 auto;
   min-width: 200px;
+  /* height: 350px;           Set a fixed height for each box */
+  max-height: 100vh;        /* Optional: don't exceed viewport */
+  min-height: 540px; 
   cursor: pointer;
 
   /* Enable container queries to check width/height */
@@ -18,7 +21,8 @@
 .main-box.open {
   cursor: default;
   /* Ensure it has enough height when stacked vertically */
-  min-height: 300px;
+  /* min-height: 300px; */
+  min-height: 540px; 
   flex-shrink: 0;
 }
 
@@ -42,7 +46,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 100%;
+  height: 900px;
   padding: 30px;
   background: linear-gradient(135deg, 
     rgba(255,255,255,0.05), 
@@ -55,12 +59,15 @@
 }
 
 .main-box-collapsed:hover {
-  background-color: rgba(255, 255, 255, 0.05);
+  background: linear-gradient(135deg,
+    rgba(255,255,255,0.09) 0%,
+    rgba(255,255,255,0.09) 100%
+  );
 }
 
 .main-box-icon {
   font-size: 80px;
-  margin-bottom: 20px;
+  /* margin-bottom: 20px; */
 }
 
 .main-box-icon img {
@@ -69,11 +76,16 @@
   object-fit: contain;
 }
 
-.main-box-title {
+[class^="main-box-title-"] {
   font-size: 24px;
   font-weight: 600;
   color: var(--box-color);
   font-style: italic;
+  margin-top: 20px;
+}
+
+.main-box-title-blobox {
+  margin-top: 0px;
 }
 
 /* Expanded state */
@@ -238,5 +250,11 @@
 @container (orientation: landscape) {
   .main-box-content {
     flex-direction: row;
+  }
+}
+
+@media (max-width: 750px) {
+  .main-box-content {
+    flex-direction: column;
   }
 }

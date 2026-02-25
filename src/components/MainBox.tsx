@@ -59,14 +59,14 @@ const MainBox: React.FC<MainBoxProps> = ({ title, icon, color, children, onClose
 
 	return (
 		<div 
-			className={`main-box ${isOpen ? 'open' : ''} ${isMaximized ? 'maximized' : ''}`}
+			className={`main-box${isOpen ? ' open' : ''}${isMaximized ? ' maximized' : ''}`}
 			onClick={!isOpen ? handleToggleOpen : undefined}
 			style={{ '--box-color': color } as React.CSSProperties}
 		>
 			{!isOpen ? (
 				<div className="main-box-collapsed">
 					<div className="main-box-icon">{icon}</div>
-					<div className="main-box-title">{title}</div>
+					<div className={`main-box-title-${title.toLowerCase()}`}>{title}</div>
 				</div>
 			) : (
 				<>
