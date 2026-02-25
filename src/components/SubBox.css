@@ -4,6 +4,13 @@
     100% { background-position: 0% 50%; }
 }
 
+@keyframes gentle-drift {
+  0% { transform: translate(0px, 0px) rotate(-2deg); }
+  33% { transform: translate(8px, -8px) rotate(2deg); }
+  66% { transform: translate(-6px, 8px) rotate(-1deg); }
+  100% { transform: translate(0px, 0px) rotate(1deg); }
+}
+
 .sub-box {
   position: relative;
   background: linear-gradient(
@@ -24,8 +31,9 @@
   flex: 1;
   z-index: 1; /* Base z-index for all SubBoxes */
   will-change: border-radius;
-  animation: sub-blob-shift 15s ease infinite;
-  
+  animation: 
+    sub-blob-shift 15s ease infinite, 
+    gentle-drift 30s ease-in-out infinite;
   transition: 
     border-radius 3.5s ease-in-out, 
     transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1), 
@@ -66,13 +74,12 @@
   background: transparent;
   cursor: pointer;
 }
-.sub-box-collapsed:hover {
-  filter: none;
-  background: var(--bg-tertiary);
+.sub-box:hover {
+  background: var(--bg-primary);
 }
 
 /* Titles / icons readable */
-.sub-box-icon { font-size: 60px; margin-bottom: 15px; color: var(--text-primary); }
+.sub-box-icon { font-size: 60px; color: var(--text-primary); }
 .sub-box-title { font-size: 20px; font-weight: 800; color: var(--text-title); font-style: italic; text-align: center; }
 
 /* Header / label use solid backgrounds and theme text */
