@@ -1,20 +1,46 @@
+@keyframes sub-blob-shift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
 .sub-box {
   position: relative;
-  background: var(--bg-secondary);
+  background: linear-gradient(
+    -45deg, 
+    var(--bg-secondary), 
+    var(--sub-color), 
+    rgba(255, 255, 255, 0.2), /* The "shine" */
+    var(--sub-color), 
+    var(--bg-secondary)
+  );
+  background-size: 400% 400%;
   border: 1px solid var(--sub-color, var(--border-color));
   border-radius: 12px;
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
   min-height: 150px;
   flex: 1;
   z-index: 1; /* Base z-index for all SubBoxes */
+  will-change: border-radius;
+  animation: sub-blob-shift 15s ease infinite;
+  
+  transition: 
+    border-radius 3.5s ease-in-out, 
+    transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1), 
+    background 0.3s ease;
 }
 
-/* Open SubBox gets slightly higher z-index */
-.sub-box.open {
+.sub-box.open,
+.sub-box.maximized {
+  animation: none;
+  background-size: 100% 100%;
   z-index: 10;
+  background: var(--bg-secondary);
+  transition: 
+    border-radius 0.4s cubic-bezier(0.4, 0, 0.2, 1), 
+    all 0.4s ease;
 }
 
 /* Maximized: takes over the entire parent */
@@ -37,7 +63,7 @@
   justify-content: center;
   height: 100%;
   padding: 20px;
-  background: var(--bg-secondary); /* solid */
+  background: transparent;
   cursor: pointer;
 }
 .sub-box-collapsed:hover {
@@ -47,7 +73,7 @@
 
 /* Titles / icons readable */
 .sub-box-icon { font-size: 60px; margin-bottom: 15px; color: var(--text-primary); }
-.sub-box-title { font-size: 18px; font-weight: 500; color: var(--text-secondary); font-style: italic; text-align: center; }
+.sub-box-title { font-size: 20px; font-weight: 800; color: var(--text-title); font-style: italic; text-align: center; }
 
 /* Header / label use solid backgrounds and theme text */
 .sub-box-header {

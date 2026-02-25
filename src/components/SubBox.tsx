@@ -15,6 +15,13 @@ interface SubBoxProps {
 	onOpenChange?: (open: boolean) => void; // Optional: callback for state changes
 }
 
+const SUB_BLOB_SHAPES = [
+	"40% 60% 70% 30% / 40% 40% 60% 50%",
+	"60% 40% 30% 70% / 50% 30% 70% 50%",
+	"50% 50% 50% 50% / 40% 60% 40% 60%",
+	"70% 30% 40% 60% / 60% 40% 60% 40%"
+];
+
 const SubBox: React.FC<SubBoxProps> = ({
 	title, 
 	icon, 
@@ -57,6 +64,21 @@ const SubBox: React.FC<SubBoxProps> = ({
 
 	const showContent = embeddedContent || children;
 
+	const [blobShape, setBlobShape] = useState(SUB_BLOB_SHAPES[0]);
+
+	useEffect(() => {
+        if (isOpen || isMaximized) return;
+
+        const interval = setInterval(() => {
+            setBlobShape(prev => {
+                const available = SUB_BLOB_SHAPES.filter(s => s !== prev);
+                return available[Math.floor(Math.random() * available.length)];
+            });
+        }, 4000); // Slightly slower for sub-boxes
+
+        return () => clearInterval(interval);
+    }, [isOpen, isMaximized]);
+
 	// Watch for trigger signal to force open
 	useEffect(() => {
 		if (triggerOpen) {
@@ -75,8 +97,12 @@ const SubBox: React.FC<SubBoxProps> = ({
 
 	return (
 		<div 
-			className={`sub-box ${isOpen ? 'open' : ''} ${isMaximized ? 'maximized' : ''}`}
-			style={{ '--sub-color': color } as React.CSSProperties}
+			className={`sub-box${isOpen ? ' open' : ''}${isMaximized ? ' maximized' : ''}`}
+			style={{ 
+                '--sub-color': color,
+                // Snap to rectangle when open/maximized, otherwise breathe
+                borderRadius: (isOpen || isMaximized) ? '12px' : blobShape 
+            } as React.CSSProperties}
 			onClick={!isOpen ? handleOpen : undefined}
 		>
 			{!isOpen ? (
