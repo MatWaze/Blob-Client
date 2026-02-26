@@ -5,9 +5,9 @@
 }
 
 @keyframes gentle-drift {
-  0% { transform: translate(0px, 0px) rotate(-2deg); }
+  0% { transform: translate(1px, 3px) rotate(0deg); }
   33% { transform: translate(8px, -8px) rotate(2deg); }
-  66% { transform: translate(-6px, 8px) rotate(-1deg); }
+  66% { transform: translate(-6px, 8px) rotate(-3deg); }
   100% { transform: translate(0px, 0px) rotate(1deg); }
 }
 
@@ -33,11 +33,12 @@
   will-change: border-radius;
   animation: 
     sub-blob-shift 15s ease infinite, 
-    gentle-drift 30s ease-in-out infinite;
+    gentle-drift 60s ease-in-out infinite;
   transition: 
     border-radius 3.5s ease-in-out, 
     transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1), 
     background 0.3s ease;
+    aspect-ratio: 1 / 1;
 }
 
 .sub-box.open,
