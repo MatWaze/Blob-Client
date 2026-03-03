@@ -545,3 +545,7 @@ input:checked + .slider:before {
   background: linear-gradient(#21d4fd, #b721ff);
   border-radius: 100px;
 }
+
+html {
+    scrollbar-width: none;
+}

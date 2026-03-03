@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import './SubBox.css';
 
 interface SubBoxProps {
@@ -36,6 +36,20 @@ const SubBox: React.FC<SubBoxProps> = ({
 	isOpen: controlledIsOpen,
 	onOpenChange
 }) => {
+	const motionSeed = useMemo(() => {
+		const morphDurationSec = 8 + Math.random() * 6;
+		const driftDurationSec = 45 + Math.random() * 30;
+		return {
+			initialShape: SUB_BLOB_SHAPES[Math.floor(Math.random() * SUB_BLOB_SHAPES.length)],
+			shapeIntervalMs: 3200 + Math.floor(Math.random() * 2600),
+			shapeStartDelayMs: Math.floor(Math.random() * 2200),
+			morphDurationSec,
+			morphDelaySec: -(Math.random() * morphDurationSec),
+			driftDurationSec,
+			driftDelaySec: -(Math.random() * driftDurationSec),
+		};
+	}, []);
+
 	const [internalOpen, setInternalOpen] = useState(false);
 	const isOpen = controlledIsOpen !== undefined ? controlledIsOpen : internalOpen;
 
@@ -66,20 +80,26 @@ const SubBox: React.FC<SubBoxProps> = ({
 
 	const showContent = embeddedContent || children;
 
-	const [blobShape, setBlobShape] = useState(SUB_BLOB_SHAPES[0]);
+	const [blobShape, setBlobShape] = useState(motionSeed.initialShape);
 
 	useEffect(() => {
-        if (isOpen || isMaximized) return;
+		if (isOpen || isMaximized) return;
 
-        const interval = setInterval(() => {
-            setBlobShape(prev => {
-                const available = SUB_BLOB_SHAPES.filter(s => s !== prev);
-                return available[Math.floor(Math.random() * available.length)];
-            });
-        }, 4000); // Slightly slower for sub-boxes
+		let interval: ReturnType<typeof setInterval> | undefined;
+		const starter = setTimeout(() => {
+			interval = setInterval(() => {
+				setBlobShape(prev => {
+					const available = SUB_BLOB_SHAPES.filter(s => s !== prev);
+					return available[Math.floor(Math.random() * available.length)];
+				});
+			}, motionSeed.shapeIntervalMs);
+		}, motionSeed.shapeStartDelayMs);
 
-        return () => clearInterval(interval);
-    }, [isOpen, isMaximized]);
+		return () => {
+			clearTimeout(starter);
+			if (interval) clearInterval(interval);
+		};
+	}, [isOpen, isMaximized, motionSeed]);
 
 	// Watch for trigger signal to force open
 	useEffect(() => {
@@ -97,14 +117,20 @@ const SubBox: React.FC<SubBoxProps> = ({
 		}
 	}, [triggerClose]);
 
+	const subBoxStyle = {
+		'--sub-color': color,
+		'--blob-morph-duration': `${motionSeed.morphDurationSec}s`,
+		'--blob-morph-delay': `${motionSeed.morphDelaySec}s`,
+		'--blob-drift-duration': `${motionSeed.driftDurationSec}s`,
+		'--blob-drift-delay': `${motionSeed.driftDelaySec}s`,
+		// Snap to rectangle when open/maximized, otherwise breathe
+		borderRadius: (isOpen || isMaximized) ? '12px' : blobShape
+	} as React.CSSProperties;
+
 	return (
 		<div 
 			className={`sub-box${isOpen ? ' open' : ''}${isMaximized ? ' maximized' : ''}`}
-			style={{ 
-                '--sub-color': color,
-                // Snap to rectangle when open/maximized, otherwise breathe
-                borderRadius: (isOpen || isMaximized) ? '12px' : blobShape 
-            } as React.CSSProperties}
+			style={subBoxStyle}
 			onClick={!isOpen ? handleOpen : undefined}
 		>
 			{!isOpen ? (

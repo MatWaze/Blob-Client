@@ -29,6 +29,8 @@ import {
 } from '@syncfusion/ej2-react-charts';
 import ModelViewer from './ModelViewer';
 import './Dashboard.css';
+import { MarketplaceContent } from './MarketplaceContent';
+import { ProfileAvatar } from './ProfileAvatar';
 
 // --- Icons ---
 const ProfileIcon = () => <span>🐱</span>;
@@ -41,6 +43,7 @@ const MafiaIcon = () => <span>🎭</span>;
 const InfoIcon = () => <span>ℹ️</span>;
 const LoginIcon = () => <span>🔑</span>;
 const RegisterIcon = () => <span>📝</span>;
+const MarketIcon = () => <span>🛒</span>
 
 // --- Content Components ---
 
@@ -713,7 +716,7 @@ const BloboxIcon = () => (
 		onClick={(e) => e.stopPropagation()}
     	onMouseDown={(e) => e.stopPropagation()}
 	>
-		<ModelViewer width={320} height={350} />
+		<ModelViewer url='../../DavidLow.glb' width={320} height={350} />
 	</div>
 
 	// <img 
@@ -906,43 +909,55 @@ const Dashboard: React.FC = () => {
 
 						<div className="blobox-inner">
 							{/* Profile MainBox */}
-							<MainBox 
-								key="profile" 
-								id="profile" 
-								title="Profile" 
-								icon={<ProfileIcon />} 
-								color="#f59e0b"
-							>
-								<SubBox title="Wallet" icon={<WalletIcon />} color="#f59e0b">
-									<WalletContent />
-								</SubBox>
-								<SubBox title="Statistics" icon={<StatsIcon />} color="#3b82f6">
-									<StatsContent />
-								</SubBox>
-								<SubBox title="Account" icon={<span>👤</span>} color="#10b981">
-									<div className="account-content">
-										<div className='avatar' ref={avatarRef}>
-											<ModelViewer />
-										</div>
-										<div style={{ textAlign: 'center', marginBottom: 6 }}>
-											<div className="account-info">
-												<div><strong>Username</strong> {user?.username || 'N/A'}</div>
-												<div><strong>Email</strong> {user?.email || 'N/A'}</div>
-											</div>
-										</div>
-										<div className="theme-switch-wrapper">
-											<label className="theme-switch">
-												<input type="checkbox" checked={theme === 'light'} onChange={toggleTheme} />
-												<div className="slider">
-													<span className="icon">🌙</span>
-													<span className="icon">☀️</span>
+							<div className="dashboard-column">
+								<MainBox 
+									key="profile" 
+									id="profile" 
+									title="Profile" 
+									icon={<ProfileIcon />} 
+									color="#f59e0b"
+								>
+									<SubBox title="Wallet" icon={<WalletIcon />} color="#f59e0b">
+										<WalletContent />
+									</SubBox>
+									<SubBox title="Statistics" icon={<StatsIcon />} color="#3b82f6">
+										<StatsContent />
+									</SubBox>
+									<SubBox title="Account" icon={<span>👤</span>} color="#10b981">
+										<div className="account-content">
+											<ProfileAvatar />
+											<div style={{ textAlign: 'center', marginBottom: 6 }}>
+												<div className="account-info">
+													<div><strong>Username</strong> {user?.username || 'N/A'}</div>
+													<div><strong>Email</strong> {user?.email || 'N/A'}</div>
 												</div>
-											</label>
+											</div>
+											<div className="theme-switch-wrapper">
+												<label className="theme-switch">
+													<input type="checkbox" checked={theme === 'light'} onChange={toggleTheme} />
+													<div className="slider">
+														<span className="icon">🌙</span>
+														<span className="icon">☀️</span>
+													</div>
+												</label>
+											</div>
+											<button className="action-btn" onClick={handleLogout}>Logout</button>
 										</div>
-										<button className="action-btn" onClick={handleLogout}>Logout</button>
-									</div>
-								</SubBox>
-							</MainBox>
+									</SubBox>
+								</MainBox>
+
+								<MainBox 
+									key="marketplace" 
+									id="marketplace" 
+									title="Marketplace" 
+									icon={<MarketIcon />} 
+									color="#a855f7" // Purple theme for the store
+								>
+									<SubBox title="Store" icon={<span>🏪</span>} color="#a855f7">
+										<MarketplaceContent />
+									</SubBox>
+								</MainBox>
+							</div>
 
 							{/* Games MainBox */}
 							<MainBox 

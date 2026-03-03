@@ -244,12 +244,20 @@
   /* Reduced padding since buttons are now small corners */
   padding: 20px;
   padding-top: 25px; 
+  scrollbar-width: none;
+  min-height: 0;
 }
 
-/* Automatically switch to Horizontal Row when Width > Height */
-@container (orientation: landscape) {
+/* Use row only when there is enough real width for multiple subboxes */
+@container (min-width: 920px) {
   .main-box-content {
     flex-direction: row;
+  }
+}
+
+@container (max-width: 919px) {
+  .main-box-content {
+    flex-direction: column;
   }
 }
 
@@ -257,4 +265,61 @@
   .main-box-content {
     flex-direction: column;
   }
+}
+
+
+.main-box-collapsed .main-box-icon,
+.main-box-collapsed [class^="main-box-title-"] {
+  position: relative;
+  z-index: 3;
+}
+
+.main-box-collapsed .blob-c {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  overflow: hidden;
+  filter: blur(30px);
+}
+
+.main-box-collapsed .shape-blob {
+  position: absolute;
+  width: var(--blob-w, 160px);
+  height: var(--blob-h, 130px);
+  left: var(--blob-left, 50%);
+  top: var(--blob-top, 50%);
+  opacity: var(--blob-opacity, 0.48);
+  background: color-mix(in srgb, var(--box-color) var(--blob-color-mix, 74%), white);
+  border-radius: 33% 67% 70% 30% / 30% 40% 70% 70%;
+  animation:
+    mb-blob-morph 16s ease-in-out infinite both alternate,
+    mb-blob-move-1 22s ease-in-out infinite both;
+  animation-duration: var(--blob-morph-duration, 16s), var(--blob-move-duration, 22s);
+  animation-delay: var(--blob-morph-delay, 0s), var(--blob-move-delay, 0s);
+}
+
+.main-box-collapsed .shape-blob.move-two {
+  animation-name: mb-blob-morph, mb-blob-move-2;
+}
+
+@keyframes mb-blob-morph {
+  0%,
+  100% { border-radius: 33% 67% 70% 30% / 30% 40% 70% 70%; }
+  20% { border-radius: 37% 63% 51% 49% / 37% 35% 35% 63%; }
+  40% { border-radius: 36% 64% 64% 36% / 64% 48% 52% 26%; }
+  60% { border-radius: 37% 63% 51% 49% / 30% 30% 70% 73%; }
+  80% { border-radius: 40% 60% 42% 58% / 51% 51% 49% 59%; }
+}
+
+@keyframes mb-blob-move-1 {
+  0%,
+  100% { transform: translate(-50%, -50%); }
+  50% { transform: translate(-10%, -30%) rotateY(10deg) scale(1); }
+}
+
+@keyframes mb-blob-move-2 {
+  0%,
+  100% { transform: translate(-50%, -50%); }
+  50% { transform: translate(-10%, -30%) rotate(-200deg) scale(1.3); }
 }

@@ -15,6 +15,7 @@ const Register: React.FC = () => {
             src={`register.html?theme=${theme}`}
             style={{ width: '100%', height: '100%', border: 'none' }}
             title="Register"
+            className="auth-subbox-frame"
         />
     );
 };

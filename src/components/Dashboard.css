@@ -641,7 +641,8 @@ button[type="submit"]:disabled {
 .game-list {
   display: flex;
   flex-direction: column;
-  min-height: 300px;
+  flex: 0 0 auto;
+  min-height: 0;
   gap: 12px;
 }
 
@@ -701,18 +702,21 @@ button[type="submit"]:disabled {
   flex-direction: column;
   align-items: center;
   width: 100%;
+  max-width: 96%;
+  margin-inline: auto;
   padding: 1rem 0;
   gap: 1.5rem; /* Space between avatar, info, and buttons */
 }
 
 /* 2. Circular Avatar Frame */
 .avatar {
-  padding-top: 25px;
-  width: 330px;         /* Fixed size for the circle */
-  height: 330px;        
+  padding-top: clamp(8px, 2.2cqi, 25px);
+  width: min(100%, 330px);
+  aspect-ratio: 1 / 1;
+  height: auto;
   border-radius: 50%;   /* Makes it a perfect circle */
   overflow: hidden;     /* Cuts off the 3D model outside the circle */
-  background: #202020;  /* Dark background for the 3D scene */
+  background: var(--bg-secondary);  /* Dark background for the 3D scene */
   border: 4px solid #4e5955; /* Matches your green theme color */
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5); /* adds depth */
   
@@ -723,6 +727,12 @@ button[type="submit"]:disabled {
   
   /* Prevent interaction issues */
   cursor: grab;
+}
+
+.avatar canvas {
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
 }
 
 .avatar:active {
@@ -739,10 +749,10 @@ button[type="submit"]:disabled {
   background-color: #3b82f6; /* Blue button */
   color: white;
   border: none;
-  padding: 0.8rem 3rem;
+  padding: 0.6rem 1rem;
   border-radius: 8px;
   font-weight: 700;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   text-transform: uppercase;
   letter-spacing: 1px;
   cursor: pointer;
@@ -816,4 +826,134 @@ button[type="submit"]:disabled {
 .pagination-controls button:disabled {
   opacity: 0.45;
   cursor: not-allowed;
+}
+
+/* --- New Layout Wrapper --- */
+.dashboard-column {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+  flex: 1;
+  min-width: 250px;
+}
+
+.dashboard-column .main-box {
+  display: flex;
+  flex-direction: column;
+  min-height: 250px;
+  flex: 1;
+  
+  overflow: hidden; /* 🛡️ CRITICAL: Forces the orange border to trap anything inside */
+}
+
+.dashboard-column > .main-box > .main-box-content {
+  overflow: auto;
+  flex-direction: row;
+  min-height: 0;
+}
+
+.dashboard-column > .main-box > .main-box-content:has(.sub-box.maximized) {
+  overflow: hidden;
+}
+
+.dashboard-column > .main-box > .main-box-content:has(.sub-box.maximized)
+    .sub-box:not(.maximized) {
+    display: none;
+}
+
+.dashboard-column > .main-box > .main-box-content > .sub-box {
+  min-height: 0;
+}
+
+/* Ensure mobile layout stacks everything perfectly */
+@media (max-width: 1200px) {
+  .dashboard-column {
+    width: 100%;
+    flex-direction: row;
+    height: 700px;
+    min-height: 840px;
+    
+    overflow: auto;
+  }
+
+  .dashboard-column > .main-box > .main-box-content {
+    flex-direction: row;
+  }
+
+}
+
+/* Add container queries for dashboard-column */
+.dashboard-column {
+  container-type: inline-size;
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+  flex: 1;
+  min-width: 250px;
+}
+
+/* Scale wallet/profile content in smaller containers */
+@container (max-width: 350px) {
+  .wallet-content,
+  .account-content {
+    font-size: 0.8rem;
+  }
+
+  .account-content {
+    max-width: 90%;
+    margin-inline: auto;
+  }
+
+  .input-row {
+    flex-direction: column;
+  }
+
+  .wallet-actions {
+    gap: 8px;
+  }
+
+  .wallet-header-card {
+    padding: 10px;
+  }
+
+  .account-info {
+    max-width: 100%;
+  }
+  
+  .account-info div {
+    white-space: normal;
+  }
+  
+  .balance { font-size: 20px !important; }
+  .wallet-header-card h3 { font-size: 11px !important; }
+  
+  .avatar {
+    width: 200px !important;
+    height: 200px !important;
+  }
+  
+  .action-btn {
+    font-size: 0.7rem;
+    padding: 6px 12px;
+  }
+
+}
+
+@container (min-width: 351px) and (max-width: 500px) {
+  .wallet-content,
+  .account-content {
+    font-size: 0.9rem;
+  }
+
+  .account-content {
+    max-width: 94%;
+    margin-inline: auto;
+  }
+  
+  .balance { font-size: 24px !important; }
+  
+  .avatar {
+    width: 260px !important;
+    height: 260px !important;
+  }
 }

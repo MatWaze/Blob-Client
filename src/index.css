@@ -571,6 +571,7 @@ input:checked + .slider:before {
 }
 
 ::-webkit-scrollbar {
+    scrollbar-width: none;
     background-color: transparent;
     width: 10px;
 }
@@ -578,8 +579,16 @@ input:checked + .slider:before {
 ::-webkit-scrollbar-thumb {
   background: linear-gradient(#21d4fd, #b721ff);
   border-radius: 100px;
+    scrollbar-width: none;
+  
 }
 
 .sub-inner-scroll::-webkit-scrollbar-corner {
     background: transparent;
+    scrollbar-width: none;
+
+}
+
+html{
+    scrollbar-width: none;
 }

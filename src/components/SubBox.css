@@ -1,7 +1,18 @@
-@keyframes sub-blob-shift {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
+@keyframes morph{
+  0%,100%{
+    background-position: 0% 50%;
+  border-radius: 42% 58% 70% 30% / 45% 45% 55% 55%;
+  }
+  34%{
+      border-radius: 70% 30% 46% 54% / 30% 29% 71% 70%;
+  }
+  50%{
+    background-position: 100% 50%;
+    opacity: .89;
+  }
+  67%{
+    border-radius: 100% 60% 60% 100% / 100% 100% 60% 60% ;
+  }
 }
 
 @keyframes gentle-drift {
@@ -12,6 +23,7 @@
 }
 
 .sub-box {
+  container-type: size;
   position: relative;
   background: linear-gradient(
     -45deg, 
@@ -27,18 +39,18 @@
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  min-height: 150px;
+  min-height: 0;
   flex: 1;
   z-index: 1; /* Base z-index for all SubBoxes */
   will-change: border-radius;
-  animation: 
-    sub-blob-shift 15s ease infinite, 
-    gentle-drift 60s ease-in-out infinite;
+  animation:
+    gentle-drift 60s ease-in-out infinite
+    morph var(--blob-morph-duration, 10s) linear infinite var(--blob-morph-delay, 0s);
   transition: 
-    border-radius 3.5s ease-in-out, 
     transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1), 
-    background 0.3s ease;
-    aspect-ratio: 1 / 1;
+    border-radius 3.5s ease-in-out, 
+    background 5s ease;
+  aspect-ratio: 1 / 1;
 }
 
 .sub-box.open,
@@ -47,6 +59,7 @@
   background-size: 100% 100%;
   z-index: 10;
   background: var(--bg-secondary);
+  aspect-ratio: auto;
   transition: 
     border-radius 0.4s cubic-bezier(0.4, 0, 0.2, 1), 
     all 0.4s ease;
@@ -81,7 +94,8 @@
 
 /* Titles / icons readable */
 .sub-box-icon { font-size: 60px; color: var(--text-primary); }
-.sub-box-title { font-size: 20px; font-weight: 800; color: var(--text-title); font-style: italic; text-align: center; }
+.sub-box-title { font-size: 20px; font-weight: 800; color: var(--sub-color); font-style: italic; text-align: center; }
+/* -webkit-text-stroke: 0.5px black; */
 
 /* Header / label use solid backgrounds and theme text */
 .sub-box-header {
@@ -99,7 +113,30 @@
 .sub-inner-scroll:has(iframe) {
   overflow: hidden;
 }
-.sub-inner-scroll { flex: 1; overflow-y: auto; padding: 15px; padding-top: 35px; }
+
+.sub-inner-scroll {
+  scrollbar-width: none;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: clamp(8px, 2.2cqi, 15px);
+  padding-top: clamp(20px, 5cqi, 35px);
+  font-size: clamp(10px, 2.2cqi, 16px);
+}
+
+.sub-inner-scroll:has(.auth-subbox-frame) {
+  padding: 0;
+  overflow: hidden;
+}
+
+.sub-box.maximized .sub-inner-scroll {
+  padding: clamp(12px, 2.2cqi, 20px);
+  padding-top: clamp(30px, 5.2cqi, 44px);
+}
+
+.sub-box.maximized .sub-inner-scroll:has(.auth-subbox-frame) {
+  padding: clamp(8px, 1.6cqi, 14px);
+}
 
 /* Floating Label (replaces header) */
 .sub-box-label {
@@ -159,6 +196,29 @@
   align-items: flex-start;
   padding-top: 4px;
   padding-right: 4px;
+}
+
+/* Avoid cut-edge look when sub-box is maximized */
+.sub-box.maximized .sub-corner-btn {
+  width: 24px;
+  height: 24px;
+  clip-path: none !important;
+  border-radius: 6px;
+  padding: 0 !important;
+  justify-content: center !important;
+  align-items: center !important;
+  opacity: 0.9;
+  background: color-mix(in srgb, var(--sub-color, #666) 70%, black 30%);
+}
+
+.sub-box.maximized .sub-corner-btn.top-left {
+  top: 8px !important;
+  left: 8px !important;
+}
+
+.sub-box.maximized .sub-corner-btn.top-right {
+  top: 8px;
+  right: 8px;
 }
 
 /* Embedded window styles */
@@ -226,4 +286,213 @@
   align-items: center;
   justify-content: center;
   overflow: hidden;
+}
+.sub-inner-scroll iframe,
+.sub-inner-scroll .auth-subbox-frame {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: none;
+  margin-inline: auto;
+  transform-origin: top center;
+}
+
+@container (max-width: 430px) {
+  .sub-inner-scroll .auth-subbox-frame {
+    width: calc(100% / 0.92);
+    height: calc(100% / 0.92);
+    transform: scale(0.92);
+  }
+}
+
+@container (max-height: 320px) {
+  .sub-inner-scroll .auth-subbox-frame {
+    width: calc(100% / 0.9);
+    height: calc(100% / 0.9);
+    transform: scale(0.9);
+  }
+}
+
+@container (max-width: 340px) {
+  .sub-inner-scroll .auth-subbox-frame {
+    width: calc(100% / 0.84);
+    height: calc(100% / 0.84);
+    transform: scale(0.84);
+  }
+}
+
+@container (max-height: 260px) {
+  .sub-inner-scroll .auth-subbox-frame {
+    width: calc(100% / 0.82);
+    height: calc(100% / 0.82);
+    transform: scale(0.82);
+  }
+}
+
+@container (max-width: 460px) {
+  .sub-inner-scroll .avatar {
+    width: min(100%, 220px) !important;
+    height: auto !important;
+  }
+
+  .sub-inner-scroll .account-content {
+    gap: 10px !important;
+    padding: 8px 0 !important;
+  }
+
+  .sub-inner-scroll .wallet-header-card {
+    padding: 10px !important;
+  }
+
+  .sub-inner-scroll .balance {
+    font-size: 1.5em !important;
+  }
+
+  .sub-inner-scroll .marketplace-form {
+    gap: 8px !important;
+    padding: 10px !important;
+  }
+}
+
+@container (max-height: 420px) {
+  .sub-inner-scroll .avatar {
+    width: min(100%, 220px) !important;
+    height: auto !important;
+  }
+
+  .sub-inner-scroll .account-content {
+    gap: 10px !important;
+    padding: 8px 0 !important;
+  }
+
+  .sub-inner-scroll .wallet-header-card {
+    padding: 10px !important;
+  }
+
+  .sub-inner-scroll .balance {
+    font-size: 1.5em !important;
+  }
+
+  .sub-inner-scroll .marketplace-form {
+    gap: 8px !important;
+    padding: 10px !important;
+  }
+}
+
+/* Extra shrink tiers for very narrow profile sub-boxes */
+@container (max-width: 260px) {
+  .sub-box:has(.wallet-content) .sub-inner-scroll,
+  .sub-box:has(.stats-content) .sub-inner-scroll,
+  .sub-box:has(.account-content) .sub-inner-scroll {
+    padding: 8px;
+    padding-top: 22px;
+  }
+
+  .sub-box:has(.wallet-content) .wallet-content,
+  .sub-box:has(.stats-content) .stats-content,
+  .sub-box:has(.account-content) .account-content {
+    transform: scale(0.82);
+    transform-origin: top left;
+    width: calc(100% / 0.82);
+  }
+
+  .sub-box:has(.account-content) .account-content {
+    transform-origin: top center;
+    margin-inline: auto;
+  }
+
+  .sub-box:has(.account-content) .avatar {
+    width: min(100%, 165px) !important;
+    padding-top: 0 !important;
+  }
+
+  .sub-box:has(.account-content) .account-info {
+    max-width: 100% !important;
+    padding: 10px !important;
+  }
+
+  .sub-box:has(.account-content) .account-info div {
+    white-space: normal !important;
+  }
+
+  .sub-box:has(.account-content) .account-info div strong {
+    min-width: 64px;
+    margin-right: 0.45rem;
+    font-size: 0.72em;
+  }
+}
+
+@container (max-width: 210px) {
+  .sub-box:has(.wallet-content) .wallet-content,
+  .sub-box:has(.stats-content) .stats-content,
+  .sub-box:has(.account-content) .account-content {
+    transform: scale(0.72);
+    width: calc(100% / 0.72);
+  }
+
+  .sub-box:has(.account-content) .account-content {
+    transform-origin: top center;
+    margin-inline: auto;
+  }
+
+  .sub-box:has(.account-content) .avatar {
+    width: min(100%, 130px) !important;
+    padding-top: 0 !important;
+  }
+
+  .sub-box:has(.account-content) .account-info {
+    width: 100% !important;
+    max-width: 150px !important;
+    padding: 8px !important;
+  }
+
+  .sub-box:has(.account-content) .account-info div {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2px;
+    justify-items: center;
+    text-align: center;
+    white-space: normal !important;
+  }
+
+  .sub-box:has(.account-content) .account-info div strong {
+    min-width: 0;
+    margin-right: 0;
+    font-size: 0.68em;
+  }
+
+  /* Tiny stats card: keep title/date at top, details below */
+  .sub-box:has(.stats-content) .game-item {
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    gap: 6px;
+    padding: 8px 6px;
+  }
+
+  .sub-box:has(.stats-content) .game-header {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+  }
+
+  .sub-box:has(.stats-content) .game-header span {
+    font-size: 16px;
+    line-height: 1.1;
+  }
+
+  .sub-box:has(.stats-content) .game-header > div {
+    font-size: 10px;
+    line-height: 1.1;
+    color: var(--text-secondary);
+  }
+
+  .sub-box:has(.stats-content) .game-details {
+    width: 100%;
+    text-align: left;
+    font-size: 11px;
+    line-height: 1.15;
+  }
 }

@@ -10,12 +10,6 @@ interface RegisterResponse {
 	message?: string;
 }
 
-function switchToLogin(): void {
-	window.parent.postMessage({
-		type: 'SWITCH_TO_LOGIN'
-	}, '*');
-}
-
 const registerForm = document.getElementById('registerForm') as HTMLFormElement;
 const submitBtn = registerForm.querySelector('button[type="submit"]') as HTMLButtonElement; // Get button reference
 
@@ -42,6 +36,8 @@ inputs.forEach(input => {
     });
 });
 // --- NEW CODE END ---
+
+const googleSignInBtn = document.getElementById('googleSignInBtn') as HTMLButtonElement;
 
 // Toggle password visibility
 togglePasswordBtn.addEventListener('click', () => {

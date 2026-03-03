@@ -26,7 +26,7 @@ const Login: React.FC = () => {
             src={`login.html?theme=${theme}`}
             style={{ width: '100%', height: '100%', border: 'none' }}
             title="Login"
-            className='login-subbox'
+            className="auth-subbox-frame login-subbox"
         />
     );
 };
