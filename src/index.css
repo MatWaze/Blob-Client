@@ -1,6 +1,14 @@
+@font-face {
+  font-family: 'Offside';
+  src: url('../fonts/Offside/Offside-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
-    --bg-primary: #1a1a1a;
-    --bg-secondary: rgb(40, 40, 40);
+    --bg-primary: #2c2a3f;
+    --bg-secondary: #211f34;
     --bg-tertiary: #3a3a3a;
     --bg-status: #333;
     --text-primary: #ff0000;
@@ -20,6 +28,11 @@
     --disabled-bg: #3a3a3a;
     --disabled-color: #666;
     --placeholder-color: #555;
+    --bg-blob: #b30058;
+    --text-shd: #211f34;
+    --frame-color: #f0eeff;
+    --box-shd: rgba(0, 0, 0, 0.5);
+    --werewolf-shd: rgba(218, 0, 0, 0.5);
 }
 
 * {
@@ -27,8 +40,8 @@
 }
 
 body.light-theme {
-    --bg-primary: #f0f0f0;
-    --bg-secondary: #d9dbdb;
+    --bg-primary: #dcdada;
+    --bg-secondary: #d6d4e6;
     --bg-tertiary: #bababa;
     --bg-status: #ccc;
     --text-primary: #aa0000;
@@ -47,12 +60,16 @@ body.light-theme {
     --disabled-bg: #d0d0d0;
     --disabled-color: #999;
     --placeholder-color: #999;
+    --bg-blob: #e3044a;
+    --text-shd: rgba(214, 212, 230, 0.55);
+    --frame-color: white;
+    --box-shd: rgba(0, 0, 0, 0.25);
 }
 
 body {
     margin: 0;
     padding: 0;
-    font-family: 'Courier New', monospace;
+    font-family: 'Offside', monospace;
     background: var(--bg-primary);
     color: var(--text-primary);
     min-height: 100vh;

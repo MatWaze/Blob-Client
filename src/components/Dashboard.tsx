@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef, memo } from 'react';
 import MainBox from './MainBox';
 import SubBox from './SubBox';
 import Game, { GameHandle } from './Game';
@@ -27,25 +27,31 @@ import {
     ColumnSeries3D,
     Highlight3D
 } from '@syncfusion/ej2-react-charts';
-import ModelViewer from './ModelViewer';
 import './Dashboard.css';
 import { MarketplaceContent } from './MarketplaceContent';
 import { ProfileAvatar } from './ProfileAvatar';
 
 // --- Icons ---
-const ProfileIcon = () => <span>🐱</span>;
-const GamesIcon = () => <span>🎮</span>;
-const CommunityIcon = () => <span>👥</span>;
-const WalletIcon = () => <span>💰</span>;
-const StatsIcon = () => <span>📊</span>;
-const PongIcon = () => <span>🏓</span>;
-const MafiaIcon = () => <span>🎭</span>;
-const InfoIcon = () => <span>ℹ️</span>;
-const LoginIcon = () => <span>🔑</span>;
-const RegisterIcon = () => <span>📝</span>;
-const MarketIcon = () => <span>🛒</span>
-
+const ProfileIcon = () => <img className='profile-icon' src='../../blob-models/profile_login.png' alt="Profile" />;
+const LogIcon = () => <img className='log-main-icon' src='../../blob-models/profile_login.png' alt="Profile" />;
+const GamesIcon = () => <img className='games-icon' src='../../blob-models/games.png' alt="Games" />;
+const CommunityIcon = () => <img className='community-icon' src='../../blob-models/community.png' alt="Community" />;
+const Friends = () => <img className='friends-icon' src='../../blob-icons/Friends.png' alt="Friends" />;
+const WalletIcon = () => <img className='wallet-icon' src='../../blob-icons/Wallet.png' alt="Wallet" />;
+const StatsIcon = () => <img className='stats-icon' src='../../blob-icons/Statistics.png' alt="Statistics" />;
+const PongIcon = () => <span></span>;
+const MafiaIcon = () => <img className='werewolf-icon' src='../../blob-icons/werewolf.png' alt="Mafia" />;
+const AccountIcon = () => <img className='account-icon' src='../../blob-icons/Account.png' alt="Account" />;
+const AboutBlobox = () => <img className='about-blobox-icon' src='../../blob-icons/AboutBlobox.png' alt="About Blobox" />;
+const TermsOfService = () => <img className='tos-icon' src='../../blob-icons/TermsOfService.png' alt="Terms of Service" />;
+const LoginIcon = () => <img className='login-icon' src='../../blob-icons/SignIn.png' alt="Sign In" />;
+const RegisterIcon = () => <img className='register-icon' src='../../blob-icons/CreateAccount.png' alt="Sign Up" />;
+const MarketIcon = () => <img className='market-icon' src='../../blob-models/Marketplace.png' alt="Market" />;
+const StoreIcon = () => <img className='store-icon' src='../../blob-icons/Store.png' alt="Store" />;
+const InfoIcon = () => <img className='info-icon' src='../../blob-models/about.png' alt="Info" />;
 // --- Content Components ---
+
+const common = 'Offside';
 
 const WalletContent: React.FC = () => {
 	const { user, fetchWithAuth, updateUser } = useAuth();
@@ -299,7 +305,7 @@ const WalletContent: React.FC = () => {
 
 			<div className="withdrawal-chart-section">
 				<div className="filter-dropdown">
-					<select style={{fontFamily: 'Courier New', fontSize: '16px'}} value={filter} onChange={(e) => setFilter(e.target.value)}>
+					<select style={{fontFamily: common, fontSize: '16px'}} value={filter} onChange={(e) => setFilter(e.target.value)}>
 						<option value="WEEK">Week</option>
 						<option value="3MONTHS">3 Months</option>
 						<option value="YEAR">Year</option>
@@ -311,19 +317,19 @@ const WalletContent: React.FC = () => {
 							ref={chartRef}
 							id='withdrawal-chart'
 							style={{ textAlign: "center" }}
-							primaryXAxis={{ labelRotation: filter === 'YEAR' ? -34 : -13, labelIntersectAction: 'None', interval: 1, valueType: 'Category', labelPlacement: 'BetweenTicks', labelStyle: { color: theme === 'light' ? '#111827' : '#ffffff', fontFamily: 'Courier New' } }}
+							primaryXAxis={{ labelRotation: filter === 'YEAR' ? -34 : -13, labelIntersectAction: 'None', interval: 1, valueType: 'Category', labelPlacement: 'BetweenTicks', labelStyle: { color: theme === 'light' ? '#111827' : '#ffffff', fontFamily: common } }}
 							wallColor='transparent'
 							height="300"
-							primaryYAxis={{ labelFormat: '{value} BLOB', labelStyle: { color: theme === 'light' ? '#111827' : '#ffffff', fontFamily: 'Courier New' } }}
+							primaryYAxis={{ labelFormat: '{value} BLOB', labelStyle: { color: theme === 'light' ? '#111827' : '#ffffff', fontFamily: common } }}
 							load={load}
 							enableRotation={true}
 							rotation={7}
 							tilt={10}
 							depth={100}
-							tooltip={{ enable: true, header: "${point.x}", format: 'Amount: <b>${point.y}</b>', textStyle: { color: theme === 'light' ? '#111827' : '#ffffff', fontFamily: 'Courier New' } }}
+							tooltip={{ enable: true, header: "${point.x}", format: 'Amount: <b>${point.y}</b>', textStyle: { color: theme === 'light' ? '#111827' : '#ffffff', fontFamily: common } }}
 							width="100%"
 							title='Withdrawal History'
-							titleStyle={{ color: theme === 'light' ? '#111827' : '#ffffff', fontFamily: 'Courier New' }}
+							titleStyle={{ color: theme === 'light' ? '#111827' : '#ffffff', fontFamily: common }}
 							background="transparent"
 							loaded={onChartLoad}
 						>
@@ -512,15 +518,15 @@ const StatsContent: React.FC = () => {
                                 loaded={onChartLoad}
                                 titleStyle={{ 
                                     color: theme === 'light' ? '#111827' : '#ffffff',
-                                    fontFamily: 'Courier New', 
+                                    fontFamily: common, 
                                 }}
                                 legendSettings={{ 
                                     visible: false,
                                     position: 'Bottom',
                                     textStyle: { 
                                         color: theme === 'light' ? '#000000' : '#ffffff',
-                                        fontFamily: 'Courier New',
-                                        fontWeight: 'bold',
+                                        fontFamily: common
+                                        // fontWeight: 'bold',
                                     },
                                 }}
                                 tooltip={{ 
@@ -546,9 +552,9 @@ const StatsContent: React.FC = () => {
                                             position: 'Outside', 
                                             name: 'text',
                                             font: { 
-                                                fontWeight: '700',
+                                                // fontWeight: '700',
                                                 color: theme === 'light' ? '#111827' : '#ffffff',
-                                                fontFamily: 'Courier New',
+                                                fontFamily: common,
                                             },
                                             connectorStyle: { length: '20px' }
                                         }}
@@ -712,19 +718,7 @@ const FriendsContent: React.FC = () => {
 
 // --- BloboxIcon Component ---
 const BloboxIcon = () => (
-	<div className='blobox-icon-model'
-		onClick={(e) => e.stopPropagation()}
-    	onMouseDown={(e) => e.stopPropagation()}
-	>
-		<ModelViewer url='../../DavidLow.glb' width={320} height={350} />
-	</div>
-
-	// <img 
-	// 	src="../../logo.png" 
-	// 	style={{ width: '420px', height: '220px', objectFit: 'contain' }} 
-	// 	alt="Blobox" 
-	// />
-
+	<img className='blobox-icon' src='../../logo.png' alt='Blobox' />
 );
 
 // --- Dashboard Component ---
@@ -732,6 +726,8 @@ const Dashboard: React.FC = () => {
 	const { isAuthenticated, logout, user } = useAuth();
 	const { theme, toggleTheme } = useTheme();
 	const gameRef = useRef<GameHandle>(null);
+
+
 	// Track visibility of main windows in guest view
 	const [visibleBoxes, setVisibleBoxes] = useState({
 		login: true,
@@ -874,7 +870,7 @@ const Dashboard: React.FC = () => {
 							 {/* Simplified: Just one SubBox that is permanently open */}
 							 <SubBox 
 								title="Reset Password" 
-								icon={<span>🔑</span>} 
+								icon={<ProfileIcon />} 
 								color="#ef4444" 
 								defaultMaximized={true} // Forces it open
 							 >
@@ -895,9 +891,9 @@ const Dashboard: React.FC = () => {
 				)}
 				{/* ----------------------------------- */}
 
-				{showBloboxContent ? (
+				{isAuthenticated && (
 					/* Blobox Expanded View - Wrapped in a container that looks like a parent window */
-					<div className="blobox-container">
+					<div className="blobox-container" style={{ display: showBloboxContent ? undefined : 'none' }}>
 						{/* Restore button to go back to guest view */}
 						<button 
 							className="blobox-restore-btn" 
@@ -923,7 +919,7 @@ const Dashboard: React.FC = () => {
 									<SubBox title="Statistics" icon={<StatsIcon />} color="#3b82f6">
 										<StatsContent />
 									</SubBox>
-									<SubBox title="Account" icon={<span>👤</span>} color="#10b981">
+									<SubBox title="Account" icon={<AccountIcon />} color="#10b981">
 										<div className="account-content">
 											<ProfileAvatar />
 											<div style={{ textAlign: 'center', marginBottom: 6 }}>
@@ -945,15 +941,15 @@ const Dashboard: React.FC = () => {
 										</div>
 									</SubBox>
 								</MainBox>
-
+								
 								<MainBox 
 									key="marketplace" 
 									id="marketplace" 
 									title="Marketplace" 
 									icon={<MarketIcon />} 
-									color="#a855f7" // Purple theme for the store
+									color="#000000" // Purple theme for the store
 								>
-									<SubBox title="Store" icon={<span>🏪</span>} color="#a855f7">
+									<SubBox title="Store" icon={<StoreIcon />} color="#a855f7">
 										<MarketplaceContent />
 									</SubBox>
 								</MainBox>
@@ -973,8 +969,8 @@ const Dashboard: React.FC = () => {
 										<Game ref={gameRef} />
 									</div>
 								</SubBox>
-								<SubBox title="Mafia" icon={<MafiaIcon />} color="#dc2626">
-									<div style={{padding: 20, textAlign: 'center', color: 'var(--text-secondary)'}}>Coming Soon</div>
+								<SubBox title="Werewolf" icon={<MafiaIcon />} color="#dc2626">
+									<div style={{ textAlign: 'center', color: 'var(--text-secondary)'}}>Coming Soon</div>
 								</SubBox>
 							</MainBox>
 
@@ -986,22 +982,22 @@ const Dashboard: React.FC = () => {
 								icon={<CommunityIcon />} 
 								color="#3b82f6"
 							>
-								<SubBox title="Friends" icon={<span>👫</span>} color="#3b82f6">
+								<SubBox title="Friends" icon={<Friends />} color="#3b82f6">
 									<FriendsContent />
 								</SubBox>
 							</MainBox>
 						</div>
 					</div>
-				) : (
-					/* Guest View - Login, Blobox (collapsed unless logged in), About */
-					<>
+				)}
+					{/* Guest View - Login, Blobox (collapsed unless logged in), About */}
+					<div style={{ display: showGuestWindows ? 'contents' : 'none' }}>
 						{/* Login Window */}
 						{visibleBoxes.login && (
 							<MainBox 
 								key="login" 
 								id="login" 
 								title="Login" 
-								icon={<LoginIcon />} 
+								icon={<LogIcon />}
 								color="#f59e0b"
 							>
 								<SubBox title="Sign In" icon={<LoginIcon />} color="#f59e0b">
@@ -1012,7 +1008,7 @@ const Dashboard: React.FC = () => {
 								{showForgot && (
 									 <SubBox 
 										title="Recovery" 
-										icon={<span>❓</span>} 
+										icon={<ProfileIcon />} 
 										color="#f59e0b" 
 										// defaultMaximized={true}
 										triggerClose={!showForgot ? 1 : 0}
@@ -1050,7 +1046,7 @@ const Dashboard: React.FC = () => {
 								)}
 								{/* ----------------------------------- */}
 
-								<SubBox title="Create Account" icon={<RegisterIcon />} color="#6366f1">
+								<SubBox title="Sign Up" icon={<RegisterIcon />} color="#6366f1">
 									<Register />
 								</SubBox>
 							</MainBox>
@@ -1061,7 +1057,7 @@ const Dashboard: React.FC = () => {
 							<MainBox 
 								key="blobox" 
 								id="blobox" 
-								title="Blobox" 
+								title="bloBox" 
 								icon={<BloboxIcon />} 
 								color="#10b981"
 								onClickWhenClosed={isAuthenticated ? handleBloboxClick : undefined}
@@ -1095,7 +1091,7 @@ const Dashboard: React.FC = () => {
 								) : (
 									<div className="blobox-guest-message">
 										<span className="lock-icon">🔒</span>
-										<h3>Welcome to Blobox</h3>
+										<h3>Welcome to bloBox</h3>
 										<p>Please login to access your dashboard, games, and community features.</p>
 									</div>
 								)}
@@ -1105,7 +1101,7 @@ const Dashboard: React.FC = () => {
 						{/* About Window */}
 						{visibleBoxes.about && (
 							<MainBox 
-								key="about" 
+								key="about"
 								id="about" 
 								title="About" 
 								icon={<InfoIcon />} 
@@ -1113,14 +1109,14 @@ const Dashboard: React.FC = () => {
 							>
 								<SubBox
 									title="Terms of Service"
-									icon={<InfoIcon />}
+									icon={<TermsOfService />}
 									color="#2d30b7"
 								>
 
 								</SubBox>
 								<SubBox 
-									title="About Blobox" 
-									icon={<InfoIcon />} 
+									title="About bloBox" 
+									icon={<AboutBlobox />} 
 									color="#6366f1" 
 								>
 									<div style={{
@@ -1130,7 +1126,7 @@ const Dashboard: React.FC = () => {
 										alignItems: 'center',
 										textAlign: 'center'
 									}}>
-										<h3>Welcome to Blobox</h3>
+										<h3>Welcome to bloBox</h3>
 										<p>Lorem ipsum dolor sit amet...</p>
 										<p style={{ marginTop: 10, color: 'var(--text-secondary)' }}>
 											Play games, connect with friends, and earn rewards!
@@ -1144,8 +1140,7 @@ const Dashboard: React.FC = () => {
 								</SubBox>
 							</MainBox>
 						)}
-					</>
-				)}
+					</div>
 			</div>
 		</div>
 	);

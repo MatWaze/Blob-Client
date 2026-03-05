@@ -1,21 +1,79 @@
+@font-face {
+  font-family: 'Modak';
+  src: url('../../fonts/Modak/Modak-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
 .main-box {
   position: relative;
   display: flex;
   flex-direction: column;
-  border: 2px solid var(--box-color, var(--border-color)); /* <-- use per-box variable */
-  border-radius: 12px;
-  background: var(--bg-secondary);
+  --frame-w: 5px;
+  /* --frame-color: white; */
+  --cut-x: 40px;
+  --cut-y: 39px;
+  --cut-x-2: 36px;
+  --cut-y-2: 36px;
+  border: none;
+  border-radius: 5px;
+  background: var(--frame-color);          /* white bg = the border */
   overflow: hidden;
   transition: all 0.24s ease;
+  clip-path: polygon(
+    36px 0,
+    100% 0,
+    100% calc(100% - var(--cut-y-2)),
+    calc(100% - var(--cut-x-2)) 100%,
+    0 100%,
+    0 36px
+  );
   flex: 1 0 auto;
   min-width: 200px;
-  /* height: 350px;           Set a fixed height for each box */
-  max-height: 100vh;        /* Optional: don't exceed viewport */
-  min-height: 540px; 
+  max-height: 100vh;
+  min-height: 540px;
   cursor: pointer;
 
   /* Enable container queries to check width/height */
   container-type: size;
+}
+
+/* Inner fill – leaves a uniform frame-w border on every edge including diagonals */
+.main-box::before {
+  content: "";
+  position: absolute;
+  inset: var(--frame-w);
+  z-index: 0;
+  background: var(--bg-secondary);
+  clip-path: polygon(
+    calc(var(--cut-x) - var(--frame-w)) 0,
+    100% 0,
+    100% calc(100% - var(--cut-y) + var(--frame-w)),
+    calc(100% - var(--cut-x) + var(--frame-w)) 100%,
+    0 100%,
+    0 calc(var(--cut-y) - var(--frame-w))
+  );
+}
+
+/* Top / left inner glow overlay */
+.main-box::after {
+  content: "";
+  position: absolute;
+  inset: var(--frame-w);
+  z-index: 1;
+  pointer-events: none;
+  background:
+    linear-gradient(to bottom, var(--box-shd), transparent 28px),
+    linear-gradient(to right,  var(--box-shd), transparent 28px);
+  clip-path: polygon(
+    calc(var(--cut-x) - var(--frame-w)) 0,
+    100% 0,
+    100% calc(100% - var(--cut-y) + var(--frame-w)),
+    calc(100% - var(--cut-x) + var(--frame-w)) 100%,
+    0 100%,
+    0 calc(var(--cut-y) - var(--frame-w))
+  );
 }
 
 .main-box.open {
@@ -30,18 +88,19 @@
   position: fixed;
   inset: 20px;
   z-index: 1000;
-  border-radius: 12px;
+  border-radius: 0;
   width: auto;
   height: auto;
   max-width: calc(100vw - 40px);
   max-height: calc(100vh - 40px);
-  background: var(--bg-secondary);
-  box-shadow: 0 12px 40px rgba(0,0,0,0.6);
   overflow: auto;
 }
 
 /* Collapsed state */
 .main-box-collapsed {
+  position: relative;
+  z-index: 2;
+  --icon-title-gap: -28px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -58,30 +117,69 @@
   background-size: 20px 20px;
 }
 
-.main-box-collapsed:hover {
+/* .main-box-collapsed:hover {
   background: linear-gradient(135deg,
     rgba(255,255,255,0.09) 0%,
     rgba(255,255,255,0.09) 100%
   );
-}
+} */
 
 .main-box-icon {
   font-size: 80px;
   /* margin-bottom: 20px; */
 }
 
-.main-box-icon img {
+/* .main-box-icon img {
   width: 120px;
   height: 120px;
   object-fit: contain;
+} */
+
+[class^="main-box-title-"]:hover {
+  transform: translate(0, -4px);
 }
 
 [class^="main-box-title-"] {
-  font-size: 24px;
-  font-weight: 600;
-  color: var(--box-color);
-  font-style: italic;
-  margin-top: 20px;
+  transition: transform 0.3s ease-out;
+  position: relative;
+  display: inline-block;
+  font-weight: 400;
+  font-family: 'Modak', 'Courier New', monospace;
+  letter-spacing: 0.4px;
+  font-style: normal;
+  line-height: 1;
+  background: linear-gradient(
+    to bottom,
+    #ffd3e4 0.1%,
+    #ff7daa 3.5%,
+    hsl(342, 100%, 56%) 8%,
+    hsl(346, 100%, 50%) 18%,
+    #b30058 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  /* text-shadow:
+    2px 3px 5px rgba(214, 212, 230, 0.06),
+    -3px -4px 3px rgba(214, 212, 230, 0.05); */
+  filter:
+    drop-shadow(0px -0.5px 0px rgba(255, 255, 255, 0.95))
+    drop-shadow(1px 1px 1px var(--text-shd))
+}
+
+
+
+[class^="main-box-title-"]::after {
+  content: attr(data-title);
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  /* background: linear-gradient(to bottom, #ff003c 0%, #b30058 100%); */
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
 }
 
 .main-box-title-blobox {
@@ -157,9 +255,10 @@
   padding: 40px 20px 20px 20px;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 1px;
   overflow: hidden;
   position: relative; /* Needed for absolute positioning context */
+  z-index: 2;
 }
 
 /* 
@@ -173,70 +272,80 @@
 /* Base button style */
 .corner-btn {
   position: absolute;
-  width: 40px;
-  height: 40px;
+  width: 28px;
+  height: 28px;
   border: none;
-  background: var(--box-color); /* Matches the box outline color */
+  background: transparent;
   color: white;
   font-weight: bold;
-  font-size: 14px;
+  font-size: 28px;
+  line-height: 1;
   cursor: pointer;
   z-index: 50;
   display: flex;
-  transition: all 0.2s ease;
+  transition: transform 0.2s ease, opacity 0.2s ease;
   padding: 0;
-  border-radius: 0; /* Sharp corners for triangles */
-  opacity: 0.8;
+  border-radius: 0;
+  opacity: 0.9;
+  /* text-shadow: 0 0 8px rgba(255, 255, 255, 0.35); */
 }
 
 .corner-btn:hover {
   opacity: 1;
-  transform: scale(1.1); /* Slight grow effect */
-  z-index: 51; /* Bring to very front on hover */
-}
-
-/* TOP LEFT (Close) */
-.corner-btn.top-left {
-  top: 0;
-  left: 0;
-  /* Triangle shape: top-left corner */
-  clip-path: polygon(0 0, 100% 0, 0 100%);
-  /* Align text to the visible top-left part */
-  align-items: flex-start;
-  justify-content: flex-start;
-  padding-top: 6px;
-  padding-left: 8px;
+  /* transform: scale(1.08); */
+  z-index: 51;
 }
 
 /* TOP RIGHT (Maximize) */
 .corner-btn.top-right {
-  top: 0;
-  right: 0;
-  /* Triangle shape: top-right corner */
-  clip-path: polygon(0 0, 100% 0, 100% 100%);
-  /* Align text to the visible top-right part */
-  align-items: flex-start;
-  justify-content: flex-end;
-  padding-top: 6px;
-  padding-right: 8px;
+  top: 16px;
+  right: 16px;
 }
 
-/* BOTTOM LEFT (Restore - only visible when maximized) */
+/* BOTTOM LEFT (Close/Restore) */
 .corner-btn.bottom-left {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  /* Triangle shape: bottom-left corner */
-  clip-path: polygon(0 0, 0 100%, 100% 100%);
-  /* Slightly larger for better hit area in full screen */
-  width: 60px;
-  height: 60px;
+  bottom: 8px;
+  left: 8px;
+}
+
+.corner-btn.close-corner {
+  width: 30px;
+  height: 30px;
+  font-size: 24px;
+  align-items: center;
+  justify-content: center;
+}
+
+.corner-btn.maximize-corner {
+  width: 20px;
+  height: 20px;
   font-size: 20px;
-  /* Align text to the visible bottom-left part */
-  align-items: flex-end;
-  justify-content: flex-start;
-  padding-bottom: 10px;
-  padding-left: 10px;
+  border: 3.2px solid rgba(255, 255, 255, 1);
+  border-radius: 0;
+  /* box-shadow: 0 0 8px rgba(255, 255, 255, 0.35); */
+}
+
+.corner-btn.maximize-corner::before {
+  content: "";
+}
+
+.corner-btn.restore-corner {
+  width: 40px;
+  left: 2px;
+  bottom: 2px;
+  height: 46px;
+  font-size: 35px;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255, 255, 255, 0.98);
+  border-radius: 8px;
+  /* background: rgba(255, 255, 255, 0.14); */
+  /* box-shadow: 0 0 10px rgba(255, 255, 255, 0.25); */
+}
+
+/* While a sub-box is maximized, hide main-box controls */
+.main-box:has(.sub-box.maximized) > .corner-btn {
+  display: none !important;
 }
 
 /* Ensure content doesn't overlap with the small triangles */
@@ -274,23 +383,24 @@
   z-index: 3;
 }
 
-.main-box-collapsed .blob-c {
+.blob-c {
   position: absolute;
-  inset: 0;
+  /* inset by frame-w + blur radius so blurred edges can't reach the white border */
+  inset: calc(var(--frame-w) + 40px);
   z-index: 1;
   pointer-events: none;
   overflow: hidden;
   filter: blur(30px);
 }
 
-.main-box-collapsed .shape-blob {
+.shape-blob {
   position: absolute;
   width: var(--blob-w, 160px);
   height: var(--blob-h, 130px);
   left: var(--blob-left, 50%);
   top: var(--blob-top, 50%);
   opacity: var(--blob-opacity, 0.48);
-  background: color-mix(in srgb, var(--box-color) var(--blob-color-mix, 74%), white);
+  background: var(--bg-blob);
   border-radius: 33% 67% 70% 30% / 30% 40% 70% 70%;
   animation:
     mb-blob-morph 16s ease-in-out infinite both alternate,
@@ -322,4 +432,130 @@
   0%,
   100% { transform: translate(-50%, -50%); }
   50% { transform: translate(-10%, -30%) rotate(-200deg) scale(1.3); }
+}
+/* 
+maybe'll use later
+#main-content-profile {
+  clip-path: polygon(
+    36px 0,
+    100% 0,
+    100% calc(100% - var(--cut-y-2)),
+    calc(100% - var(--cut-x-2)) 100%,
+    0 100%,
+    0 36px
+  );
+    --frame-w: 5px;
+  --frame-color: white;
+  --cut-x: 40px;
+  --cut-y: 39px;
+  --cut-x-2: 36px;
+  --cut-y-2: 36px;
+  background: var(--frame-color);
+}
+
+#main-content-profile::before {
+  content: "";
+  position: absolute;
+  inset: var(--frame-w);
+  z-index: 0;
+  background: red;
+  clip-path: polygon(
+    calc(var(--cut-x) - var(--frame-w)) 0,
+    100% 0,
+    100% calc(100% - var(--cut-y) + var(--frame-w)),
+    calc(100% - var(--cut-x) + var(--frame-w)) 100%,
+    0 100%,
+    0 calc(var(--cut-y) - var(--frame-w))
+  );
+} */
+
+@container (min-width: 600px) {
+  .werewolf-icon {
+    width: 800px;
+    height: 500px;
+  }
+}
+
+@container (min-width: 200px) {
+  [class^="main-box-title-"] {
+    font-size: 10px;
+  }
+}
+
+@container (min-width: 300px) {
+  [class^="main-box-title-"] {
+    font-size: 130px;
+  }
+
+  .main-box-title-profile {
+    font-size: 70px;
+    margin-bottom: 600px;
+  }
+
+  .main-box-title-marketplace {
+    font-size: 70px;
+    margin-bottom: 600px;
+  }
+
+  .main-box-title-community {
+    font-size: 85px;
+  }
+
+  .werewolf-icon {
+    width: 490px;
+    height: 220px;
+    /* margin-top: 240px; */
+    box-sizing: border-box; 
+  }
+
+  .info-icon,
+  .profile-icon,
+  .register-icon,
+  .tos-icon,
+  .about-blobox-icon,
+  .wallet-icon,
+  .stats-icon,
+  .account-icon,
+  .market-icon,
+  .friends-icon,
+  .blobox-icon,
+  .community-icon,
+  .games-icon,
+  .log-main-icon {
+    z-index: 1;
+    /* margin-top: 240px; */
+  }
+
+  .blobox-icon {
+    width: 460.8px;
+    height: 240px;
+    padding-top: 20px;
+    /* margin-top: 240px; */
+  }
+
+  .info-icon {
+    width: 420px;
+    height: 420px;
+  }
+
+  .profile-icon {
+    width: 250px;
+    height: 250px;
+  }
+
+  .log-main-icon {
+    width: 420px;
+    height: 420px;
+  }
+
+  .community-icon, .games-icon {
+    width: 420px;
+    height: 420px;
+  }
+
+  .market-icon
+  {
+    width: 240px;
+    height: 240px;
+  }
 }

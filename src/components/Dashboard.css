@@ -1,3 +1,11 @@
+@font-face {
+  font-family: 'Offside';
+  src: url('../fonts/Offside/Offside-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
 .dashboard {
   display: flex;
   flex-direction: column;
@@ -11,6 +19,7 @@
   -webkit-overflow-scrolling: touch;
   background: var(--bg-primary);
   color: var(--text-primary);
+  overflow-y: hidden;
 }
 
 .closed-boxes-bar {
@@ -145,7 +154,7 @@ body.light-theme .request-row .name {
 .friends-box-container { display: flex; flex-direction: column; height: 100%; }
 .friends-tabs { display: flex; gap: 5px; margin-bottom: 15px; border-bottom: 1px solid #444; padding-bottom: 5px; }
 .friends-tabs button {
-  background: none; border: none; color: #888; cursor: pointer; padding: 5px 10px; font-size: 13px;
+  font-family: 'Offside'; background: none; border: none; color: #888; cursor: pointer; padding: 5px 10px; font-size: 13px;
 }
 .friends-tabs button.active { color: #3b82f6; border-bottom: 2px solid #3b82f6; }
 
@@ -455,11 +464,11 @@ body.light-theme .request-row .name {
   display: flex;
   flex-direction: column;
   flex: 1 0 auto;
-  background: var(--bg-primary);
-  border: 3px solid #10b981;
+  /* background: var(--bg-secondary); */
+  /* border: 3px solid #10b981; */
   border-radius: 16px;
-  padding: 20px;
-  box-shadow: 0 8px 32px rgba(16, 185, 129, 0.2);
+  /* padding: 20px; */
+  /* box-shadow: 0 8px 32px rgba(16, 185, 129, 0.2); */
 }
 
 .blobox-inner {
@@ -471,43 +480,37 @@ body.light-theme .request-row .name {
 /* Restore button - triangular style in bottom-left corner */
 .blobox-restore-btn {
   position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 60px;
-  height: 60px;
   border: none;
   background: transparent;
   cursor: pointer;
   z-index: 200;
   padding: 0;
+  bottom: 22px;
+  left: -17px;
   overflow: visible;
 }
 
 .blobox-restore-btn::before {
   content: '';
   position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 60px;
-  height: 60px;
-  background: #10b981;
-  clip-path: polygon(0 100%, 0 0, 100% 100%);
+
+  /* background: #10b981; */
+  /* clip-path: polygon(0 100%, 0 0, 100% 100%); */
   border-radius: 0 0 0 12px;
 }
 
 .blobox-restore-btn::after {
-  content: '↙';
+  content: '↟';
+  rotate: -134deg;
   position: absolute;
-  bottom: 12px;
-  left: 12px;
-  font-size: 20px;
+  font-size: 44px;
   color: white;
-  font-weight: bold;
+  /* font-weight: bold; */
 }
-
+/* 
 .blobox-restore-btn:hover::before {
   background: #0d9668;
-}
+} */
 
 /* Blobox guest message (when not logged in) */
 .blobox-guest-message {
@@ -595,6 +598,7 @@ input:disabled {
 /* Standard Action Button (Blue Default) */
 .action-btn, 
 button[type="submit"] {
+  font-family: 'Offside';
   background-color: #3b82f6; /* Blue */
   color: white;
   border: none;
@@ -623,7 +627,7 @@ button[type="submit"]:disabled {
 }
 
 .action-btn.update {
-  width: 140px;
+  width: 105px;
 }
 
 /* Green Variant (for Money/Success actions) */
@@ -782,7 +786,7 @@ button[type="submit"]:disabled {
   gap: 0.8rem;
   
   /* REQUEST 1: Font Family Update */
-  font-family: 'Courier New', Courier, monospace; 
+  /* font-family: 'Courier New', Courier, monospace;  */
 }
 
 /* 2. The Rows (Label + Value) */
@@ -957,3 +961,12 @@ button[type="submit"]:disabled {
     height: 260px !important;
   }
 }
+
+/* 
+@container (min-width: 400px) {
+  .werewolf-icon {
+    width: 740px;
+    height: 430px;
+  }
+} */
+

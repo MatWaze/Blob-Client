@@ -58,7 +58,8 @@ const SubBox: React.FC<SubBoxProps> = ({
 		if (controlledIsOpen !== undefined) setInternalOpen(controlledIsOpen);
 	}, [controlledIsOpen]);
 
-	const handleOpen = () => {
+	const handleOpen = (e: React.MouseEvent) => {
+		e.stopPropagation();
 		if (!isOpen) {
 			if (onOpenChange) onOpenChange(true);
 			setInternalOpen(true);
@@ -67,12 +68,17 @@ const SubBox: React.FC<SubBoxProps> = ({
 
 	const handleClose = (e: React.MouseEvent) => {
 		e.stopPropagation();
+		setIsMaximized(!isMaximized);
 		if (onOpenChange) onOpenChange(false);
 		setInternalOpen(false);
 	};
 
 	const handleMaximize = (e: React.MouseEvent) => {
 		e.stopPropagation();
+		if (!isOpen) {
+			if (onOpenChange) onOpenChange(true);
+			setInternalOpen(true);
+		}
 		setIsMaximized(!isMaximized);
 	};
 
@@ -131,16 +137,16 @@ const SubBox: React.FC<SubBoxProps> = ({
 		<div 
 			className={`sub-box${isOpen ? ' open' : ''}${isMaximized ? ' maximized' : ''}`}
 			style={subBoxStyle}
-			onClick={!isOpen ? handleOpen : undefined}
+			onMouseDown={!isOpen ? handleMaximize : undefined}
 		>
 			{!isOpen ? (
 				<div className="sub-box-collapsed" style={{ cursor: 'pointer' }}>
-						<div className="sub-box-icon">{icon}</div>
-						<div className="sub-box-title">{title}</div>
+					{icon}
+					<div className={`sub-box-title-${title}`}>{title}</div>
 				</div>
 			) : (
 				<>
-						<button 
+						{/* <button 
 								className="sub-corner-btn top-left"
 								onMouseDown={handleClose}
 								title="Close"
@@ -156,7 +162,7 @@ const SubBox: React.FC<SubBoxProps> = ({
 								}}
 						>
 								✕
-						</button>
+						</button> */}
 
 						{!defaultMaximized && (
 								<>
@@ -171,7 +177,7 @@ const SubBox: React.FC<SubBoxProps> = ({
 										) : (
 												<button 
 														className="sub-corner-btn top-right"
-														onMouseDown={handleMaximize}
+														onMouseDown={handleClose}
 														title="Restore"
 														style={{ zIndex: 101 }}
 												>

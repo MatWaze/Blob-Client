@@ -68,7 +68,7 @@ const MainBox: React.FC<MainBoxProps> = ({ id, title, icon, color, children, onC
 			{ cx: 70, cy: 80 },  // bottom-right
 		];
 
-		return Array.from({ length: 7 }, (_, idx) => {
+		return Array.from({ length: 5 }, (_, idx) => {
 			const w = Math.round(base * (0.55 + rand() * 1.1));
 			const h = Math.round(w * (0.65 + rand() * 0.6));
 			const zone = zones[idx];
@@ -131,7 +131,7 @@ const MainBox: React.FC<MainBoxProps> = ({ id, title, icon, color, children, onC
 	return (
 		<div 
 			className={`main-box${isOpen ? ' open' : ''}${isMaximized ? ' maximized' : ''}`}
-			data-box-id={id}
+			id={`main-${id}`}
 			onClick={!isOpen ? handleToggleOpen : undefined}
 			style={{ '--box-color': color } as React.CSSProperties}
 		>
@@ -155,25 +155,25 @@ const MainBox: React.FC<MainBoxProps> = ({ id, title, icon, color, children, onC
 							></div>
 						))}
 					</div>
-					<div className="main-box-icon">{icon}</div>
-					<div className={`main-box-title-${title.toLowerCase()}`}>{title}</div>
+					{icon}
+					<div className={`main-box-title-${title.toLowerCase()}`} data-title={title}>{title}</div>
 				</div>
 			) : (
 				<>
 					{!isMaximized && (
 						<>
-							<button className="corner-btn top-left" onClick={onClose ? handleMinimize : handleCollapse} title="Collapse">✕</button>
-							<button className="corner-btn top-right" onClick={handleMaximize} title="Maximize">□</button>
+							<button className="corner-btn bottom-left close-corner" onClick={onClose ? handleMinimize : handleCollapse} title="Collapse">✕</button>
+							<button className="corner-btn top-right maximize-corner" onClick={handleMaximize} title="Maximize" aria-label="Maximize"></button>
 						</>
 					)}
 
-					<div className="main-box-content">
+					<div className="main-box-content" id={`main-content-${id}`}>
 						{children}
 					</div>
 
 					{isMaximized && (
 						<button 
-							className="corner-btn bottom-left"
+							className="corner-btn bottom-left restore-corner"
 							onClick={handleMaximize}
 							title="Restore"
 						>
