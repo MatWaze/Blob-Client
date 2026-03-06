@@ -466,9 +466,27 @@
 }
 
 .sub-box-title-Werewolf {
-  text-shadow:
+  background: linear-gradient(
+    to bottom,
+    #7d66f0 0%,
+    #8e52e8 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  /* text-shadow:
+    2px 3px 5px rgba(214, 212, 230, 0.06),
+    -3px -4px 3px rgba(214, 212, 230, 0.05); */
+  /* text-shadow:
     4px 1px 4px var(--werewolf-shd),
-    -4px 1px 4px var(--werewolf-shd);
+    -4px 1px 4px var(--werewolf-shd); */
+}
+
+.sub-box-title-Werewolf::after {
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
 }
 
 @container (min-width: 300px)
