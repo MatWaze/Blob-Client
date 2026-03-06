@@ -32,6 +32,7 @@
     --text-shd: #211f34;
     --frame-color: #f0eeff;
     --box-shd: rgba(0, 0, 0, 0.5);
+    --box-outer-shd: rgba(0, 0, 0, 0.5);
     --werewolf-shd: rgba(218, 0, 0, 0.5);
 }
 
@@ -40,7 +41,7 @@
 }
 
 body.light-theme {
-    --bg-primary: #dcdada;
+    --bg-primary: #f0eeff;
     --bg-secondary: #d6d4e6;
     --bg-tertiary: #bababa;
     --bg-status: #ccc;
@@ -64,6 +65,7 @@ body.light-theme {
     --text-shd: rgba(214, 212, 230, 0.55);
     --frame-color: white;
     --box-shd: rgba(0, 0, 0, 0.25);
+    --box-outer-shd: rgba(80, 60, 120, 0.18);
 }
 
 body {
@@ -196,8 +198,10 @@ input:checked + .slider:before {
 }
 
 .main-content {
+    min-width: 150px;
     height: calc(100vh - 70px);
     position: relative;
+    scrollbar-width: none;
     overflow: hidden;
 }
 

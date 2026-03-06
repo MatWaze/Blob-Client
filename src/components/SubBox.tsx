@@ -181,7 +181,7 @@ const SubBox: React.FC<SubBoxProps> = ({
 														title="Restore"
 														style={{ zIndex: 101 }}
 												>
-														↙
+													<img className="restore-corner-sub-box-img" src={'../../blob-icons/min_box.png'} />
 												</button>
 										)}
 								</>

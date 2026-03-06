@@ -55,23 +55,28 @@ const MainBox: React.FC<MainBoxProps> = ({ id, title, icon, color, children, onC
 		const seed = hashString(id);
 		const rand = mulberry32(seed);
 
-		const base = 270; // fixed base size, blur hides exact edges
+		const base = 260; // fixed base size, blur hides exact edges
 
-		// Spread blobs across zones so they don't clump together
-		const zones = [
-			{ cx: 7,  cy: 10 },  // top-left
-			{ cx: 40, cy: 5  },  // top-center
-			{ cx: 80, cy: 14 },  // top-right
-			{ cx: 4,  cy: 52 },  // mid-left
-			{ cx: 70, cy: 48 },  // mid-right
-			{ cx: 10, cy: 82 },  // bottom-left
-			{ cx: 70, cy: 80 },  // bottom-right
+		// One blob near the top, one near the bottom
+		const topZones = [
+			{ cx: 15, cy: 12 },
+			{ cx: 45, cy: 8  },
+			{ cx: 75, cy: 14 },
+		];
+		const bottomZones = [
+			{ cx: 20, cy: 75 },
+			{ cx: 55, cy: 80 },
+			{ cx: 75, cy: 72 },
 		];
 
-		return Array.from({ length: 5 }, (_, idx) => {
-			const w = Math.round(base * (0.55 + rand() * 1.1));
+		const topIdx = Math.floor(rand() * topZones.length);
+		const botIdx = Math.floor(rand() * bottomZones.length);
+		const pickedZones = [topZones[topIdx], bottomZones[botIdx]];
+
+		return Array.from({ length: 2 }, (_, idx) => {
+			const w = Math.round(base * (0.53 + rand() * 0.7));
 			const h = Math.round(w * (0.65 + rand() * 0.6));
-			const zone = zones[idx];
+			const zone = pickedZones[idx];
 			const jitter = 14;
 			return {
 				width: w,
@@ -129,6 +134,7 @@ const MainBox: React.FC<MainBoxProps> = ({ id, title, icon, color, children, onC
 	};
 
 	return (
+		<div className="main-box-wrap">
 		<div 
 			className={`main-box${isOpen ? ' open' : ''}${isMaximized ? ' maximized' : ''}`}
 			id={`main-${id}`}
@@ -177,11 +183,12 @@ const MainBox: React.FC<MainBoxProps> = ({ id, title, icon, color, children, onC
 							onClick={handleMaximize}
 							title="Restore"
 						>
-							↙
+							<img className="restore-corner-img" src={'../../blob-icons/min_box.png'} />
 						</button>
 					)}
 				</>
 			)}
+		</div>
 		</div>
 	);
 };

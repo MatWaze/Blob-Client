@@ -10,7 +10,9 @@
   display: flex;
   flex-direction: column;
   width: 100%;
-  padding: 20px;
+  padding: 30px;
+  padding-left: 50px;
+  padding-right: 50px;
   box-sizing: border-box;
   gap: 20px;
   min-height: 100vh;
@@ -48,7 +50,7 @@
 
 .dashboard-content {
   display: flex;
-  gap: 25px;
+  gap: 55px;
   flex: 1 0 auto;
   min-height: 0;
 }
@@ -473,7 +475,7 @@ body.light-theme .request-row .name {
 
 .blobox-inner {
   display: flex;
-  gap: 25px;
+  gap: 55px;
   flex: 1 0 auto;
 }
 
@@ -485,28 +487,16 @@ body.light-theme .request-row .name {
   cursor: pointer;
   z-index: 200;
   padding: 0;
-  bottom: 22px;
-  left: -17px;
+  bottom: -27px;
+  left: -23px;
   overflow: visible;
+
 }
 
-.blobox-restore-btn::before {
-  content: '';
-  position: absolute;
-
-  /* background: #10b981; */
-  /* clip-path: polygon(0 100%, 0 0, 100% 100%); */
-  border-radius: 0 0 0 12px;
+.blobox-restore-corner-img {
+  width: 25px;
 }
 
-.blobox-restore-btn::after {
-  content: '↟';
-  rotate: -134deg;
-  position: absolute;
-  font-size: 44px;
-  color: white;
-  /* font-weight: bold; */
-}
 /* 
 .blobox-restore-btn:hover::before {
   background: #0d9668;
@@ -838,7 +828,7 @@ button[type="submit"]:disabled {
   flex-direction: column;
   gap: 25px;
   flex: 1;
-  min-width: 250px;
+  min-width: 190px;
 }
 
 .dashboard-column .main-box {
@@ -846,26 +836,26 @@ button[type="submit"]:disabled {
   flex-direction: column;
   min-height: 250px;
   flex: 1;
-  
+  min-width: 350px;
   overflow: hidden; /* 🛡️ CRITICAL: Forces the orange border to trap anything inside */
 }
 
-.dashboard-column > .main-box > .main-box-content {
+.dashboard-column > .main-box-wrap > .main-box > .main-box-content {
   overflow: auto;
   flex-direction: row;
   min-height: 0;
 }
 
-.dashboard-column > .main-box > .main-box-content:has(.sub-box.maximized) {
+.dashboard-column > .main-box-wrap > .main-box > .main-box-content:has(.sub-box.maximized) {
   overflow: hidden;
 }
 
-.dashboard-column > .main-box > .main-box-content:has(.sub-box.maximized)
+.dashboard-column > .main-box-wrap > .main-box > .main-box-content:has(.sub-box.maximized)
     .sub-box:not(.maximized) {
     display: none;
 }
 
-.dashboard-column > .main-box > .main-box-content > .sub-box {
+.dashboard-column > .main-box-wrap > .main-box > .main-box-content > .sub-box {
   min-height: 0;
 }
 

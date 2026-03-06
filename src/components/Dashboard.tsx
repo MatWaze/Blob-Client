@@ -47,7 +47,7 @@ const TermsOfService = () => <img className='tos-icon' src='../../blob-icons/Ter
 const LoginIcon = () => <img className='login-icon' src='../../blob-icons/SignIn.png' alt="Sign In" />;
 const RegisterIcon = () => <img className='register-icon' src='../../blob-icons/CreateAccount.png' alt="Sign Up" />;
 const MarketIcon = () => <img className='market-icon' src='../../blob-models/Marketplace.png' alt="Market" />;
-const StoreIcon = () => <img className='store-icon' src='../../blob-icons/Store.png' alt="Store" />;
+const StoreIcon = () => <img className='store-icon' src='../../blob-icons/draw_yourself.png' alt="Store" />;
 const InfoIcon = () => <img className='info-icon' src='../../blob-models/about.png' alt="Info" />;
 // --- Content Components ---
 
@@ -900,6 +900,7 @@ const Dashboard: React.FC = () => {
 							onClick={handleBloboxClose}
 							title="Back to Guest View"
 						>
+							<img className="blobox-restore-corner-img" src={'../../blob-icons/min_box.png'} />
 							{/* ↙ */}
 						</button>
 
@@ -942,14 +943,14 @@ const Dashboard: React.FC = () => {
 									</SubBox>
 								</MainBox>
 								
-								<MainBox 
+								<MainBox
 									key="marketplace" 
 									id="marketplace" 
-									title="Marketplace" 
+									title="Store" 
 									icon={<MarketIcon />} 
 									color="#000000" // Purple theme for the store
 								>
-									<SubBox title="Store" icon={<StoreIcon />} color="#a855f7">
+									<SubBox title="Draw" icon={<StoreIcon />} color="#a855f7">
 										<MarketplaceContent />
 									</SubBox>
 								</MainBox>
@@ -1108,14 +1109,14 @@ const Dashboard: React.FC = () => {
 								color="#6366f1"
 							>
 								<SubBox
-									title="Terms of Service"
+									title="Terms"
 									icon={<TermsOfService />}
 									color="#2d30b7"
 								>
 
 								</SubBox>
 								<SubBox 
-									title="About bloBox" 
+									title="About" 
 									icon={<AboutBlobox />} 
 									color="#6366f1" 
 								>
