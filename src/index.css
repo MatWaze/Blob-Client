@@ -64,8 +64,8 @@ body.light-theme {
     --bg-blob: #e3044a;
     --text-shd: rgba(214, 212, 230, 0.55);
     --frame-color: white;
-    --box-shd: rgba(0, 0, 0, 0.25);
-    --box-outer-shd: rgba(80, 60, 120, 0.18);
+    --box-shd: rgba(0, 0, 0, 0.3);
+    --box-outer-shd: rgba(80, 60, 120, 0.5);
 }
 
 body {

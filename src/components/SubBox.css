@@ -452,7 +452,7 @@
   .wallet-icon,
   .stats-icon,
   .account-icon {
-    width: 80px;
+    width: 110px;
     /* height: 80px; */
     /* margin-top: 240px; */
   }
@@ -501,6 +501,12 @@
     margin-bottom: 30px;
   }
 
+  .sub-box-title-Account,
+  .sub-box-title-Wallet {
+    margin-bottom: -10px;
+    font-size: 44px;
+  }
+
   .sub-box-title-About::after {
     content: "\A bloBox";
     white-space: pre;
@@ -542,11 +548,11 @@
   }
 
   .friends-icon {
-    width: 150px;
+    width: 130px;
   }
 
   .sub-box-title-Friends {
-    font-size: 65px;
+    font-size: 50px;
   }
 }
 
@@ -598,7 +604,12 @@
   .account-icon,
   .store-icon,
   .friends-icon {
-    width: 200px;
+    width: 140px;
+    /* margin-top: 240px; */
+  }
+
+  .store-icon {
+    width: 190px;
     /* margin-top: 240px; */
   }
   
@@ -613,18 +624,22 @@
     font-size: 90px;
   }
 
-  .sub-box-title-Wallet,
+  .sub-box-title-Wallet {
+    font-size: 50px;
+  }
+
   .sub-box-title-Account {
-    font-size: 90px;
+    margin-bottom: -20px;
+    font-size: 50px;
   }
 
   .sub-box-title-Statistics {
-    font-size: 80px;
+    font-size: 40px;
   }
 
   .sub-box-title-Draw,
   .sub-box-title-Friends {
-    font-size: 90px;
+    font-size: 80px;
   }
 }
 

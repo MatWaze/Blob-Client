@@ -45,11 +45,17 @@ interface MainBoxProps {
 	triggerOpen?: number;
 	// New prop: custom click handler when box is closed
 	onClickWhenClosed?: () => void;
+	// New prop: box is permanently open, no close/maximize buttons
+	alwaysOpen?: boolean;
+	// New prop: clicking collapsed state opens directly into maximized
+	openMaximized?: boolean;
+	// New prop: callback when restore is clicked on a maximized overlay
+	onRestore?: () => void;
 }
 
-const MainBox: React.FC<MainBoxProps> = ({ id, title, icon, color, children, onClose, triggerOpen, onClickWhenClosed }) => {
-	const [isOpen, setIsOpen] = useState(false);
-	const [isMaximized, setIsMaximized] = useState(false);
+const MainBox: React.FC<MainBoxProps> = ({ id, title, icon, color, children, onClose, triggerOpen, onClickWhenClosed, alwaysOpen = false, openMaximized = false, onRestore }) => {
+	const [isOpen, setIsOpen] = useState(alwaysOpen || !!triggerOpen || !!onRestore);
+	const [isMaximized, setIsMaximized] = useState(!!triggerOpen || !!onRestore);
 
 	const blobLayout = React.useMemo<BlobConfig[]>(() => {
 		const seed = hashString(id);
@@ -98,8 +104,7 @@ const MainBox: React.FC<MainBoxProps> = ({ id, title, icon, color, children, onC
 	useEffect(() => {
 		if (triggerOpen) {
 			setIsOpen(true);
-			// Optional: Auto-maximize on game start?
-			// setIsMaximized(true); 
+			setIsMaximized(true);
 		}
 	}, [triggerOpen]);
 
@@ -110,6 +115,7 @@ const MainBox: React.FC<MainBoxProps> = ({ id, title, icon, color, children, onC
 				onClickWhenClosed();
 			} else {
 				setIsOpen(true);
+				if (openMaximized) setIsMaximized(true);
 			}
 		}
 	};
@@ -130,7 +136,16 @@ const MainBox: React.FC<MainBoxProps> = ({ id, title, icon, color, children, onC
 
 	const handleMaximize = (e: React.MouseEvent) => {
 		e.stopPropagation();
-		setIsMaximized(!isMaximized);
+		if (isMaximized && onRestore) {
+			// For overlay boxes, restoring = go back to guest view
+			onRestore();
+		} else if (isMaximized && openMaximized) {
+			// For openMaximized boxes, restoring = fully collapse
+			setIsOpen(false);
+			setIsMaximized(false);
+		} else {
+			setIsMaximized(!isMaximized);
+		}
 	};
 
 	return (
@@ -168,8 +183,13 @@ const MainBox: React.FC<MainBoxProps> = ({ id, title, icon, color, children, onC
 				<>
 					{!isMaximized && (
 						<>
-							<button className="corner-btn bottom-left close-corner" onClick={onClose ? handleMinimize : handleCollapse} title="Collapse">✕</button>
 							<button className="corner-btn top-right maximize-corner" onClick={handleMaximize} title="Maximize" aria-label="Maximize"></button>
+						</>
+					)}
+
+					{!alwaysOpen && !isMaximized && (
+						<>
+							<button className="corner-btn bottom-left close-corner" onClick={onClose ? handleMinimize : handleCollapse} title="Collapse">✕</button>
 						</>
 					)}
 

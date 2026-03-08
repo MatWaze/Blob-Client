@@ -6,6 +6,14 @@
   font-display: swap;
 }
 
+@font-face {
+  font-family: 'Handjet';
+  src: url('../fonts/Handjet/Handjet-Regular.ttf') format('truetype');
+  font-weight: 250;
+  font-style: normal;
+  font-display: swap;
+}
+
 .dashboard {
   display: flex;
   flex-direction: column;
@@ -960,3 +968,956 @@ button[type="submit"]:disabled {
   }
 } */
 
+/* --- Guest Werewolf Main Box --- */
+
+/* The outer .main-box-wrap needs flex:2 to be wider */
+.main-box-wrap:has(#main-main-profile) {
+  flex: 2 0 auto;
+}
+
+/* The main-box itself */
+#main-main-profile {
+  flex: 1;
+  --box-shd: rgba(218, 0, 0, 0.25);
+}
+
+/* Revert shadow to theme default when a nested main-box covers the yellow background */
+#main-main-profile:has(.main-box.open),
+#main-main-profile:has(.main-box.maximized) {
+  --box-shd: rgba(0, 0, 0, 0.5);
+}
+
+body.light-theme #main-main-profile:has(.main-box.open),
+body.light-theme #main-main-profile:has(.main-box.maximized) {
+  --box-shd: rgba(0, 0, 0, 0.25);
+}
+
+#main-content-main-profile {
+  flex-direction: column !important;
+  padding: 8px;
+  padding-top: 12px;
+  gap: 0;
+}
+
+#main-login-main > div > div.blob-c {
+  height: 40px;
+}
+
+.please-log-in-title {
+  font-family: 'Handjet';
+  font-size: 50px;
+  color: white;
+}
+
+/* --- Nested Login MainBox: strip when collapsed --- */
+#main-content-main-profile > .main-box-wrap {
+  flex: 0 0 auto !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  filter: none;
+  width: 100%;
+  padding-top: 25px;
+  padding-left: 50px;
+  padding-right: 50px;
+
+}
+
+/* Override container-type:size which collapses auto-height to 0 */
+#main-login-main {
+  container-type: normal !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  height: auto !important;
+  flex: 0 0 auto !important;
+  width: 100% !important;
+}
+
+#main-login-main.open {
+  min-height: 0 !important;
+  height: auto !important;
+  flex-shrink: 1 !important;
+}
+
+#main-login-main:not(.open) {
+  min-height: 0 !important;
+  height: auto !important;
+}
+
+/* Collapsed strip: row layout, compact */
+#main-login-main .main-box-collapsed {
+  height: 100px !important;
+  min-height: 0 !important;
+  padding: 12px 1px;
+  flex-direction: row;
+  align-items: center;
+  gap: 0px;
+}
+
+
+/* Make the login icon visible and sized */
+#main-login-main .main-box-collapsed .log-main-icon {
+  width: 56px;
+  /* height: 66px; */
+  object-fit: contain;
+}
+
+/* Avatar in collapsed user strip — MainBox-style clip-path container */
+#main-login-main .main-box-collapsed .guest-user-avatar {
+  --avatar-frame: 5px;
+  --cut-x: 40px;
+  --cut-y: 39px;
+  --cut-x-2: 36px;
+  --cut-y-2: 36px;
+  width: 100px;
+  height: 100px;
+  overflow: visible;
+  flex-shrink: 0;
+  background: var(--frame-color);
+  border: none;
+  clip-path: polygon(
+    var(--cut-x) 0,
+    100% 0,
+    100% calc(100% - var(--cut-y-2)),
+    calc(100% - var(--cut-x-2)) 100%,
+    0 100%,
+    0 var(--cut-y)
+  );
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Inner fill — creates uniform frame on all edges including diagonals */
+#main-login-main .main-box-collapsed .guest-user-avatar::before {
+  content: "";
+  position: absolute;
+  inset: var(--avatar-frame);
+  z-index: 0;
+  background: var(--bg-secondary);
+  clip-path: polygon(
+    calc(var(--cut-x) - var(--avatar-frame)) 0,
+    100% 0,
+    100% calc(100% - var(--cut-y) + var(--avatar-frame)),
+    calc(100% - var(--cut-x) + var(--avatar-frame)) 100%,
+    0 100%,
+    0 calc(var(--cut-y) - var(--avatar-frame))
+  );
+}
+
+#main-login-main .main-box-collapsed .guest-user-avatar canvas {
+  border-radius: 0;
+  position: relative;
+  z-index: 1;
+}
+
+/* Strip title text */
+#main-login-main .main-box-collapsed [class^="main-box-title-"] {
+  font-size: 62px;
+  flex: 1;
+  text-align: center;
+  margin-right: -50px;
+}
+
+.main-box-title-login {
+  margin-left: -50px;
+}
+
+@container (max-width: 920px)
+{
+  #main-login-main .main-box-collapsed [class^="main-box-title-"]
+  {
+    margin-right: 40px;
+  }
+
+  .main-box-title-login {
+    margin-left: 30px;
+  }
+}
+
+.main-box-title-login.needed {
+  margin-top: 7px;
+}
+
+/* MAXIMIZED: fill the parent main-profile box, NOT the viewport */
+#main-login-main.maximized {
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: 100 !important;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 100% !important;
+  max-height: 100% !important;
+  border-radius: 0 !important;
+  clip-path: none !important;
+}
+
+/* --- Profile Grid Layout (inside maximized login-main) --- */
+.profile-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+}
+
+.profile-grid-item {
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+@container (max-width: 1000px)
+{
+  .profile-grid-item.account-item {
+    margin-left: 60px;
+    width: 350px;
+  }
+  .profile-grid-item.wallet-item {
+    width: 390px;
+  }
+
+  .profile-grid-item.stats-item {
+    width: 390px;
+  }
+}
+
+@container (min-width: 1000px)
+{
+  .profile-grid-item.account-item {
+    margin-left: 60px;
+    width: 600px;
+  }
+  .profile-grid-item.wallet-item {
+    width: 640px;
+  }
+
+  .profile-grid-item.stats-item {
+    width: 640px;
+  }
+}
+
+.profile-grid-item > .sub-box,
+.profile-grid-item > .main-box-wrap {
+  flex: 1;
+  min-height: 0;
+}
+
+/* Left stack: theme changer + about, stacked vertically */
+.profile-grid-left-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  /* margin-top: 70px; */
+}
+
+/* --- Theme Blob Container --- */
+.theme-blob-container {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  /* filter:
+    drop-shadow(0 3px 8px rgba(236, 72, 153, 0.3))
+    drop-shadow(0 -1px 4px rgba(255, 255, 255, 0.15)); */
+  margin-left: 104px;
+  margin-bottom: 0px;
+  margin-top: 30px;
+}
+
+.theme-blob-bg {
+  display: block;
+  height: 80px;
+  width: auto;
+  pointer-events: none;
+  user-select: none;
+}
+
+
+.theme-blob-options {
+  /* position: absolute; */
+  left: 4%;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  gap: 2px;
+}
+
+.theme-blob-option {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: transform 0.15s ease;
+}
+
+.theme-blob-option:hover {
+  transform: translateX(4);
+}
+
+.theme-blob-circle {
+  width: 40px;
+  height: 37px;
+  border-radius: 50%;
+  display: block;
+  transition: box-shadow 0.2s ease;
+}
+
+.theme-blob-circle.light-circle {
+  background: #ffffff;
+  border: 2px solid rgba(0, 0, 0, 0.15);
+}
+
+.theme-blob-circle.light-circle {
+  position: relative;
+  top: 50%;
+  right: 245px;
+}
+
+.theme-blob-circle.dark-circle {
+  position: relative;
+  background: #1a1a2e;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  padding-left: 20px;
+  top: 49%;
+  right: 218px;
+}
+
+/* Active ring indicator */
+.theme-blob-option.active .theme-blob-circle {
+  /* top: 10px; */
+  outline: 3px solid white;
+  outline-offset: 4px;
+}
+
+.theme-blob-label {
+  position: relative;
+  right: 187px;
+  /* transform: translateY(-50%); */
+  font-family: 'Macondo', cursive;
+  font-size: 38px;
+  color: white;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  /* pointer-events: none; */
+  transition: transform 0.3s ease-out;
+  user-select: none;
+}
+
+.theme-blob-label:hover {
+  transform: translate(0, -4px);
+}
+
+/* main-about-nested */
+/* theme-blob-container */
+/* --- About Nested MainBox (inside profile grid) --- */
+.profile-grid-left-stack > .main-box-wrap {
+  flex: 0 0 auto !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  filter: none;
+  max-width: 100%;
+  margin-left: 30px;
+  /* margin-top: 100px; */
+}
+
+#main-about-nested {
+  container-type: normal !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  height: auto !important;
+  flex: 0 0 auto !important;
+  margin-top: 10px;
+  margin-left: 50px;
+  transition: none;
+}
+
+
+#main-login-nested:not(.open) {
+  min-height: 0 !important;
+  height: 260px;
+  width: 256px;
+  margin-left: 112px;
+  margin-top: 30px;
+}
+
+@container(min-width: 1000px) {
+  .theme-blob-container {
+    margin-left: 70px;
+  }
+
+  #main-login-nested:not(.open) {
+    margin-left: 143px;
+    width: 425px;
+    margin-top: 40px;
+  }
+
+  #main-about-nested {
+    margin-left: 60px;
+    padding-left: 50px;
+    padding-top: 5px;
+    width: 530px;
+  }
+
+  .theme-blob-bg {
+    margin-left: 150px;
+  }
+
+  .guest-werewolf-title {
+    font-size: 290px;
+  }
+}
+
+@container (min-width: 1000px) {
+  .main-main-profile.main-box.open {
+    flex-direction: column;
+  }
+}
+
+/* @container (max-width: 920px) {
+  #main-content-login-main > div > div:nth-child(1) > div {
+    width: 340px;
+    margin-top: 20px;
+    margin-left: 60px;
+  }
+}
+
+@container (min-width: 1000px) {
+    #main-content-login-main > div > div:nth-child(1) > div {
+    width: 580px;
+    margin-top: 20px;
+    margin-left: 30px;
+  }
+} */
+
+#main-about-nested > div > div.blob-c {
+  height: 40px;
+}
+
+#main-about-nested:not(.open) {
+  min-height: 0 !important;
+  height: auto !important;
+  transform: scale(0.8);
+}
+
+#main-about-nested .main-box-collapsed {
+  height: 90px !important;
+  min-height: 0 !important;
+  width: 320px;
+  padding: 8px 16px;
+  padding-left: 60px;
+}
+
+/* --- Login Nested MainBox (inside profile grid, replaces Account for guests) --- */
+.profile-grid-item > .main-box-wrap:has(#main-login-nested) {
+  flex: 1;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  filter: none;
+  max-width: 100%;
+  position: absolute;
+}
+
+#main-login-nested {
+  container-type: normal !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  /* height: auto !important; */
+  flex: 1 !important;
+  margin-bottom: 100px;
+  transition: none;
+
+}
+
+.main-box-title-login {
+  margin-right: 10px;
+}
+
+.main-box-title-about {
+  margin-right: 100px;
+}
+
+#main-login-nested .main-box-collapsed {
+  height: 400px !important;
+  padding: 8px 16px;
+}
+
+/* #main-content-login-main > div > div:nth-child(1) > div {
+  width: 340px;
+  height: 900px;
+  margin-top: 20px;
+  margin-left: 60px;
+} */
+
+/* When login-nested is maximized, fill the login-main content area */
+#main-login-nested.maximized {
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: 200 !important;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 100% !important;
+  max-height: 100% !important;
+  border-radius: 0 !important;
+  clip-path: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* The wrapper must escape the grid when login-nested is maximized */
+.profile-grid-item > .main-box-wrap:has(#main-login-nested.maximized) {
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: 200 !important;
+  filter: none !important;
+  margin: 0 !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* When login-nested is maximized, its grid-item parent must also escape */
+.profile-grid-item:has(#main-login-nested.maximized) {
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: 200 !important;
+  display: block !important;
+}
+
+/* Hide login-main restore button when login-nested is maximized inside it */
+#main-login-main:has(#main-login-nested.maximized) > .corner-btn.restore-corner {
+  display: none !important;
+}
+
+/* When about is maximized, fill the login-main content area */
+#main-about-nested.maximized {
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: 200 !important;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 100% !important;
+  max-height: 100% !important;
+  border-radius: 0 !important;
+  clip-path: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* The wrapper must escape the grid when about is maximized */
+.profile-grid-left-stack > .main-box-wrap:has(#main-about-nested.maximized) {
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: 200 !important;
+  filter: none !important;
+  margin: 0 !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* profile-grid must NOT have position:relative —
+   SubBox.maximized & about-nested.maximized both need to escape the grid
+   and fill .main-box-content (the nearest positioned ancestor) */
+
+/* When about-nested is maximized, its grid-item parent must also escape */
+.profile-grid-item.profile-grid-left-stack:has(#main-about-nested.maximized) {
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: 200 !important;
+  display: block !important;
+}
+
+/* Hide login-main restore button when about-nested is maximized inside it */
+#main-login-main:has(#main-about-nested.maximized) > .corner-btn.restore-corner {
+  display: none !important;
+}
+
+/* The wrapper also needs to not break layout when maximized */
+#main-content-main-profile > .main-box-wrap:has(#main-login-main.maximized) {
+  position: static !important;
+  filter: none !important;
+}
+
+/* Ensure the content area is a positioning context for login-main absolute */
+#main-content-main-profile {
+  position: relative;
+}
+
+/* --- Inner overlay boxes (pong, werewolf, store, community) --- */
+#main-inner-overlay {
+  container-type: normal !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  height: auto !important;
+  flex: 0 0 auto !important;
+  width: 100% !important;
+}
+
+#main-inner-overlay.open {
+  min-height: 0 !important;
+  height: auto !important;
+  flex-shrink: 1 !important;
+}
+
+#main-inner-overlay.maximized {
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: 100 !important;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 100% !important;
+  max-height: 100% !important;
+  border-radius: 0 !important;
+  clip-path: none !important;
+}
+
+#main-content-main-profile > .main-box-wrap:has(#main-inner-overlay.maximized) {
+  position: static !important;
+  filter: none !important;
+}
+
+/* Yellow fill for the main profile box */
+#main-main-profile::before {
+  background: #ffcc00;
+}
+
+/* --- Guest Werewolf Content Area --- */
+.guest-werewolf-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  padding: 10px 30px 24px;
+  cursor: pointer;
+  position: relative;
+  min-height: 0;
+  z-index: 2;
+  overflow: hidden;
+}
+
+.guest-werewolf-img {
+  width: 750px;
+  padding-top: 90px;
+  /* max-height: 55%; */
+  object-fit: contain;
+  filter:
+    /* drop-shadow(2px 2px 14px black) */
+    drop-shadow(4px 0px 20px rgba(218, 0, 0, 0.55));
+  /* filter: drop-shadow(0 32px 42px rgba(0, 0, 0, 0.9)); */
+  transition: transform 0.3s ease;
+}
+
+.guest-werewolf-content .guest-werewolf-title:hover {
+  transform: translate(0, -4px);
+  transition: 0.4;
+}
+
+.guest-werewolf-title {
+  font-family: 'Xtra', 'CaesarDressing', sans-serif;
+  font-size: 162px;
+  background: linear-gradient(
+    to bottom,
+    #beaaf4 0%,
+    #996af1 10%,
+    #8f50e8 20%,
+    #703cb9 40%,
+    #8735b0 60%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-align: center;
+  letter-spacing: 8px;
+  margin-top: -130px;
+  /* padding-bottom: 50px; */
+  line-height: 1;
+  filter:
+    drop-shadow(0px 2px 10px rgba(218, 0, 0, 0.65));
+  transition: transform 0.3s ease-out;
+}
+
+@container (min-width: 1000px)
+{
+  #main-login-main .main-box-collapsed [class^="main-box-title-"]:not(.main-box-title-about):not(.main-box-title-login) {
+    margin-right: 120px;
+  }
+
+  .guest-werewolf-img {
+    width: 800px;
+  }
+
+  .guest-werewolf-title {
+    font-size: 190px;
+  }
+}
+
+/* --- Blob-shaped Nav Buttons --- */
+.guest-blob-buttons {
+  display: flex;
+  gap: 5px;
+  margin-top: auto;
+  padding-bottom: 160px;
+  padding-top: 20px;
+  align-items: center;
+  justify-content: center;
+  z-index: 3;
+}
+
+.guest-blob-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 34px;
+  cursor: pointer;
+  font-family: 'Macondo', cursive;
+  font-size: 30px;
+  color: white;
+  border: none;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  /* animation: morph 10s linear infinite; */
+  position: relative;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+  letter-spacing: 1px;
+  /* filter:
+    drop-shadow(0px -4px 0.5px rgba(255, 255, 255, 1)); */
+}
+
+/* .guest-blob-btn:hover {
+  transform: scale(1.01);
+} */
+
+/* --- Games blob image container --- */
+.games-blob-container {
+  position: relative;
+  display: inline-block;
+  flex-shrink: 0;
+  transition: transform 0.2s ease, filter 0.2s ease;
+  /* filter:
+    /* drop-shadow(0 4px 12px rgba(245, 158, 11, 0.45))
+    drop-shadow(0 -2px 6px rgba(255, 255, 255, 0.55)); */
+}
+
+.games-blob-container:hover {
+  /* filter:
+    drop-shadow(0 6px 18px rgba(245, 158, 11, 0.6))
+    drop-shadow(0 -3px 8px rgba(255, 255, 255, 0.55)); */
+}
+
+.games-blob-bg {
+  display: block;
+  height: 110px;
+  width: auto;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* Clickable circle hotspots overlaid on the games_blob image */
+.games-blob-circle {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 28%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease, filter 0.2s ease;
+}
+
+/* .games-blob-circle:hover {
+  transform: translateY(-50%) scale(1.08);
+  filter: brightness(1.15);
+} */
+
+.games-blob-circle img {
+  width: 80px;
+  margin-bottom: 13px;
+  /* height: 55%; */
+  object-fit: contain;
+  pointer-events: none;
+}
+
+/* First circle (left) — in_development */
+.games-blob-circle.circle-left {
+  left: 2%;
+}
+
+/* Second circle (center) — pong */
+.games-blob-circle.circle-center {
+  left: 25%;
+}
+
+.games-blob-circle.circle-center img{
+  width: 66px;
+}
+
+/* "games" title on the right pill area */
+.games-blob-title {
+  position: absolute;
+  right: 11%;
+  top: 20%;
+  /* transform: translateY(-50%); */
+  font-family: 'Macondo', cursive;
+  font-size: 38px;
+  color: white;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  letter-spacing: 1px;
+  /* pointer-events: none; */
+  user-select: none;
+  transition: transform 0.3s ease-out;
+}
+
+.games-blob-title:hover
+{
+  transform: translate(0, -4px);
+}
+
+/* --- Store blob image container --- */
+.store-blob-container {
+  position: relative;
+  display: inline-block;
+  flex-shrink: 0;
+  cursor: pointer;
+  transition: transform 0.2s ease, filter 0.2s ease;
+  /* filter:
+    drop-shadow(0 4px 12px rgba(236, 72, 153, 0.45))
+    drop-shadow(0 -2px 10px rgba(255, 255, 255, 0.55))
+    drop-shadow(0 -1px 4px rgba(255, 255, 255, 0.15)); */
+}
+
+.store-blob-container:hover {
+  /* transform: scale(1.03); */
+  /* filter: */
+    /* drop-shadow(0 6px 18px rgba(236, 72, 153, 0.6))
+    drop-shadow(0 -3px 8px rgba(255, 255, 255, 0.35)); */
+}
+
+.store-blob-bg {
+  display: block;
+  height: 113px;
+  width: auto;
+  pointer-events: none;
+  user-select: none;
+}
+
+.store-blob-icon-overlay {
+  position: absolute;
+  left: 15%;
+  top: 44%;
+  transform: translateY(-50%);
+  width: 65px;
+  object-fit: contain;
+  pointer-events: none;
+}
+
+.store-blob-title {
+  position: absolute;
+  right: 20%;
+  top: 21%;
+  /* transform: translateY(-50%); */
+  font-family: 'Macondo', cursive;
+  font-size: 39px;
+  color: white;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  letter-spacing: 1px;
+  /* pointer-events: none; */
+  user-select: none;
+  transition: transform 0.3s ease-out;
+}
+
+.store-blob-title:hover
+{
+  transform: translate(0, -4px);
+}
+
+/* --- Logged-in User Strip (replaces login-main when authenticated) --- */
+.guest-user-strip {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 24px;
+  cursor: pointer;
+  z-index: 3;
+  position: relative;
+  transition: transform 0.2s ease, filter 0.2s ease;
+}
+
+.guest-user-strip:hover {
+  transform: scale(1.02);
+  filter: brightness(1.1);
+}
+
+.guest-user-avatar {
+  width: 90px;
+  height: 80px;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: var(--bg-secondary);
+  border: 3px solid var(--frame-color);
+  clip-path: polygon(
+    18px 0,
+    100% 0,
+    100% calc(100% - 18px),
+    calc(100% - 18px) 100%,
+    0 100%,
+    0 18px
+  );
+  position: relative;
+}
+
+.guest-user-avatar canvas {
+  border-radius: 0;
+}
+
+.guest-user-name {
+  font-family: 'Modak', 'Courier New', monospace;
+  font-size: 42px;
+  background: linear-gradient(to bottom, #ff003c 0%, #b30058 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  line-height: 1;
+}
+
+/* --- Community Locked State --- */
+.community-locked {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  width: 100%;
+  gap: 12px;
+  color: var(--text-secondary);
+  font-family: 'Macondo', cursive;
+  font-size: 18px;
+  padding: 20px;
+  text-align: center;
+}
+
+.community-locked-icon {
+  /* font-size: 48px; */
+  width: 50px !important;
+  height: auto !important;
+}
+
+.community-locked p {
+  margin: 0;
+}
+
+@container (min-width: 900px) {
+
+}

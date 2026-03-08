@@ -106,10 +106,9 @@ export const ProfileAvatar: React.FC = () => {
             try {
                 const res = await fetchWithAuth(`${serverUrl}/api/nft/skin?name=${activeSkin.model}`);
                 if (res.ok) {
-                    const textData = await res.text();
-                    const cleanUrl = textData.replace(/"/g, '').trim(); 
-                    if (cleanUrl) {
-                        setBaseModelUrl(cleanUrl);
+                    const data = await res.json();
+                    if (data.url) {
+                        setBaseModelUrl(data.url);
                     }
                 }
             } catch (err) {

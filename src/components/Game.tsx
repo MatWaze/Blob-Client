@@ -7,11 +7,15 @@ export interface GameHandle {
     sendLogout: () => void;
 }
 
-const Game = forwardRef<GameHandle>((props, ref) => {
+interface GameProps {
+  url: string;
+}
+
+const Game = forwardRef<GameHandle, GameProps>((props, ref) => {
     const { user, logout } = useAuth();
     const { theme } = useTheme();
     const iframeRef = useRef<HTMLIFrameElement>(null);
-    const gameUrl = import.meta.env.VITE_GAME_URL;
+    const gameUrl = props.url;
 
     // Expose functions to the parent (Dashboard)
     useImperativeHandle(ref, () => ({

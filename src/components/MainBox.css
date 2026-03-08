@@ -182,7 +182,7 @@
     -3px -4px 3px rgba(214, 212, 230, 0.05); */
   filter:
     drop-shadow(0px -2px 0.5px rgba(255, 255, 255, 0.65))
-    drop-shadow(0px 0px 3px var(--bg-secondary));
+    drop-shadow(0px 2px 5px var(--box-outer-shd));
 }
 
 [class^="main-box-title-"]::after {
@@ -380,7 +380,7 @@
 }
 
 /* Use row only when there is enough real width for multiple subboxes */
-@container (min-width: 920px) {
+@container (min-width: 900px) {
   .main-box-content {
     flex-direction: row;
   }
@@ -510,7 +510,7 @@ maybe'll use later
 
 @container (min-width: 300px) {
   [class^="main-box-title-"] {
-    font-size: 92px;
+    font-size: 82px;
   }
 
   .main-box-title-profile {

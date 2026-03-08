@@ -30,6 +30,7 @@ import {
 import './Dashboard.css';
 import { MarketplaceContent } from './MarketplaceContent';
 import { ProfileAvatar } from './ProfileAvatar';
+import ModelViewer from './ModelViewer';
 
 // --- Icons ---
 const ProfileIcon = () => <img className='profile-icon' src='../../blob-models/profile_login.png' alt="Profile" />;
@@ -39,7 +40,7 @@ const CommunityIcon = () => <img className='community-icon' src='../../blob-mode
 const Friends = () => <img className='friends-icon' src='../../blob-icons/Friends.png' alt="Friends" />;
 const WalletIcon = () => <img className='wallet-icon' src='../../blob-icons/Wallet.png' alt="Wallet" />;
 const StatsIcon = () => <img className='stats-icon' src='../../blob-icons/Statistics.png' alt="Statistics" />;
-const PongIcon = () => <span></span>;
+const PongIcon = () => <span className='pong-icon'>🏓</span>;
 const MafiaIcon = () => <img className='werewolf-icon' src='../../blob-icons/werewolf.png' alt="Mafia" />;
 const AccountIcon = () => <img className='account-icon' src='../../blob-icons/Account.png' alt="Account" />;
 const AboutBlobox = () => <img className='about-blobox-icon' src='../../blob-icons/AboutBlobox.png' alt="About Blobox" />;
@@ -723,9 +724,10 @@ const BloboxIcon = () => (
 
 // --- Dashboard Component ---
 const Dashboard: React.FC = () => {
-	const { isAuthenticated, logout, user } = useAuth();
+	const { isAuthenticated, logout, user, fetchWithAuth } = useAuth();
 	const { theme, toggleTheme } = useTheme();
 	const gameRef = useRef<GameHandle>(null);
+	const mafiaRef = useRef<GameHandle>(null);
 
 
 	// Track visibility of main windows in guest view
@@ -735,8 +737,9 @@ const Dashboard: React.FC = () => {
 		about: true,
 	});
 
-	// Track if Blobox is expanded (showing auth content)
-	const [bloboxExpanded, setBloboxExpanded] = useState(false);
+	// Track which MainBox overlay is active (null = guest view)
+	// Which inner box is open inside main-profile (null = none)
+	const [activeInnerBox, setActiveInnerBox] = useState<string | null>(null);
 
 	// --- NEW: Reset Password State ---
 	const [showForgot, setShowForgot] = useState(false);
@@ -798,52 +801,91 @@ const Dashboard: React.FC = () => {
 		.filter(([_, visible]) => !visible)
 		.map(([name]) => name);
 
-	const [pongOpen, setPongOpen] = useState(false);
-	const [gamesTrigger, setGamesTrigger] = useState(0);
+	// Avatar data for the logged-in strip
+	const [avatarModelUrl, setAvatarModelUrl] = useState<string>('');
+	const [avatarTextureUrl, setAvatarTextureUrl] = useState<string>('');
+	const serverUrl = import.meta.env.VITE_SERVER_URL;
+
+	// Fetch user's default avatar NFT when authenticated
+	useEffect(() => {
+		if (!isAuthenticated) return;
+		const loadAvatar = async () => {
+			try {
+				const defaultRes = await fetchWithAuth(`${serverUrl}/api/nft/user/default?gameType=Avatar`);
+				if (defaultRes.ok) {
+					const data = await defaultRes.json();
+					if (data.tokenId) {
+						// Fetch inventory to find the texture
+						const invRes = await fetchWithAuth(`${serverUrl}/api/nft/user?gameType=All`);
+						if (invRes.ok) {
+							const nfts = await invRes.json();
+							const skin = nfts.find((n: any) => n.tokenId === data.tokenId);
+							if (skin) {
+								console.log(skin.image);
+								setAvatarTextureUrl(skin.image || '');
+								// Get GLB model
+								if (skin.model && skin.model !== 'Unknown') {
+									const glbRes = await fetchWithAuth(`${serverUrl}/api/nft/skin?name=${skin.model}`);
+									if (glbRes.ok) {
+										const glbData = await glbRes.json();
+										setAvatarModelUrl(glbData.url || '../../DavidLow.glb');
+									}
+								} else {
+									setAvatarModelUrl('../../DavidLow.glb');
+								}
+							}
+						}
+					} else {
+						setAvatarModelUrl('../../DavidLow.glb');
+					}
+				} else {
+					setAvatarModelUrl('../../DavidLow.glb');
+				}
+			} catch {
+				setAvatarModelUrl('../../DavidLow.glb');
+			}
+		};
+		loadAvatar();
+	}, [isAuthenticated, fetchWithAuth, serverUrl]);
+
+	// Click handlers for guest main-profile buttons
+	const handleProfileClick = () => {
+		if (isAuthenticated) setActiveInnerBox('profile');
+	};
+
+	const handleMarketplaceClick = () => {
+		if (isAuthenticated) setActiveInnerBox('marketplace');
+	};
+
+	const handleCommunityClick = () => {
+		if (isAuthenticated) setActiveInnerBox('community');
+	};
+
+	const handlePongClick = () => {
+		if (isAuthenticated) setActiveInnerBox('pong');
+	};
+
+	const handleWerewolfClick = () => {
+		if (isAuthenticated) setActiveInnerBox('werewolf');
+	};
 
 	const avatarRef = useRef<HTMLDivElement>(null);
 
 	// Handle game invite acceptance - open Blobox and Pong
 	useEffect(() => {
 		const handler = () => {
-			if (isAuthenticated) {
-				setBloboxExpanded(true);
-				setGamesTrigger(prev => prev + 1);
-				setPongOpen(false);
-				setTimeout(() => setPongOpen(true), 50);
-			}
+			if (isAuthenticated) setActiveInnerBox('pong');
 		};
 		window.addEventListener('RESET_GAME_VIEW', handler);
 		return () => window.removeEventListener('RESET_GAME_VIEW', handler);
 	}, [isAuthenticated]);
 
-	// When user logs in, auto-expand Blobox
-	useEffect(() => {
-		if (isAuthenticated && !bloboxExpanded) {
-			setBloboxExpanded(true);
-		}
-	}, [isAuthenticated]);
-
-	// Handle Blobox click - only expand if authenticated
-	const handleBloboxClick = () => {
-		if (isAuthenticated) {
-			setBloboxExpanded(true);
-		}
-	};
-
-	// Handle closing Blobox - return to guest view
-	const handleBloboxClose = () => {
-		setBloboxExpanded(false);
-	};
-
-	// Determine what to show
-	const showGuestWindows = !bloboxExpanded;
-	const showBloboxContent = bloboxExpanded && isAuthenticated;
+	const closeInnerBox = () => setActiveInnerBox(null);
 
 	return (
 		<div className="dashboard">
 			{/* Reopen buttons for closed guest windows */}
-			{showGuestWindows && closedBoxes.length > 0 && (
+			{closedBoxes.length > 0 && (
 				<div className="closed-boxes-bar">
 					{closedBoxes.map((box) => (
 						<button
@@ -891,169 +933,365 @@ const Dashboard: React.FC = () => {
 				)}
 				{/* ----------------------------------- */}
 
-				{isAuthenticated && (
-					/* Blobox Expanded View - Wrapped in a container that looks like a parent window */
-					<div className="blobox-container" style={{ display: showBloboxContent ? undefined : 'none' }}>
-						{/* Restore button to go back to guest view */}
-						<button 
-							className="blobox-restore-btn" 
-							onClick={handleBloboxClose}
-							title="Back to Guest View"
-						>
-							<img className="blobox-restore-corner-img" src={'../../blob-icons/min_box.png'} />
-							{/* ↙ */}
-						</button>
-
-						<div className="blobox-inner">
-							{/* Profile MainBox */}
-							<div className="dashboard-column">
-								<MainBox 
-									key="profile" 
-									id="profile" 
-									title="Profile" 
-									icon={<ProfileIcon />} 
-									color="#f59e0b"
-								>
-									<SubBox title="Wallet" icon={<WalletIcon />} color="#f59e0b">
-										<WalletContent />
-									</SubBox>
-									<SubBox title="Statistics" icon={<StatsIcon />} color="#3b82f6">
-										<StatsContent />
-									</SubBox>
-									<SubBox title="Account" icon={<AccountIcon />} color="#10b981">
-										<div className="account-content">
-											<ProfileAvatar />
-											<div style={{ textAlign: 'center', marginBottom: 6 }}>
-												<div className="account-info">
-													<div><strong>Username</strong> {user?.username || 'N/A'}</div>
-													<div><strong>Email</strong> {user?.email || 'N/A'}</div>
-												</div>
-											</div>
-											<div className="theme-switch-wrapper">
-												<label className="theme-switch">
-													<input type="checkbox" checked={theme === 'light'} onChange={toggleTheme} />
-													<div className="slider">
-														<span className="icon">🌙</span>
-														<span className="icon">☀️</span>
-													</div>
-												</label>
-											</div>
-											<button className="action-btn" onClick={handleLogout}>Logout</button>
-										</div>
-									</SubBox>
-								</MainBox>
-								
-								<MainBox
-									key="marketplace" 
-									id="marketplace" 
-									title="Store" 
-									icon={<MarketIcon />} 
-									color="#000000" // Purple theme for the store
-								>
-									<SubBox title="Draw" icon={<StoreIcon />} color="#a855f7">
-										<MarketplaceContent />
-									</SubBox>
-								</MainBox>
-							</div>
-
-							{/* Games MainBox */}
-							<MainBox 
-								key="games" 
-								id="games" 
-								title="Games" 
-								icon={<GamesIcon />} 
-								color="#ef4444" 
-								triggerOpen={gamesTrigger}
-							>
-								<SubBox title="Pong" icon={<PongIcon />} color="#ec4899" isOpen={pongOpen} onOpenChange={setPongOpen}>
-									<div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-										<Game ref={gameRef} />
-									</div>
-								</SubBox>
-								<SubBox title="Werewolf" icon={<MafiaIcon />} color="#dc2626">
-									<div style={{ textAlign: 'center', color: 'var(--text-secondary)'}}>Coming Soon</div>
-								</SubBox>
-							</MainBox>
-
-							{/* Community MainBox */}
-							<MainBox 
-								key="community" 
-								id="community" 
-								title="Community" 
-								icon={<CommunityIcon />} 
-								color="#3b82f6"
-							>
-								<SubBox title="Friends" icon={<Friends />} color="#3b82f6">
-									<FriendsContent />
-								</SubBox>
-							</MainBox>
-						</div>
-					</div>
-				)}
-					{/* Guest View - Login, Blobox (collapsed unless logged in), About */}
-					<div style={{ display: showGuestWindows ? 'contents' : 'none' }}>
+					{/* Guest View */}
+					<div style={{ display: 'contents' }}>
 						{/* Login Window */}
+
 						{visibleBoxes.login && (
 							<MainBox 
-								key="login" 
-								id="login" 
-								title="Login" 
-								icon={<LogIcon />}
+								key="main-profile" 
+								id="main-profile" 
+								title="bloBox"
+								icon={<AccountIcon />}
 								color="#f59e0b"
+								alwaysOpen
 							>
-								<SubBox title="Sign In" icon={<LoginIcon />} color="#f59e0b">
-									<Login />
-								</SubBox>
+								{/* Login strip: shows login or username+avatar based on auth */}
+								{!isAuthenticated ? (
+									<MainBox 
+										key="login-main" 
+										id="login-main" 
+										title="login needed" 
+										icon={<i></i>}
+										color="#f59e0b"
+										openMaximized
+									>
+										<div className="profile-grid">
+											{/* Row 1: Login nested MainBox (replaces Account) + Wallet (locked) */}
+											<div className="profile-grid-item">
+												<MainBox
+													key="login-nested"
+													id="login-nested"
+													title="login"
+													icon={<i></i>}
+													color="#f59e0b"
+													openMaximized
+												>
+													<SubBox title="Sign In" icon={<LoginIcon />} color="#f59e0b">
+														<Login />
+													</SubBox>
 
-								{/* --- NEW: Forgot Password SubBox --- */}
-								{showForgot && (
-									 <SubBox 
-										title="Recovery" 
-										icon={<ProfileIcon />} 
-										color="#f59e0b" 
-										// defaultMaximized={true}
-										triggerClose={!showForgot ? 1 : 0}
-									 >
-										<div style={{ position: 'relative', height: '100%' }}>
-											<button 
-												onClick={() => setShowForgot(false)}
-												style={{ 
-													position: 'absolute', 
-													top: '-35px', 
-													right: '-10px', 
-													background: 'transparent', 
-													border: 'none', 
-													color: '#fff', 
-													fontSize: '24px',
-													fontWeight: 'bold',
-													cursor: 'pointer', 
-													zIndex: 20,
-													width: '40px',
-													height: '40px',
-													display: 'flex',
-													alignItems: 'center',
-													justifyContent: 'center',
-													opacity: 0.8,
-													transition: 'opacity 0.2s'
-												}}
-												onMouseOver={(e) => e.currentTarget.style.opacity = '1'}
-												onMouseOut={(e) => e.currentTarget.style.opacity = '0.8'}
-											>
-												✕
-											</button>
-											<ForgotPassword />
+													{showForgot && (
+														<SubBox 
+															title="Recovery" 
+															icon={<ProfileIcon />} 
+															color="#f59e0b" 
+															triggerClose={!showForgot ? 1 : 0}
+														>
+															<div style={{ position: 'relative', height: '100%' }}>
+																<button 
+																	onClick={() => setShowForgot(false)}
+																	style={{ 
+																		position: 'absolute', 
+																		top: '-35px', 
+																		right: '-10px', 
+																		background: 'transparent', 
+																		border: 'none', 
+																		color: '#fff', 
+																		fontSize: '24px',
+																		fontWeight: 'bold',
+																		cursor: 'pointer', 
+																		zIndex: 20,
+																		width: '40px',
+																		height: '40px',
+																		display: 'flex',
+																		alignItems: 'center',
+																		justifyContent: 'center',
+																		opacity: 0.8,
+																		transition: 'opacity 0.2s'
+																	}}
+																	onMouseOver={(e) => e.currentTarget.style.opacity = '1'}
+																	onMouseOut={(e) => e.currentTarget.style.opacity = '0.8'}
+																>
+																	✕
+																</button>
+																<ForgotPassword />
+															</div>
+														</SubBox>
+													)}
+
+													<SubBox title="Sign Up" icon={<RegisterIcon />} color="#6366f1">
+														<Register />
+													</SubBox>
+												</MainBox>
+											</div>
+											<div className="profile-grid-item wallet-item">
+												<SubBox title="Wallet" icon={<WalletIcon />} color="#f59e0b">
+													<div className="community-locked">
+														<img className="community-locked-icon" src='../../blob-icons/lock.png' />
+														<p className="please-log-in-title">please Log in</p>
+													</div>
+												</SubBox>
+											</div>
+
+											{/* Row 2: Theme changer + About (left), Statistics (right) */}
+											<div className="profile-grid-item profile-grid-left-stack">
+												{/* Theme changer blob */}
+												<div className="theme-blob-container">
+													<img className="theme-blob-bg" src="../../blob-icons/theme_blob_lighting.png" alt="Theme" />
+													<div className="theme-blob-options">
+														<button 
+															className={`theme-blob-option ${theme === 'light' ? 'active' : ''}`}
+															onClick={() => { if (theme !== 'light') toggleTheme(); }}
+															title="Light"
+														>
+															<span className="theme-blob-circle light-circle"></span>
+														</button>
+														<button 
+															className={`theme-blob-option ${theme === 'dark' ? 'active' : ''}`}
+															onClick={() => { if (theme !== 'dark') toggleTheme(); }}
+															title="Dark"
+														>
+															<span className="theme-blob-circle dark-circle"></span>
+														</button>
+													</div>
+													<span className="theme-blob-label">theme</span>
+												</div>
+
+												{/* About nested MainBox */}
+												<MainBox
+													key="about-nested-guest"
+													id="about-nested"
+													title="about"
+													icon={<i></i>}
+													color="#6366f1"
+													openMaximized
+												>
+													<SubBox title="About" icon={<AboutBlobox />} color="#6366f1">
+														<div style={{ padding: 20, display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
+															<h3>Welcome to bloBox</h3>
+															<p>Play games, connect with friends, and earn rewards!</p>
+														</div>
+													</SubBox>
+													<SubBox title="Terms" icon={<TermsOfService />} color="#2d30b7">
+														<div style={{ padding: 20 }}>Terms of Service content here.</div>
+													</SubBox>
+												</MainBox>
+											</div>
+
+											<div className="profile-grid-item stats-item">
+												<SubBox title="Statistics" icon={<StatsIcon />} color="#3b82f6">
+													<div className="community-locked">
+														<img className="community-locked-icon" src='../../blob-icons/lock.png' />
+														<p className="please-log-in-title">please Log in</p>
+													</div>
+												</SubBox>
+											</div>
 										</div>
-									 </SubBox>
-								)}
-								{/* ----------------------------------- */}
+									</MainBox>
+								) : (
+									<MainBox 
+										key="user-main" 
+										id="login-main" 
+										title={user?.username || 'User'}
+										icon={
+											<div className="guest-user-avatar">
+												<ModelViewer 
+													url={ avatarModelUrl || '../../DavidLow.glb'}
+													textureUrl={avatarTextureUrl || undefined}
+													width={180}
+													height={180}
+													minDistance={5}
+													maxDistance={5}
+												/>
+											</div>
+										}
+										color="#f59e0b"
+										openMaximized
+									>
+										<div className="profile-grid">
+											{/* Row 1: Account + Wallet */}
+											<div className="profile-grid-item account-item">
+												<SubBox
+													title="Account"
+													icon={<ModelViewer 
+													url={avatarModelUrl || '../../DavidLow.glb'}
+													textureUrl={avatarTextureUrl || undefined}
+													width={800}
+													height={920}
+													modelScale={2}
+													minDistance={0}
+													maxDistance={1.69}
+												/>}
+													color="#10b981">
+													<div className="account-content">
+														<ProfileAvatar />
+														<div style={{ textAlign: 'center', marginBottom: 6 }}>
+															<div className="account-info">
+																<div><strong>Username</strong> {user?.username || 'N/A'}</div>
+																<div><strong>Email</strong> {user?.email || 'N/A'}</div>
+															</div>
+														</div>
+														<button className="action-btn" onClick={handleLogout}>Logout</button>
+													</div>
+												</SubBox>
+											</div>
+											<div className="profile-grid-item wallet-item">
+												<SubBox title="Wallet" icon={<WalletIcon />} color="#f59e0b">
+													<WalletContent />
+												</SubBox>
+											</div>
 
-								<SubBox title="Sign Up" icon={<RegisterIcon />} color="#6366f1">
-									<Register />
-								</SubBox>
+											{/* Row 2: Theme changer + About (left), Statistics (right) */}
+											<div className="profile-grid-item profile-grid-left-stack">
+												{/* Theme changer blob */}
+												<div className="theme-blob-container">
+													<img className="theme-blob-bg" src="../../blob-icons/theme_blob_lighting.png" alt="Theme" />
+													<div className="theme-blob-options">
+														<button 
+															className={`theme-blob-option ${theme === 'light' ? 'active' : ''}`}
+															onClick={() => { if (theme !== 'light') toggleTheme(); }}
+															title="Light"
+														>
+															<span className="theme-blob-circle light-circle"></span>
+														</button>
+														<button
+															className={`theme-blob-option ${theme === 'dark' ? 'active' : ''}`}
+															onClick={() => { if (theme !== 'dark') toggleTheme(); }}
+															title="Dark"
+														>
+															<span className="theme-blob-circle dark-circle"></span>
+														</button>
+													</div>
+													<span className="theme-blob-label">theme</span>
+												</div>
+
+												{/* About nested MainBox */}
+												<MainBox
+													key="about-nested"
+													id="about-nested"
+													title="about"
+													icon={<i></i>}
+													color="#6366f1"
+													openMaximized
+												>
+													<SubBox title="About" icon={<AboutBlobox />} color="#6366f1">
+														<div style={{ padding: 20, display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
+															<h3>Welcome to bloBox</h3>
+															<p>Play games, connect with friends, and earn rewards!</p>
+														</div>
+													</SubBox>
+													<SubBox title="Terms" icon={<TermsOfService />} color="#2d30b7">
+														<div style={{ padding: 20 }}>Terms of Service content here.</div>
+													</SubBox>
+												</MainBox>
+											</div>
+
+											<div className="profile-grid-item stats-item">
+												<SubBox title="Statistics" icon={<StatsIcon />} color="#3b82f6">
+													<StatsContent />
+												</SubBox>
+											</div>
+										</div>
+									</MainBox>
+								)}
+
+								{/* Inner overlay boxes — open maximized inside main-profile */}
+								{isAuthenticated && activeInnerBox === 'pong' && (
+									<MainBox
+										key="pong-inner"
+										id="inner-overlay"
+										title="Pong"
+										icon={<PongIcon />}
+										color="#ec4899"
+										openMaximized
+										onRestore={closeInnerBox}
+									>
+										<div style={{ height: '100%', width: '100%', display: 'flex', flexDirection: 'column' }}>
+											<Game
+												ref={gameRef}
+												url={import.meta.env.VITE_PONG_URL!}
+											/>
+										</div>
+									</MainBox>
+								)}
+
+								{isAuthenticated && activeInnerBox === 'werewolf' && (
+									<MainBox
+										key="werewolf-inner"
+										id="inner-overlay"
+										title="Werewolf"
+										icon={<MafiaIcon />}
+										color="#dc2626"
+										openMaximized
+										onRestore={closeInnerBox}
+									>
+										{/* <div style={{ textAlign: 'center', color: 'var(--text-secondary)' }}>Coming Soon</div>
+										 */}
+
+										 <div style={{ height: '100%', width: '100%', display: 'flex', flexDirection: 'column' }}>
+											<Game
+												ref={gameRef}
+												url={import.meta.env.VITE_MAFIA_URL!}
+											/>
+										</div>
+									</MainBox>
+								)}
+
+								{isAuthenticated && activeInnerBox === 'marketplace' && (
+									<MainBox
+										key="marketplace-inner"
+										id="inner-overlay"
+										title="Store"
+										icon={<MarketIcon />}
+										color="#000000"
+										openMaximized
+										onRestore={closeInnerBox}
+									>
+										<SubBox title="Draw" icon={<StoreIcon />} color="#a855f7">
+											<MarketplaceContent />
+										</SubBox>
+									</MainBox>
+								)}
+
+								{/* Werewolf content area */}
+								<div className="guest-werewolf-content" onClick={handleWerewolfClick}>
+									<img className="guest-werewolf-img" src="../../blob-icons/werewolf.png" alt="Werewolf" />
+									<div className="guest-werewolf-title">WEREWOLF</div>
+									
+									{/* Blob-shaped nav buttons */}
+									<div className="guest-blob-buttons">
+										<div className="games-blob-container" onClick={(e) => { e.stopPropagation(); }}>
+											<img className="games-blob-bg" src="../../blob-icons/games_blob_lighting.png" alt="Games" />
+											<div className="games-blob-circle circle-left" onClick={(e) => { e.stopPropagation(); }}>
+												<img src="../../blob-icons/in_development.png" alt="In Development" />
+											</div>
+											<div className="games-blob-circle circle-center" onClick={(e) => { e.stopPropagation(); handlePongClick(); }}>
+												<img src="../../blob-icons/pong.png" alt="Pong" />
+											</div>
+											<span className="games-blob-title">games</span>
+										</div>
+										<div className="store-blob-container" onClick={(e) => { e.stopPropagation(); handleMarketplaceClick(); }}>
+											<img className="store-blob-bg" src="../../blob-icons/store_blob_lighting.png" alt="Store" />
+											<img className="store-blob-icon-overlay" src="../../blob-icons/store.png" alt="Store" />
+											<span className="store-blob-title">store</span>
+										</div>
+									</div>
+								</div>
 							</MainBox>
 						)}
 
-						{/* Blobox Window - Shows logo, clicks to expand when authenticated */}
+						{/* Community box */}
+						<MainBox 
+							key="community-guest" 
+							id="community-guest" 
+							title="Community" 
+							icon={<CommunityIcon />}
+							color="#ec4899"
+						>
+							{isAuthenticated ? (
+								<SubBox title="Friends" icon={<Friends />} color="#3b82f6">
+									<FriendsContent />
+								</SubBox>
+							) : (
+								<div className="community-locked">
+									<img className="community-locked-icon" src='../../blob-icons/lock.png' />
+									<p className="please-log-in-title">please Log in</p>
+								</div>
+							)}
+						</MainBox>
+
+						{/* Blobox Window - Shows logo, clicks to expand when authenticated
 						{visibleBoxes.blobox && (
 							<MainBox 
 								key="blobox" 
@@ -1097,10 +1335,10 @@ const Dashboard: React.FC = () => {
 									</div>
 								)}
 							</MainBox>
-						)}
+						)} */}
 
 						{/* About Window */}
-						{visibleBoxes.about && (
+						{/* {visibleBoxes.about && (
 							<MainBox 
 								key="about"
 								id="about" 
@@ -1133,16 +1371,13 @@ const Dashboard: React.FC = () => {
 											Play games, connect with friends, and earn rewards!
 										</p>
 									</div>
-									{/* <div className="scroll-wrapper">
-										<section className="panel">Welcome to Blobox</section>
-										<section className="panel">Play games</section>
-										<section className="panel">Earn rewards</section>
-									</div> */}
 								</SubBox>
 							</MainBox>
-						)}
+						)} */}
 					</div>
 			</div>
+
+
 		</div>
 	);
 };
