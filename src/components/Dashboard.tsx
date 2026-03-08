@@ -821,7 +821,6 @@ const Dashboard: React.FC = () => {
 							const nfts = await invRes.json();
 							const skin = nfts.find((n: any) => n.tokenId === data.tokenId);
 							if (skin) {
-								console.log(skin.image);
 								setAvatarTextureUrl(skin.image || '');
 								// Get GLB model
 								if (skin.model && skin.model !== 'Unknown') {
