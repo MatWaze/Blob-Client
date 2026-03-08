@@ -25,7 +25,7 @@ export const SocketProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         if (!isAuthenticated) return;
 
         let ws: WebSocket | null = null;
-        let reconnectTimeout: NodeJS.Timeout;
+        let reconnectTimeout;
         let isActive = true;
 
         const connect = async () => {
