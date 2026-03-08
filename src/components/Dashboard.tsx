@@ -33,23 +33,23 @@ import { ProfileAvatar } from './ProfileAvatar';
 import ModelViewer from './ModelViewer';
 
 // --- Icons ---
-const ProfileIcon = () => <img className='profile-icon' src='../../blob-models/profile_login.png' alt="Profile" />;
-const LogIcon = () => <img className='log-main-icon' src='../../blob-models/profile_login.png' alt="Profile" />;
-const GamesIcon = () => <img className='games-icon' src='../../blob-models/games.png' alt="Games" />;
-const CommunityIcon = () => <img className='community-icon' src='../../blob-models/community.png' alt="Community" />;
-const Friends = () => <img className='friends-icon' src='../../blob-icons/Friends.png' alt="Friends" />;
-const WalletIcon = () => <img className='wallet-icon' src='../../blob-icons/Wallet.png' alt="Wallet" />;
-const StatsIcon = () => <img className='stats-icon' src='../../blob-icons/Statistics.png' alt="Statistics" />;
+const ProfileIcon = () => <img className='profile-icon' src='/blob-models/profile_login.png' alt="Profile" />;
+const LogIcon = () => <img className='log-main-icon' src='/blob-models/profile_login.png' alt="Profile" />;
+const GamesIcon = () => <img className='games-icon' src='/blob-models/games.png' alt="Games" />;
+const CommunityIcon = () => <img className='community-icon' src='/blob-models/community.png' alt="Community" />;
+const Friends = () => <img className='friends-icon' src='/blob-icons/Friends.png' alt="Friends" />;
+const WalletIcon = () => <img className='wallet-icon' src='/blob-icons/Wallet.png' alt="Wallet" />;
+const StatsIcon = () => <img className='stats-icon' src='/blob-icons/Statistics.png' alt="Statistics" />;
 const PongIcon = () => <span className='pong-icon'>🏓</span>;
-const MafiaIcon = () => <img className='werewolf-icon' src='../../blob-icons/werewolf.png' alt="Mafia" />;
-const AccountIcon = () => <img className='account-icon' src='../../blob-icons/Account.png' alt="Account" />;
-const AboutBlobox = () => <img className='about-blobox-icon' src='../../blob-icons/AboutBlobox.png' alt="About Blobox" />;
-const TermsOfService = () => <img className='tos-icon' src='../../blob-icons/TermsOfService.png' alt="Terms of Service" />;
-const LoginIcon = () => <img className='login-icon' src='../../blob-icons/SignIn.png' alt="Sign In" />;
-const RegisterIcon = () => <img className='register-icon' src='../../blob-icons/CreateAccount.png' alt="Sign Up" />;
-const MarketIcon = () => <img className='market-icon' src='../../blob-models/Marketplace.png' alt="Market" />;
-const StoreIcon = () => <img className='store-icon' src='../../blob-icons/draw_yourself.png' alt="Store" />;
-const InfoIcon = () => <img className='info-icon' src='../../blob-models/about.png' alt="Info" />;
+const MafiaIcon = () => <img className='werewolf-icon' src='/blob-icons/werewolf.png' alt="Mafia" />;
+const AccountIcon = () => <img className='account-icon' src='/blob-icons/Account.png' alt="Account" />;
+const AboutBlobox = () => <img className='about-blobox-icon' src='/blob-icons/AboutBlobox.png' alt="About Blobox" />;
+const TermsOfService = () => <img className='tos-icon' src='/blob-icons/TermsOfService.png' alt="Terms of Service" />;
+const LoginIcon = () => <img className='login-icon' src='/blob-icons/SignIn.png' alt="Sign In" />;
+const RegisterIcon = () => <img className='register-icon' src='/blob-icons/CreateAccount.png' alt="Sign Up" />;
+const MarketIcon = () => <img className='market-icon' src='/blob-models/Marketplace.png' alt="Market" />;
+const StoreIcon = () => <img className='store-icon' src='/blob-icons/draw_yourself.png' alt="Store" />;
+const InfoIcon = () => <img className='info-icon' src='/blob-models/about.png' alt="Info" />;
 // --- Content Components ---
 
 const common = 'Offside';
@@ -794,6 +794,11 @@ const Dashboard: React.FC = () => {
 			gameRef.current.sendLogout();
 		}
 
+		// if (mafiaRef.current)
+		// {
+		// 	mafiaRef.current.sendLogout();
+		// }
+
 		logout();
 	};
 
@@ -827,21 +832,21 @@ const Dashboard: React.FC = () => {
 									const glbRes = await fetchWithAuth(`${serverUrl}/api/nft/skin?name=${skin.model}`);
 									if (glbRes.ok) {
 										const glbData = await glbRes.json();
-										setAvatarModelUrl(glbData.url || '../../DavidLow.glb');
+										setAvatarModelUrl(glbData.url || '/DavidLow.glb');
 									}
 								} else {
-									setAvatarModelUrl('../../DavidLow.glb');
+									setAvatarModelUrl('/DavidLow.glb');
 								}
 							}
 						}
 					} else {
-						setAvatarModelUrl('../../DavidLow.glb');
+						setAvatarModelUrl('/DavidLow.glb');
 					}
 				} else {
-					setAvatarModelUrl('../../DavidLow.glb');
+					setAvatarModelUrl('/DavidLow.glb');
 				}
 			} catch {
-				setAvatarModelUrl('../../DavidLow.glb');
+				setAvatarModelUrl('/DavidLow.glb');
 			}
 		};
 		loadAvatar();
@@ -1017,7 +1022,7 @@ const Dashboard: React.FC = () => {
 											<div className="profile-grid-item wallet-item">
 												<SubBox title="Wallet" icon={<WalletIcon />} color="#f59e0b">
 													<div className="community-locked">
-														<img className="community-locked-icon" src='../../blob-icons/lock.png' />
+														<img className="community-locked-icon" src='/blob-icons/lock.png' />
 														<p className="please-log-in-title">please Log in</p>
 													</div>
 												</SubBox>
@@ -1027,7 +1032,7 @@ const Dashboard: React.FC = () => {
 											<div className="profile-grid-item profile-grid-left-stack">
 												{/* Theme changer blob */}
 												<div className="theme-blob-container">
-													<img className="theme-blob-bg" src="../../blob-icons/theme_blob_lighting.png" alt="Theme" />
+													<img className="theme-blob-bg" src="/blob-icons/theme_blob_lighting.png" alt="Theme" />
 													<div className="theme-blob-options">
 														<button 
 															className={`theme-blob-option ${theme === 'light' ? 'active' : ''}`}
@@ -1071,7 +1076,7 @@ const Dashboard: React.FC = () => {
 											<div className="profile-grid-item stats-item">
 												<SubBox title="Statistics" icon={<StatsIcon />} color="#3b82f6">
 													<div className="community-locked">
-														<img className="community-locked-icon" src='../../blob-icons/lock.png' />
+														<img className="community-locked-icon" src='/blob-icons/lock.png' />
 														<p className="please-log-in-title">please Log in</p>
 													</div>
 												</SubBox>
@@ -1086,7 +1091,7 @@ const Dashboard: React.FC = () => {
 										icon={
 											<div className="guest-user-avatar">
 												<ModelViewer 
-													url={ avatarModelUrl || '../../DavidLow.glb'}
+													url={ avatarModelUrl || '/DavidLow.glb'}
 													textureUrl={avatarTextureUrl || undefined}
 													width={180}
 													height={180}
@@ -1104,7 +1109,7 @@ const Dashboard: React.FC = () => {
 												<SubBox
 													title="Account"
 													icon={<ModelViewer 
-													url={avatarModelUrl || '../../DavidLow.glb'}
+													url={avatarModelUrl || '/DavidLow.glb'}
 													textureUrl={avatarTextureUrl || undefined}
 													width={800}
 													height={920}
@@ -1135,7 +1140,7 @@ const Dashboard: React.FC = () => {
 											<div className="profile-grid-item profile-grid-left-stack">
 												{/* Theme changer blob */}
 												<div className="theme-blob-container">
-													<img className="theme-blob-bg" src="../../blob-icons/theme_blob_lighting.png" alt="Theme" />
+													<img className="theme-blob-bg" src="/blob-icons/theme_blob_lighting.png" alt="Theme" />
 													<div className="theme-blob-options">
 														<button 
 															className={`theme-blob-option ${theme === 'light' ? 'active' : ''}`}
@@ -1220,7 +1225,7 @@ const Dashboard: React.FC = () => {
 
 										 <div style={{ height: '100%', width: '100%', display: 'flex', flexDirection: 'column' }}>
 											<Game
-												ref={gameRef}
+												ref={mafiaRef}
 												url={import.meta.env.VITE_MAFIA_URL!}
 											/>
 										</div>
@@ -1245,24 +1250,24 @@ const Dashboard: React.FC = () => {
 
 								{/* Werewolf content area */}
 								<div className="guest-werewolf-content" onClick={handleWerewolfClick}>
-									<img className="guest-werewolf-img" src="../../blob-icons/werewolf.png" alt="Werewolf" />
+									<img className="guest-werewolf-img" src="/blob-icons/werewolf.png" alt="Werewolf" />
 									<div className="guest-werewolf-title">WEREWOLF</div>
 									
 									{/* Blob-shaped nav buttons */}
 									<div className="guest-blob-buttons">
 										<div className="games-blob-container" onClick={(e) => { e.stopPropagation(); }}>
-											<img className="games-blob-bg" src="../../blob-icons/games_blob_lighting.png" alt="Games" />
+											<img className="games-blob-bg" src="/blob-icons/games_blob_lighting.png" alt="Games" />
 											<div className="games-blob-circle circle-left" onClick={(e) => { e.stopPropagation(); }}>
-												<img src="../../blob-icons/in_development.png" alt="In Development" />
+												<img src="/blob-icons/in_development.png" alt="In Development" />
 											</div>
 											<div className="games-blob-circle circle-center" onClick={(e) => { e.stopPropagation(); handlePongClick(); }}>
-												<img src="../../blob-icons/pong.png" alt="Pong" />
+												<img src="/blob-icons/pong.png" alt="Pong" />
 											</div>
 											<span className="games-blob-title">games</span>
 										</div>
 										<div className="store-blob-container" onClick={(e) => { e.stopPropagation(); handleMarketplaceClick(); }}>
-											<img className="store-blob-bg" src="../../blob-icons/store_blob_lighting.png" alt="Store" />
-											<img className="store-blob-icon-overlay" src="../../blob-icons/store.png" alt="Store" />
+											<img className="store-blob-bg" src="/blob-icons/store_blob_lighting.png" alt="Store" />
+											<img className="store-blob-icon-overlay" src="/blob-icons/store.png" alt="Store" />
 											<span className="store-blob-title">store</span>
 										</div>
 									</div>
@@ -1284,7 +1289,7 @@ const Dashboard: React.FC = () => {
 								</SubBox>
 							) : (
 								<div className="community-locked">
-									<img className="community-locked-icon" src='../../blob-icons/lock.png' />
+									<img className="community-locked-icon" src='/blob-icons/lock.png' />
 									<p className="please-log-in-title">please Log in</p>
 								</div>
 							)}

@@ -99,7 +99,7 @@ export const ProfileAvatar: React.FC = () => {
 
             // If loading is finished and they TRULY have no skin, then show David.
             if (!activeSkin || !activeSkin.model || activeSkin.model === "Unknown") {
-                setBaseModelUrl('../../DavidLow.glb');
+                setBaseModelUrl('/DavidLow.glb');
                 return;
             }
 
