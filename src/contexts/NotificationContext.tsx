@@ -44,7 +44,7 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
     useEffect(() =>
     {
-        if (!user || !socket || !isConnected) return;
+        if (!user?.id || !socket || !isConnected) return;
 
         socket.send(JSON.stringify({ type: "SUBSCRIBE_PRIVATE" }));
 
@@ -52,8 +52,37 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
         {
             try
             {
-                const data: GameInvite | undefined = JSON.parse(event.data);
-                if (data && "senderName" in data)
+                const data = JSON.parse(event.data);
+                
+                if (data && "type" in data && data.type === "WITHDRAWAL_UPDATE")
+                {
+                    const isSuccess = data.status === "completed";
+                    addNotification({
+                        type: isSuccess ? 'success' : 'error',
+                        title: isSuccess ? 'Withdrawal Successful' : 'Withdrawal Failed',
+                        message: isSuccess 
+                            ? `Your withdrawal has been completed successfully.` 
+                            : `Your withdrawal has failed. ${data.error || ''}`,
+                        duration: 10000
+                    });
+                    return;
+                }
+
+                else if (data && "type" in data && data.type === "NFT_UPDATE")
+                {
+                    const isSuccess = data.status === "completed";
+                    addNotification({
+                        type: isSuccess ? 'success' : 'error',
+                        title: isSuccess ? 'NFT Creation Successful' : 'NFT Creation Failed',
+                        message: isSuccess 
+                            ? `NFT has been created successfully.` 
+                            : `NFT creation has failed. ${data.error || ''}`,
+                        duration: 10000
+                    });
+                    return;
+                }
+
+                else if (data && "senderName" in data)
                 {
                     addNotification
                     ({
@@ -77,7 +106,7 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
                 socket.send(JSON.stringify({ type: "UNSUBSCRIBE_PRIVATE" }));
             }
         };
-    }, [user, socket, isConnected]);
+    }, [user?.id, socket, isConnected]);
 
     const addNotification = useCallback((note: Omit<Notification, 'id'>) =>
     {

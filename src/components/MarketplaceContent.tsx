@@ -112,7 +112,8 @@ export const MarketplaceContent: React.FC = () => {
 			});
 
 			if (res.ok) {
-				setMsg({ type: 'success', text: 'Skin created successfully!' });
+				const data = await res.json();
+				setMsg({ type: 'success', text: data.message || 'Skin created successfully!' });
 				setSelectedKey('');
 				setUploadFile(null);
 			} else {

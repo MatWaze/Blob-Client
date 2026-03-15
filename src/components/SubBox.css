@@ -489,7 +489,15 @@
   -webkit-text-fill-color: transparent;
 }
 
-@container (min-width: 300px)
+@container (min-height: 100px)
+{
+  .sub-box-title-Werewolf {
+    font-size: 1000px;
+    font-family: 'Xtra', Courier New, monospace;
+  }
+}
+
+@container (min-width: 100px)
 {
   .store-icon {
     padding-top: 30px;
@@ -497,14 +505,14 @@
   }
   [class^="sub-box-title-"],
   .sub-box-title-Store {
-    font-size: 55px;
+    font-size: 46px;
     margin-bottom: 30px;
   }
 
   .sub-box-title-Account,
   .sub-box-title-Wallet {
     margin-bottom: -10px;
-    font-size: 44px;
+    font-size: 50px;
   }
 
   .sub-box-title-About::after {
@@ -529,7 +537,7 @@
   }
 
   [class^="sub-box-title-Terms"] {
-    font-size: 41px;
+    font-size: 40px;
   }
 
   .sub-box-title-Werewolf {
@@ -634,7 +642,7 @@
   }
 
   .sub-box-title-Statistics {
-    font-size: 40px;
+    font-size: 52px;
   }
 
   .sub-box-title-Draw,

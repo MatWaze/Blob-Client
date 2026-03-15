@@ -9,6 +9,7 @@ import ResetPassword from './ResetPassword';   // New Import
 import GameSelector from './GameSelector'; // Import the new component
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
+import { useNotification } from '../contexts/NotificationContext';
 import { 
     CircularChart3DComponent, 
     CircularChart3DSeriesCollectionDirective, 
@@ -210,7 +211,8 @@ const WalletContent: React.FC = () => {
 			});
 
 			if (res.ok) {
-				setMsg({ type: 'success', text: 'Withdrawal successful!' });
+				const data = await res.json();
+				setMsg({ type: 'success', text: data.message || 'Withdrawal request accepted!' });
 				setWithdrawAmount('');
 				refreshProfile();
 			} else {
@@ -717,6 +719,51 @@ const FriendsContent: React.FC = () => {
 		);
 };
 
+// --- Invitations Content (game invites from NotificationContext) ---
+const InvitationsContent: React.FC = () => {
+	const { notifications, removeNotification, acceptGameInvite } = useNotification();
+	const gameInvites = notifications.filter(n => n.type === 'game-invite');
+
+	if (gameInvites.length === 0) {
+		return (
+			<div className="invitations-empty">
+				<p>No pending invitations</p>
+			</div>
+		);
+	}
+
+	return (
+		<div className="invitations-list">
+			{gameInvites.map(invite => (
+				<div key={invite.id} className="invitation-card">
+					<div className="invitation-info">
+						<span className="invitation-sender">{invite.message}</span>
+					</div>
+					<div className="invitation-actions">
+						<button
+							className="invite-btn invite-accept"
+							onClick={() => {
+								acceptGameInvite(invite.data.roomId);
+								removeNotification(invite.id);
+							}}
+							title="Accept"
+						>
+							✓
+						</button>
+						<button
+							className="invite-btn invite-decline"
+							onClick={() => removeNotification(invite.id)}
+							title="Decline"
+						>
+							✗
+						</button>
+					</div>
+				</div>
+			))}
+		</div>
+	);
+};
+
 // --- BloboxIcon Component ---
 const BloboxIcon = () => (
 	<img className='blobox-icon' src='../../logo.png' alt='Blobox' />
@@ -875,10 +922,16 @@ const Dashboard: React.FC = () => {
 
 	const avatarRef = useRef<HTMLDivElement>(null);
 
-	// Handle game invite acceptance - open Blobox and Pong
+	// Reload key — incremented to force the Game iframe to remount
+	const [gameReloadKey, setGameReloadKey] = useState(0);
+
+	// Handle game invite acceptance - open Pong and force reload
 	useEffect(() => {
 		const handler = () => {
-			if (isAuthenticated) setActiveInnerBox('pong');
+			if (isAuthenticated) {
+				setActiveInnerBox('pong');
+				setGameReloadKey(prev => prev + 1);
+			}
 		};
 		window.addEventListener('RESET_GAME_VIEW', handler);
 		return () => window.removeEventListener('RESET_GAME_VIEW', handler);
@@ -1203,6 +1256,7 @@ const Dashboard: React.FC = () => {
 									>
 										<div style={{ height: '100%', width: '100%', display: 'flex', flexDirection: 'column' }}>
 											<Game
+												key={`pong-${gameReloadKey}`}
 												ref={gameRef}
 												url={import.meta.env.VITE_PONG_URL!}
 											/>
@@ -1284,14 +1338,20 @@ const Dashboard: React.FC = () => {
 							color="#ec4899"
 						>
 							{isAuthenticated ? (
-								<SubBox title="Friends" icon={<Friends />} color="#3b82f6">
-									<FriendsContent />
-								</SubBox>
-							) : (
+									<SubBox title="Friends" icon={<Friends />} color="#3b82f6">
+										<FriendsContent />
+									</SubBox>
+							) 
+							: (
 								<div className="community-locked">
 									<img className="community-locked-icon" src='/blob-icons/lock.png' />
 									<p className="please-log-in-title">please Log in</p>
 								</div>
+							)}
+							{isAuthenticated && (
+								<SubBox title="Invitations" icon={<Friends />} color="#3b82f6">
+									<InvitationsContent />
+								</SubBox>
 							)}
 						</MainBox>
 
