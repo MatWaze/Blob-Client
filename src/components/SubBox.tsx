@@ -50,7 +50,7 @@ const SubBox: React.FC<SubBoxProps> = ({
 		};
 	}, []);
 
-	const [internalOpen, setInternalOpen] = useState(false);
+	const [internalOpen, setInternalOpen] = useState(defaultMaximized);
 	const isOpen = controlledIsOpen !== undefined ? controlledIsOpen : internalOpen;
 
 	// Use this to update internal state if controlled externally
@@ -82,7 +82,7 @@ const SubBox: React.FC<SubBoxProps> = ({
 		setIsMaximized(!isMaximized);
 	};
 
-	const [isMaximized, setIsMaximized] = useState(false);
+	const [isMaximized, setIsMaximized] = useState(defaultMaximized);
 
 	const showContent = embeddedContent || children;
 

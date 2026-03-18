@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 
 interface Props {
     token: string;
-    onSuccess: () => void;
+    // onSuccess: () => void;
 }
 
-const ResetPassword: React.FC<Props> = ({ token, onSuccess }) => {
+const ResetPassword: React.FC<Props> = ({ token }) => {
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
@@ -51,9 +51,7 @@ const ResetPassword: React.FC<Props> = ({ token, onSuccess }) => {
             
             const data = await res.json();
             
-            if (res.ok) {
-                onSuccess(); 
-            } else {
+            if (!res.ok) {
                 setStatus('error');
                 setMessage(cleanError(data.message || 'Reset failed'));
             }
@@ -80,8 +78,8 @@ const ResetPassword: React.FC<Props> = ({ token, onSuccess }) => {
     };
 
     return (
-        <div style={{ padding: '20px' }}>
-            <h3 style={{ textAlign: 'center', marginBottom: '20px', color: 'var(--text-primary)' }}>
+        <div style={{ width: '100%', maxWidth: '500px', margin: '0 auto', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+            <h3 style={{ fontSize: '40px', textAlign: 'center', marginBottom: '20px', color: 'var(--text-primary)' }}>
                 Set New Password
             </h3>
             <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>

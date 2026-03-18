@@ -1045,18 +1045,18 @@ const Dashboard: React.FC = () => {
 		return () => window.removeEventListener('message', handler);
 	}, []);
 
-	const handleResetSuccess = () => {
-		setResetSuccess(true);
+	// const handleResetSuccess = () => {
+	// 	setResetSuccess(true);
 		
-		// FIX: Clear the URL here, once we know the operation is successful
-		window.history.replaceState({}, document.title, window.location.pathname);
+	// 	// FIX: Clear the URL here, once we know the operation is successful
+	// 	window.history.replaceState({}, document.title, window.location.pathname);
 		
-		setTimeout(() => {
-			setResetToken(null);
-			setResetSuccess(false);
-			reopenBox('login');
-		}, 3000); 
-	};
+	// 	setTimeout(() => {
+	// 		setResetToken(null);
+	// 		setResetSuccess(false);
+	// 		reopenBox('login');
+	// 	}, 3000); 
+	// };
 	// ---------------------------------
 
 	const handleLogout = () => {
@@ -1185,30 +1185,28 @@ const Dashboard: React.FC = () => {
 				{resetToken && (
 					<div style={{
 						position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-						backgroundColor: 'rgba(0,0,0,0.9)', zIndex: 9999, // Darker bg for better focus
+						backgroundColor: 'rgba(0,0,0,0.9)', zIndex: 9999,
 						display: 'flex', alignItems: 'center', justifyContent: 'center',
-						backdropFilter: 'blur(5px)' // Adds a nice blur effect to background
+						backdropFilter: 'blur(5px)'
 					}}>
-						<div style={{ width: '400px', maxWidth: '95vw' }}>
-							 {/* Simplified: Just one SubBox that is permanently open */}
-							 <SubBox 
+						<div style={{ width: '1450px', height: '650px', display: 'flex' }}>
+							 {/* Simplified: Just one MainBox that is permanently open */}
+							 <MainBox 
 								title="Reset Password" 
+								id="reset-password-main"
 								icon={<ProfileIcon />} 
 								color="#ef4444" 
-								defaultMaximized={true} // Forces it open
+								openMaximized
+								alwaysOpen
 							 >
-								<div style={{ paddingBottom: '20px' }}>
-									{resetSuccess ? (
-										<div style={{ padding: 40, textAlign: 'center', color: '#4ade80' }}>
-											<h3 style={{ fontSize: '24px', marginBottom: '10px' }}>Success!</h3>
-											<p>Password updated successfully.</p>
-											<p style={{ fontSize: '13px', opacity: 0.7, marginTop: '10px' }}>Redirecting to login...</p>
-										</div>
-									) : (
-										<ResetPassword token={resetToken} onSuccess={handleResetSuccess} />
-									)}
-								</div>
-							 </SubBox>
+								<SubBox title='' icon={<i></i>} color="#ef4444" defaultMaximized={true} >
+									<div style={{ padding: '20px', display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%', height: '100%' }}>
+											<div style={{ width: '400px', maxWidth: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+												<ResetPassword token={resetToken} />
+											</div>
+									</div>
+								</SubBox>
+							 </MainBox>
 						</div>
 					</div>
 				)}
@@ -1248,48 +1246,24 @@ const Dashboard: React.FC = () => {
 													color="#f59e0b"
 													openMaximized
 												>
-													<SubBox title="Sign In" icon={<LoginIcon />} color="#f59e0b">
-														<Login />
-													</SubBox>
-
-													{showForgot && (
-														<SubBox 
-															title="Recovery" 
-															icon={<ProfileIcon />} 
-															color="#f59e0b" 
-															triggerClose={!showForgot ? 1 : 0}
-														>
+													<SubBox 
+														title={showForgot ? "Recovery" : "Sign In"} 
+														icon={showForgot ? <ProfileIcon /> : <LoginIcon />} 
+														color="#f59e0b"
+														onOpenChange={(open) => {
+															if (!open) {
+																setShowForgot(false);
+															}
+														}}
+													>
+														{showForgot ? (
 															<div style={{ position: 'relative', height: '100%' }}>
-																<button 
-																	onClick={() => setShowForgot(false)}
-																	style={{ 
-																		position: 'absolute', 
-																		top: '-35px', 
-																		right: '-10px', 
-																		background: 'transparent', 
-																		border: 'none', 
-																		color: '#fff', 
-																		fontSize: '24px',
-																		fontWeight: 'bold',
-																		cursor: 'pointer', 
-																		zIndex: 20,
-																		width: '40px',
-																		height: '40px',
-																		display: 'flex',
-																		alignItems: 'center',
-																		justifyContent: 'center',
-																		opacity: 0.8,
-																		transition: 'opacity 0.2s'
-																	}}
-																	onMouseOver={(e) => e.currentTarget.style.opacity = '1'}
-																	onMouseOut={(e) => e.currentTarget.style.opacity = '0.8'}
-																>
-																	✕
-																</button>
 																<ForgotPassword />
 															</div>
-														</SubBox>
-													)}
+														) : (
+															<Login />
+														)}
+													</SubBox>
 
 													<SubBox title="Sign Up" icon={<RegisterIcon />} color="#6366f1">
 														<Register />
